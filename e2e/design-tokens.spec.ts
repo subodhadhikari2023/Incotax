@@ -15,7 +15,8 @@ const colours: Record<string, string> = {
   tint: "#eef2f7",
   "text-body": "#334155",
   "text-muted": "#475569",
-  "border-field": "#94a3b8",
+  "border-field": "#64748b",
+  "footer-muted": "#94a3b8",
   "on-navy": "#cbd5e1",
   border: "#e2e8f0",
 };

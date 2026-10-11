@@ -90,11 +90,12 @@ Development is test-first: write a failing test, make it pass, then move on.
   commit messages are checked by commitlint.
 - **Commit messages:** [Conventional Commits](https://www.conventionalcommits.org), for example
   `feat: add contact form`, `fix: correct footer links`, `docs: update README`.
-- **Branches:** `main` is production, and every push to it deploys to Netlify. `dev` is for
-  integration. Build each feature on its own branch (`feat/...`, `fix/...`, `chore/...`) and merge
-  it through a pull request.
+- **Branches:** `main` is production, and every merge into it deploys to Netlify. Build each
+  change on its own short-lived branch (`feat/...`, `fix/...`, `chore/...`) and merge it into
+  `main` through a pull request. `main` is protected: merging needs a passing CI run and an
+  up-to-date branch, and direct pushes are blocked.
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs lint, formatting, type-check, unit
-  tests and end-to-end tests on every push to `main` or `dev` and on every pull request.
+  tests and end-to-end tests on every push to `main` and on every pull request.
 
 ## Project structure
 
@@ -123,7 +124,7 @@ Netlify deploys the site from this repository:
 - Netlify's Next.js adapter is added automatically and supports Server Actions and Netlify Blobs.
 
 Pushing to `main` triggers a production deploy, and each deploy uses part of the free plan's
-monthly credits. Do day-to-day work on `dev` and merge to `main` only for releases.
+monthly credits. Group small changes into one pull request instead of merging many tiny ones.
 
 ## License
 

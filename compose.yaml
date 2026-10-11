@@ -1,0 +1,35 @@
+# Local development and testing. Production is built and hosted by Netlify, not Docker.
+# Every service uses the official Playwright image (Node 24 + test browsers), so dev,
+# tests and CI share one environment. Keep the tag in sync with @playwright/test.
+
+x-node: &node
+  image: mcr.microsoft.com/playwright:v1.64.0-noble
+  working_dir: /app
+  user: "${UID:-1000}:${GID:-1000}"
+  volumes:
+    - .:/app:z
+  environment:
+    HOME: /tmp
+    npm_config_cache: /tmp/.npm
+    NEXT_TELEMETRY_DISABLED: "1"
+  init: true
+  ipc: host
+
+services:
+  app:
+    <<: *node
+    command: npm run dev -- --hostname 0.0.0.0
+    ports:
+      - "3000:3000"
+
+  test:
+    <<: *node
+    profiles: ["tools"]
+    command: npm test
+
+  e2e:
+    <<: *node
+    profiles: ["tools"]
+    command: npm run test:e2e
+    ports:
+      - "9323:9323"

@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Design tokens (CLAUDE.md §4). Light mode only: dark mode was dropped.
+   `static` emits every variable even when no utility uses it yet. */
+@theme static {
+  --color-navy: #0b1f3a;
+  --color-navy-deep: #07152a;
+  --color-navy-line: #1e3555;
+  --color-gold: #e3b341;
+  --color-gold-arrow: #d4a72c;
+  --color-gold-deep: #b7791f;
+  --color-gold-darkest: #a16207;
+  --color-gold-tint: #fbf3dc;
+  --color-bg: #f8fafc;
+  --color-white: #ffffff;
+  --color-tint: #eef2f7;
+  --color-text-body: #334155;
+  --color-text-muted: #475569;
+  --color-border-field: #94a3b8;
+  --color-on-navy: #cbd5e1;
+  --color-border: #e2e8f0;
 }
 
+/* Font families come from next/font variables set on <html> in layout.tsx. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-cormorant), Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    @apply bg-bg font-sans text-base/normal text-navy;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-bold;
+  }
 }

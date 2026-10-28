@@ -20,12 +20,23 @@
   --color-footer-muted: #94a3b8; /* copyright text on navy-deep (7.1:1) */
   --color-on-navy: #cbd5e1;
   --color-border: #e2e8f0;
+  --color-placeholder: #dde5ec; /* design-only boxes (logo, photos) until real assets arrive */
+
+  --shadow-card: 0 6px 18px rgba(11, 31, 58, 0.07);
+  --shadow-raised: 0 18px 40px rgba(11, 31, 58, 0.28);
+  --shadow-button: inset 0 -2px 0 rgba(11, 31, 58, 0.18);
+  --shadow-popup: 0 30px 80px rgba(0, 0, 0, 0.45);
 }
 
 /* Font families come from next/font variables set on <html> in layout.tsx. */
 @theme inline {
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-heading: var(--font-cormorant), Georgia, serif;
+}
+
+/* Page content column: 1264px max with 32px sides (20px on phones) = 1200px content at 1440. */
+@utility page-container {
+  @apply mx-auto w-full max-w-[1264px] px-5 md:px-8;
 }
 
 @layer base {

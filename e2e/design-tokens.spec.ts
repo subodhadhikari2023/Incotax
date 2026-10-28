@@ -19,6 +19,7 @@ const colours: Record<string, string> = {
   "footer-muted": "#94a3b8",
   "on-navy": "#cbd5e1",
   border: "#e2e8f0",
+  placeholder: "#dde5ec",
 };
 
 const toRgb = (hex: string) => {

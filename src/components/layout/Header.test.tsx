@@ -79,6 +79,13 @@ describe("Header", () => {
     expect(button).toHaveAttribute("target", "_blank");
   });
 
+  it("shows the Font Awesome WhatsApp icon on the consultation button", () => {
+    render(<Header />);
+    const button = screen.getByRole("link", { name: "Free Consultation" });
+
+    expect(button.querySelector('svg[data-prefix="fab"][data-icon="whatsapp"]')).not.toBeNull();
+  });
+
   it("toggles the mobile menu", async () => {
     const user = userEvent.setup();
     render(<Header />);

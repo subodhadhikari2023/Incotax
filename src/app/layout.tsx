@@ -1,3 +1,5 @@
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
@@ -5,6 +7,9 @@ import "./globals.css";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { TopBar } from "@/components/layout/TopBar";
+
+// Font Awesome CSS is imported above; stop it injecting a second copy at runtime.
+config.autoAddCss = false;
 
 // Body text: Inter 400, with 600 for labels, nav links and buttons.
 const inter = Inter({

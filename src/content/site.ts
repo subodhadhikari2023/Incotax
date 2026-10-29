@@ -14,6 +14,20 @@ export const site = {
   whatsappMessage: null as string | null,
 };
 
+// Section copy still PENDING from Zeeshan (checklist rows). Replace each placeholder when it arrives.
+export const pageCopy = {
+  serviceShortDescription:
+    "[Short description: two or three lines saying what this service is and who it is for.]",
+  serviceOverviewOne: "[Overview paragraph one: what the service is and when a client needs it.]",
+  serviceOverviewTwo:
+    "[Overview paragraph two: how the work is done, what the client provides, and how long it takes.]",
+  serviceCoversIntro: "[One line introducing what this service covers]",
+  otherServicesIntro: "[One line]",
+  serviceCardDescription: "[Two or three lines describing this service.]",
+  whatsappBandHeading: "[Talk to us on WhatsApp]",
+  whatsappBandLine: "[One line: tap the button and the chat opens with a ready message]",
+};
+
 export type NavLink = { label: string; href: string };
 
 export const quickLinks: NavLink[] = [

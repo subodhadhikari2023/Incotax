@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import { ChatIcon, ChevronDownIcon, CloseIcon, MenuIcon } from "@/components/icons";
+import { ChevronDownIcon, CloseIcon, MenuIcon, WhatsAppIcon } from "@/components/icons";
 import { serviceHref, servicesByCategory } from "@/content/services";
 import { site } from "@/content/site";
 import { whatsappLink } from "@/lib/whatsapp";
@@ -22,7 +22,7 @@ function ConsultationButton({ className = "" }: { className?: string }) {
       rel="noopener noreferrer"
       className={`items-center justify-center gap-2 rounded-lg bg-gold px-5 py-3 text-[15px] font-semibold text-navy shadow-button transition-colors hover:bg-gold-arrow ${className}`}
     >
-      <ChatIcon />
+      <WhatsAppIcon />
       Free Consultation
     </a>
   );
@@ -111,7 +111,7 @@ export function Header() {
             Logo
           </span>
           <span className="min-w-0">
-            <span className="block font-heading text-[28px] leading-[1.1] font-bold text-navy">
+            <span className="block font-heading text-[22px] leading-[1.1] font-bold text-navy md:text-[28px]">
               {site.name}
             </span>
             <span className="block text-[13px] text-text-muted">{site.tagline}</span>
@@ -132,7 +132,7 @@ export function Header() {
               >
                 Services
                 <ChevronDownIcon
-                  className={`size-4 transition-transform ${servicesOpen ? "rotate-180" : ""}`}
+                  className={`text-xs transition-transform ${servicesOpen ? "rotate-180" : ""}`}
                 />
               </button>
               {servicesOpen && (

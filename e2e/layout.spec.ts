@@ -23,6 +23,17 @@ test("header shows the right parts at this width", async ({ page }, testInfo) =>
   });
 });
 
+test("brand name in the header stays on one line", async ({ page }) => {
+  await page.goto("/");
+  const brand = page.getByRole("banner").getByText("IncoTax Legal Services");
+  const { height, lineHeight } = await brand.evaluate((el) => ({
+    height: el.getBoundingClientRect().height,
+    lineHeight: parseFloat(getComputedStyle(el).lineHeight),
+  }));
+
+  expect(height).toBeLessThan(lineHeight * 1.5);
+});
+
 test("top bar and footer are on the page", async ({ page }) => {
   await page.goto("/");
 

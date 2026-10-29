@@ -6,8 +6,11 @@ import {
   faBars,
   faBuilding,
   faCertificate,
+  faCheck,
+  faChevronRight,
   faChevronDown,
   faFileInvoice,
+  faStar,
   faXmark,
   type IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
@@ -35,6 +38,18 @@ export function CloseIcon({ className = "text-xl" }: IconProps) {
 
 export function ArrowRightIcon({ className = "text-sm" }: IconProps) {
   return <FontAwesomeIcon icon={faArrowRight} className={className} />;
+}
+
+export function CheckIcon({ className = "text-sm" }: IconProps) {
+  return <FontAwesomeIcon icon={faCheck} className={className} />;
+}
+
+export function StarIcon({ className = "text-sm" }: IconProps) {
+  return <FontAwesomeIcon icon={faStar} className={className} />;
+}
+
+export function ChevronRightIcon({ className = "text-xs" }: IconProps) {
+  return <FontAwesomeIcon icon={faChevronRight} className={className} />;
 }
 
 const categoryIcons: Record<CategoryId, IconDefinition> = {

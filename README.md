@@ -46,13 +46,14 @@ docker compose up app                # dev server with hot reload
 
 Then open <http://localhost:3000>.
 
-| Command                                      | What it does                                          |
-| -------------------------------------------- | ----------------------------------------------------- |
-| `docker compose up app`                      | Starts the dev server on port 3000                    |
-| `docker compose run --rm test`               | Runs unit and component tests (Vitest)                |
-| `docker compose run --rm e2e`                | Builds the site and runs end-to-end tests             |
-| `docker compose run --rm app npm run <name>` | Runs any npm script below inside the container        |
-| `docker compose run --rm app npm i -D <pkg>` | Adds a dependency (keeps the lockfile on Node 24/npm) |
+| Command                                      | What it does                                                   |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| `docker compose up app`                      | Starts the dev server on port 3000                             |
+| `docker compose up prod`                     | Builds the site and serves the production version on port 3001 |
+| `docker compose run --rm test`               | Runs unit and component tests (Vitest)                         |
+| `docker compose run --rm e2e`                | Builds the site and runs end-to-end tests                      |
+| `docker compose run --rm app npm run <name>` | Runs any npm script below inside the container                 |
+| `docker compose run --rm app npm i -D <pkg>` | Adds a dependency (keeps the lockfile on Node 24/npm)          |
 
 After an end-to-end run, the HTML report is in `playwright-report/`.
 

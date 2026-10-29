@@ -22,6 +22,15 @@ services:
     ports:
       - "3000:3000"
 
+  # Production build served like Netlify would (compiled once, no hot reload) on port 3001, so it
+  # can run next to the dev server. Start with: docker compose up prod
+  prod:
+    <<: *node
+    profiles: ["tools"]
+    command: sh -c "npm run build && npm run start -- --hostname 0.0.0.0 --port 3001"
+    ports:
+      - "3001:3001"
+
   test:
     <<: *node
     profiles: ["tools"]

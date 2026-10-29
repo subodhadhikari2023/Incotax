@@ -1,4 +1,5 @@
 import { ClientsSection } from "@/components/home/ClientsSection";
+import { EnquiryPopup } from "@/components/home/EnquiryPopup";
 import { FeesSection } from "@/components/home/FeesSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { HowItWorks } from "@/components/home/HowItWorks";
@@ -17,6 +18,7 @@ export default function Home() {
       <FeesSection />
       <ReviewsSection />
       <WhatsAppBand />
+      <EnquiryPopup />
     </main>
   );
 }

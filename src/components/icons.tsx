@@ -5,6 +5,12 @@ import {
   faArrowRight,
   faBars,
   faBuilding,
+  faBuildingColumns,
+  faClock,
+  faEnvelope,
+  faLocationDot,
+  faPhone,
+  faScaleBalanced,
   faCertificate,
   faCheck,
   faChevronRight,
@@ -50,6 +56,19 @@ export function StarIcon({ className = "text-sm" }: IconProps) {
 
 export function ChevronRightIcon({ className = "text-xs" }: IconProps) {
   return <FontAwesomeIcon icon={faChevronRight} className={className} />;
+}
+
+export const contactIcons = {
+  phone: faPhone,
+  email: faEnvelope,
+  office: faLocationDot,
+  hours: faClock,
+  court: faBuildingColumns,
+  law: faScaleBalanced,
+};
+
+export function Icon({ icon, className = "text-lg" }: IconProps & { icon: IconDefinition }) {
+  return <FontAwesomeIcon icon={icon} className={className} />;
 }
 
 const categoryIcons: Record<CategoryId, IconDefinition> = {

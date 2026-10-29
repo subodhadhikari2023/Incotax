@@ -5,6 +5,7 @@ import { whatsappLink } from "@/lib/whatsapp";
 const variants = {
   gold: "bg-gold text-navy shadow-button hover:bg-gold-arrow",
   navy: "bg-navy text-white hover:bg-navy-deep",
+  outline: "border-[1.5px] border-navy bg-white text-navy hover:bg-bg",
 };
 
 // Opens WhatsApp in a new tab (CLAUDE.md §7). The number and message come from site.ts.

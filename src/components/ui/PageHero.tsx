@@ -7,12 +7,19 @@ export type Crumb = { label: string; href?: string };
 export function PageHero({
   breadcrumb,
   title,
+  size = "title",
   children,
 }: {
   breadcrumb: Crumb[];
   title: React.ReactNode;
+  /** "title" = legal/service page title (60/48/38); "inner" = inner page hero (64/52/40). */
+  size?: "title" | "inner";
   children?: React.ReactNode;
 }) {
+  const titleSize =
+    size === "inner"
+      ? "text-[40px]/[46px] md:text-[52px]/[58px] lg:text-[64px]/[70px]"
+      : "text-[38px]/[44px] md:text-[48px]/[54px] lg:text-[60px]/[66px]";
   return (
     <section className="relative overflow-hidden bg-navy text-white">
       <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2">
@@ -36,9 +43,7 @@ export function PageHero({
             ))}
           </ol>
         </nav>
-        <h1 className="mt-5 max-w-4xl text-[38px]/[44px] text-white md:text-[48px]/[54px] lg:text-[60px]/[66px]">
-          {title}
-        </h1>
+        <h1 className={`mt-5 max-w-4xl text-white ${titleSize}`}>{title}</h1>
         {children}
       </div>
     </section>

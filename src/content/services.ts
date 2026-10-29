@@ -95,3 +95,14 @@ export const servicesByCategory = serviceCategories.map((category) => ({
 }));
 
 export const serviceHref = (slug: string) => `/services/${slug}`;
+
+export const getService = (slug: string) => services.find((s) => s.slug === slug);
+
+/** Up to `count` other services for the "Other Services" section, same category first. */
+export function otherServices(slug: string, count = 3): Service[] {
+  const current = getService(slug);
+  const rest = services.filter((s) => s.slug !== slug);
+  const sameCategory = rest.filter((s) => s.category === current?.category);
+  const otherCategories = rest.filter((s) => s.category !== current?.category);
+  return [...sameCategory, ...otherCategories].slice(0, count);
+}

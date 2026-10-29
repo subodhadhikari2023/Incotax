@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./test";
 
 // Colour tokens from CLAUDE.md §4.1, exposed as Tailwind theme variables.
 const colours: Record<string, string> = {

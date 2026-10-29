@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./test";
 
 // Which header parts each design width shows (CLAUDE.md §4.5).
 const expected = {

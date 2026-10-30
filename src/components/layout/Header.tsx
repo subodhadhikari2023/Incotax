@@ -68,7 +68,7 @@ function ServiceLinks({ onNavigate }: { onNavigate: () => void }) {
   ));
 }
 
-// White header: brand | nav | Free Consultation (CLAUDE.md §5). Below 1024px the nav collapses
+// White header: brand | nav | Free Consultation. Below 1024px the nav collapses
 // into a menu button; below 768px the consultation button moves into the menu.
 export function Header() {
   const pathname = usePathname();
@@ -103,7 +103,7 @@ export function Header() {
     <header className="relative border-b border-border bg-white">
       <div className="page-container flex items-center justify-between gap-4 py-4">
         <Link href="/" className="flex min-w-0 items-center gap-3">
-          {/* Logo slot: placeholder until the gold SVG logo arrives (CLAUDE.md §4). */}
+          {/* Logo slot: placeholder until the gold SVG logo arrives. */}
           <span
             aria-hidden="true"
             className="flex size-12 shrink-0 items-center justify-center rounded-[10px] bg-placeholder text-[13px] text-text-muted"

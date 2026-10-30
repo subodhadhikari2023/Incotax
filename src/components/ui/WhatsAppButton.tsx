@@ -8,7 +8,7 @@ const variants = {
   outline: "border-[1.5px] border-navy bg-white text-navy hover:bg-bg",
 };
 
-// Opens WhatsApp in a new tab (CLAUDE.md §7). The number and message come from site.ts.
+// Opens WhatsApp in a new tab. The number and message come from site.ts.
 export function WhatsAppButton({
   label = "Chat on WhatsApp",
   variant = "gold",

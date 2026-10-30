@@ -16,7 +16,7 @@ import { whatsappLink } from "@/lib/whatsapp";
 const empty: EnquiryValues = { name: "", mobile: "", email: "", service: "", message: "" };
 
 // Enquiry form used by the pop-up and the Contact page. On a valid submit it opens WhatsApp with
-// the details pre-filled (CLAUDE.md §7) and shows the after-submit message.
+// the details pre-filled and shows the after-submit message.
 export function EnquiryForm({
   idPrefix,
   label = "Enquiry form",

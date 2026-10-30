@@ -6,8 +6,12 @@ import { HowItWorks } from "@/components/home/HowItWorks";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
+import { site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 
-// Home page, sections in the order of CLAUDE.md §6.1.
+export const metadata = pageMetadata(site.name, "/");
+
+// Home page, sections in the designed order.
 export default function Home() {
   return (
     <main>

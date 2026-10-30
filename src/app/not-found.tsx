@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
-// 404 page: not designed, built in the site's style (CLAUDE.md §6.7).
+// 404 page: not designed, built in the site's style.
 export default function NotFound() {
   return (
     <main className="relative flex flex-1 overflow-hidden bg-navy text-white">

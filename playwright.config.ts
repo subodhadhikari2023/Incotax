@@ -33,6 +33,8 @@ export default defineConfig({
   webServer: {
     command: `npm run build && npm run start -- --port ${PORT}`,
     url: `http://localhost:${PORT}`,
+    // Absolute URLs (sitemap, canonical, Open Graph) point at the test server.
+    env: { SITE_URL: `http://localhost:${PORT}` },
     reuseExistingServer: false,
     timeout: 180_000,
   },

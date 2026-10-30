@@ -4,7 +4,7 @@ import { ArrowRightIcon, CategoryIcon } from "@/components/icons";
 import { serviceHref, type Service } from "@/content/services";
 import { pageCopy } from "@/content/site";
 
-// White service card: icon tile, name, short description, "Learn more →" (CLAUDE.md §6).
+// White service card: icon tile, name, short description, "Learn more →".
 export function ServiceCard({ service }: { service: Service }) {
   return (
     <article className="flex flex-col rounded-[20px] bg-white p-7 shadow-card">

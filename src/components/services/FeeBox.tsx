@@ -4,7 +4,16 @@ import { formatINR } from "@/lib/format";
 
 // Navy fee card on a service page. "Starting from" is the lowest price (Subodh, Oct 29); quote-only
 // services show no price, only a WhatsApp quote button.
-export function FeeBox({ pricing, notIncluded }: { pricing: Pricing; notIncluded?: string }) {
+export function FeeBox({
+  pricing,
+  notIncluded,
+  message,
+}: {
+  pricing: Pricing;
+  notIncluded?: string;
+  /** This service's WhatsApp message (see whatsappMessageFor). */
+  message?: string | null;
+}) {
   return (
     <section
       aria-labelledby="fee-heading"
@@ -17,7 +26,11 @@ export function FeeBox({ pricing, notIncluded }: { pricing: Pricing; notIncluded
       {pricing.kind === "quote" ? (
         <>
           <p className="mt-4 text-[15px] text-on-navy">{pricing.text}</p>
-          <WhatsAppButton label="Get a quote on WhatsApp" className="mt-7 w-full" />
+          <WhatsAppButton
+            label="Get a quote on WhatsApp"
+            message={message}
+            className="mt-7 w-full"
+          />
         </>
       ) : (
         <>
@@ -50,7 +63,7 @@ export function FeeBox({ pricing, notIncluded }: { pricing: Pricing; notIncluded
               {`Not included: ${notIncluded}`}
             </p>
           )}
-          <WhatsAppButton className="mt-7 w-full" />
+          <WhatsAppButton message={message} className="mt-7 w-full" />
         </>
       )}
     </section>

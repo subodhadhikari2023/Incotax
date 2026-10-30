@@ -1,4 +1,4 @@
-// Business details shown across the site. Bracketed values are PENDING (CLAUDE.md §10):
+// Business details shown across the site. Bracketed values are PENDING:
 // replace them here when Zeeshan sends the real details.
 export const site = {
   name: "IncoTax Legal Services",

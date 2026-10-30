@@ -9,8 +9,15 @@ import { PageHero } from "@/components/ui/PageHero";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { getServiceDetail } from "@/content/service-details";
-import { getService, otherServices, services } from "@/content/services";
+import {
+  getService,
+  otherServices,
+  serviceHref,
+  services,
+  whatsappMessageFor,
+} from "@/content/services";
 import { pageCopy, site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 
 // One static page per service in the services PDF; any other slug is a 404.
 export const dynamicParams = false;
@@ -24,7 +31,9 @@ export async function generateMetadata({
 }: PageProps<"/services/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const service = getService(slug);
-  return { title: service ? `${service.name} | ${site.name}` : site.name };
+  return service
+    ? pageMetadata(`${service.name} | ${site.name}`, serviceHref(slug))
+    : { title: site.name };
 }
 
 const sectionHeading = "text-[30px]/[1.15] md:text-[34px] lg:text-[40px]";
@@ -34,6 +43,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
   const service = getService(slug);
   if (!service) notFound();
   const detail = getServiceDetail(slug);
+  const message = whatsappMessageFor(service);
 
   return (
     <>
@@ -48,7 +58,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
         <p className="mt-5 max-w-3xl text-[17px]/[27px] text-on-navy md:text-[19px]/[30px]">
           {pageCopy.serviceShortDescription}
         </p>
-        <WhatsAppButton className="mt-8" />
+        <WhatsAppButton message={message} className="mt-8" />
       </PageHero>
 
       <div className="bg-white">
@@ -88,7 +98,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
           </div>
 
           <div className="lg:sticky lg:top-8">
-            <FeeBox pricing={detail.pricing} notIncluded={detail.notIncluded} />
+            <FeeBox pricing={detail.pricing} notIncluded={detail.notIncluded} message={message} />
           </div>
         </div>
       </div>
@@ -111,7 +121,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
         </div>
       </section>
 
-      <WhatsAppBand />
+      <WhatsAppBand message={message} />
     </>
   );
 }

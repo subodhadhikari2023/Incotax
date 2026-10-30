@@ -3,7 +3,7 @@ import Link from "next/link";
 export type Crumb = { label: string; href?: string };
 
 // Navy inner-page hero: breadcrumb, title, supporting text and optional actions, with the two
-// decorative rings on the right (CLAUDE.md §6).
+// decorative rings on the right.
 export function PageHero({
   breadcrumb,
   title,

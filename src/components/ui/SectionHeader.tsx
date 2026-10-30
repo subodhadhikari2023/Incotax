@@ -1,6 +1,6 @@
 import { Eyebrow } from "./Eyebrow";
 
-// Centered section header: eyebrow label, heading and one-line intro (CLAUDE.md §4.4).
+// Centered section header: eyebrow label, heading and one-line intro.
 export function SectionHeader({
   id,
   eyebrow,

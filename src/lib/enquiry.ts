@@ -1,5 +1,5 @@
 // Enquiry form rules shared by the home pop-up and the Contact form. Both send the details to
-// WhatsApp as a pre-filled message (CLAUDE.md §7).
+// WhatsApp as a pre-filled message.
 export type EnquiryValues = {
   name: string;
   mobile: string;

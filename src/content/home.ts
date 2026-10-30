@@ -1,4 +1,4 @@
-// Home page content (CLAUDE.md §6.1, §9). Bracketed values are PENDING (checklist rows); replace
+// Home page content. Bracketed values are PENDING (checklist rows); replace
 // them when Zeeshan sends them.
 import type { PlanId } from "./service-details";
 
@@ -18,7 +18,7 @@ export const home = {
   ],
   clients: Array.from({ length: 6 }, (_, i) => `[Client ${i + 1} logo / name]`),
   servicesIntro: "[One line introducing the services]",
-  /** Services shown on the home page. PENDING (Zeeshan picks); default chosen by Claude. */
+  /** Services shown on the home page. PENDING (Zeeshan picks); interim default. */
   serviceSlugs: [
     "private-limited-company-incorporation",
     "llp-registration",

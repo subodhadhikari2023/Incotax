@@ -19,7 +19,7 @@ export function IncludedList({ items }: { items: IncludedItem[] }) {
             <p className="text-[17px] font-semibold text-navy">{item.name}</p>
             <p className="mt-1 text-[15px] text-text-muted">{item.description}</p>
             {item.plans && item.plans.length < PLAN_COUNT && (
-              <p className="mt-2 inline-block rounded-md bg-gold-tint px-2 py-0.5 text-[13px] font-semibold text-gold-darkest">
+              <p className="mt-2 inline-block rounded-md bg-gold-tint px-2 py-0.5 text-[13px] font-semibold text-navy">
                 {`Included in: ${item.plans.map((p) => planNames[p]).join(", ")}`}
               </p>
             )}

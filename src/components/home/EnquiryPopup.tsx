@@ -27,8 +27,8 @@ const markSeen = () => {
   }
 };
 
-// Pop-up enquiry form shown over the home page when the site opens (CLAUDE.md §6.6). Shown once
-// per browser session (frequency PENDING; Claude's default). Closes on ×, Escape or overlay click.
+// Pop-up enquiry form shown over the home page when the site opens. Shown once
+// per browser session (frequency PENDING; interim default). Closes on ×, Escape or overlay click.
 export function EnquiryPopup() {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);

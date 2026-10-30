@@ -1,3 +1,5 @@
+import { site } from "./site";
+
 // Services from "SERVICES REVISED & FINAL.pdf" (00-Requirements). Names and categories only for
 // now; plans, included items and prices are added when the service pages are built.
 export type CategoryId = "registration" | "compliance-taxation" | "business-licenses";
@@ -11,6 +13,8 @@ export type Service = {
   /** Shorter label for menus; defaults to name. */
   shortName?: string;
   category: CategoryId;
+  /** Pre-filled WhatsApp message for this service's buttons; PENDING (Zeeshan writes them). */
+  whatsappMessage?: string;
 };
 
 export const serviceCategories: ServiceCategory[] = [
@@ -97,6 +101,10 @@ export const servicesByCategory = serviceCategories.map((category) => ({
 export const serviceHref = (slug: string) => `/services/${slug}`;
 
 export const getService = (slug: string) => services.find((s) => s.slug === slug);
+
+/** The service's own WhatsApp message, or the site-wide one until Zeeshan writes it. */
+export const whatsappMessageFor = (service: Service) =>
+  service.whatsappMessage ?? site.whatsappMessage;
 
 /** Up to `count` other services for the "Other Services" section, same category first. */
 export function otherServices(slug: string, count = 3): Service[] {

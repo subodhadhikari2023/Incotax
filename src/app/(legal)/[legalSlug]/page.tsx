@@ -5,8 +5,9 @@ import { notFound } from "next/navigation";
 import { PageHero } from "@/components/ui/PageHero";
 import { legal } from "@/content/pages";
 import { legalLinks, site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 
-// One template for the five legal pages (CLAUDE.md §6.5). The text is PENDING (Zeeshan has it),
+// One template for the five legal pages. The text is PENDING (Zeeshan has it),
 // so the designed section layout is filled with placeholders. Other slugs are a 404.
 export const dynamicParams = false;
 
@@ -19,7 +20,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/[legalSlug]">): Promise<Metadata> {
   const { legalSlug } = await params;
   const page = pageFor(legalSlug);
-  return { title: page ? `${page.label} | ${site.name}` : site.name };
+  return page ? pageMetadata(`${page.label} | ${site.name}`, page.href) : { title: site.name };
 }
 
 export default async function LegalPage({ params }: PageProps<"/[legalSlug]">) {

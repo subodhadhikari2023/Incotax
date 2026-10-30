@@ -3,7 +3,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { home } from "@/content/home";
 
 // Numbered steps joined by dotted gold arrows: a row from tablet up, stacked with downward arrows
-// on phones (CLAUDE.md §4.5). Labelled directly because the heading text is still PENDING.
+// on phones. Labelled directly because the heading text is still PENDING.
 export function HowItWorks() {
   const { steps, howItWorks } = home;
 

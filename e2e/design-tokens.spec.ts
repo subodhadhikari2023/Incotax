@@ -1,6 +1,6 @@
 import { expect, test } from "./test";
 
-// Colour tokens from CLAUDE.md §4.1, exposed as Tailwind theme variables.
+// Colour tokens from the design palette, exposed as Tailwind theme variables.
 const colours: Record<string, string> = {
   navy: "#0b1f3a",
   "navy-deep": "#07152a",
@@ -59,7 +59,8 @@ test("body uses Inter 16px / 1.5 on the page background", async ({ page }) => {
     };
   });
 
-  expect(body.font).toContain("Inter");
+  // Self-hosted fonts are named after their next/font variable ("inter"), so match loosely.
+  expect(body.font).toMatch(/^"?inter\b/i);
   expect(body.size).toBe("16px");
   expect(body.lineHeight).toBe("24px");
   expect(body.background).toBe("rgb(248, 250, 252)");
@@ -75,7 +76,7 @@ test("headings use Cormorant Garamond bold", async ({ page }) => {
     return { font: style.fontFamily, weight: style.fontWeight };
   });
 
-  expect(heading.font).toContain("Cormorant Garamond");
+  expect(heading.font).toMatch(/^"?cormorant\b/i);
   expect(heading.weight).toBe("700");
 });
 

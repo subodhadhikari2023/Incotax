@@ -1,9 +1,10 @@
-import { pageCopy } from "@/content/site";
+import { pageCopy, site } from "@/content/site";
 
 import { WhatsAppButton } from "./WhatsAppButton";
 
-// Gold call-to-action band near the bottom of most pages (CLAUDE.md §6).
-export function WhatsAppBand() {
+// Gold call-to-action band near the bottom of most pages. Service pages pass
+// that service's message; elsewhere the site-wide one is used.
+export function WhatsAppBand({ message = site.whatsappMessage }: { message?: string | null }) {
   return (
     <section className="bg-gold text-navy">
       <div className="page-container flex flex-col gap-7 py-14 md:py-16 lg:flex-row lg:items-center lg:justify-between lg:py-20">
@@ -13,7 +14,7 @@ export function WhatsAppBand() {
           </h2>
           <p className="mt-3 text-lg">{pageCopy.whatsappBandLine}</p>
         </div>
-        <WhatsAppButton variant="navy" className="self-start lg:self-auto" />
+        <WhatsAppButton variant="navy" message={message} className="self-start lg:self-auto" />
       </div>
     </section>
   );

@@ -1,4 +1,4 @@
-// Content for Why IncoTax, Contact, the pop-up, legal pages and the 404 page (CLAUDE.md §6, §9).
+// Content for Why IncoTax, Contact, the pop-up, legal pages and the 404 page.
 // Bracketed values are PENDING (checklist rows); replace them when Zeeshan sends them.
 
 export const forms = {

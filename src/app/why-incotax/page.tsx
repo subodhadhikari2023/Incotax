@@ -9,13 +9,14 @@ import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { home } from "@/content/home";
 import { whyIncotax } from "@/content/pages";
 import { site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = { title: `Why IncoTax | ${site.name}` };
+export const metadata: Metadata = pageMetadata(`Why IncoTax | ${site.name}`, "/why-incotax");
 
 const section = "page-container py-[53px] md:py-[77px] lg:py-24";
 
 // Why IncoTax (replaces About): hero → About IncoTax → stats band → two founder cards (board card
-// style, 4 points each) → courts and areas of law → WhatsApp band (CLAUDE.md §6.2, §11).
+// style, 4 points each) → courts and areas of law → WhatsApp band.
 export default function WhyIncotaxPage() {
   return (
     <main>
@@ -76,7 +77,7 @@ export default function WhyIncotaxPage() {
                     aria-hidden="true"
                     className="absolute inset-0 top-4 left-4 rounded-[20px] border-2 border-gold"
                   />
-                  {/* Photo slot: placeholder until photos are confirmed (CLAUDE.md §10). */}
+                  {/* Photo slot: placeholder until photos are confirmed. */}
                   <div className="relative flex aspect-[4/5] items-center justify-center rounded-[20px] bg-placeholder text-sm text-text-muted">
                     [Professional photo]
                   </div>

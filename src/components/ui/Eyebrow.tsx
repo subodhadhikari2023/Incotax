@@ -1,4 +1,4 @@
-// Section label: 32×2px gold line + uppercase 13px text (CLAUDE.md §4.4). Centered labels get a
+// Section label: 32×2px gold line + uppercase 13px text. Centered labels get a
 // line on both sides.
 export function Eyebrow({
   children,

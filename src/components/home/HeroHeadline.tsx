@@ -1,4 +1,4 @@
-// Home hero headline with one gold italic phrase (CLAUDE.md §4.2). Renders plain text while the
+// Home hero headline with one gold italic phrase. Renders plain text while the
 // phrase is pending or if it doesn't appear in the headline.
 export function HeroHeadline({ text, goldPhrase }: { text: string; goldPhrase: string | null }) {
   const at = goldPhrase ? text.indexOf(goldPhrase) : -1;

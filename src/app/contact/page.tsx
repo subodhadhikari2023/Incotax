@@ -7,8 +7,9 @@ import { PageHero } from "@/components/ui/PageHero";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { contact } from "@/content/pages";
 import { site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = { title: `Contact Us | ${site.name}` };
+export const metadata: Metadata = pageMetadata(`Contact Us | ${site.name}`, "/contact");
 
 const details = [
   { label: "Phone", value: site.phone, icon: contactIcons.phone },
@@ -17,8 +18,8 @@ const details = [
   { label: "Hours", value: site.hours, icon: contactIcons.hours },
 ];
 
-// Contact Us: form card + navy WhatsApp card + details list + social links + map block
-// (CLAUDE.md §6.4). The form sends to WhatsApp like the pop-up (destination PENDING).
+// Contact Us: form card + navy WhatsApp card + details list + social links + map block.
+// The form sends to WhatsApp like the pop-up (destination PENDING).
 export default function ContactPage() {
   return (
     <main>
@@ -90,7 +91,7 @@ export default function ContactPage() {
           <Eyebrow as="h2" id="map-heading">
             Find the office
           </Eyebrow>
-          {/* Map embed goes here once the office address is chosen (CLAUDE.md §10). */}
+          {/* Map embed goes here once the office address is chosen. */}
           <div className="mt-6 flex h-[280px] items-center justify-center rounded-[20px] bg-placeholder text-center text-sm text-text-muted md:h-[380px]">
             {contact.map}
           </div>

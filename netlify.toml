@@ -1,0 +1,12 @@
+# Netlify build settings, read once the site is connected (not connected yet).
+# Netlify detects Next.js and adds its Next.js runtime automatically; nothing else to configure.
+# The site's main domain reaches the build as URL, which src/lib/site-url.ts uses for absolute links.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Keep equal to .nvmrc.
+  NODE_VERSION = "24"
+  NEXT_TELEMETRY_DISABLED = "1"

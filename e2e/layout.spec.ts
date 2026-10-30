@@ -1,6 +1,6 @@
 import { expect, test } from "./test";
 
-// Which header parts each design width shows (CLAUDE.md §4.5).
+// Which header parts each design width shows.
 const expected = {
   desktop: { nav: true, menuButton: false, consultation: true },
   tablet: { nav: false, menuButton: true, consultation: true },

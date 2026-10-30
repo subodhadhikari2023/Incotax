@@ -21,7 +21,7 @@ function LinkGroup({ title, links }: { title: string; links: NavLink[] }) {
   );
 }
 
-// Navy-deep footer: 4 columns on desktop, 2×2 on tablet, 1 column on phones (CLAUDE.md §4.5).
+// Navy-deep footer: 4 columns on desktop, 2×2 on tablet, 1 column on phones.
 export function Footer() {
   const year = new Date().getFullYear();
 

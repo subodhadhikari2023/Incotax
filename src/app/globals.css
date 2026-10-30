@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Design tokens (CLAUDE.md §4). Light mode only: dark mode was dropped.
+/* Design tokens. Light mode only: dark mode was dropped.
    `static` emits every variable even when no utility uses it yet. */
 @theme static {
   --color-navy: #0b1f3a;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { serviceCategories, services } from "./services";
+import { serviceCategories, services, whatsappMessageFor } from "./services";
+import { site } from "./site";
 
 describe("services content", () => {
   it("has the three categories from the services PDF, in order", () => {
@@ -25,5 +26,23 @@ describe("services content", () => {
     for (const slug of slugs) {
       expect(slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
     }
+  });
+});
+
+describe("per-service WhatsApp message", () => {
+  const base = {
+    slug: "gst-registration",
+    name: "GST Registration",
+    category: "compliance-taxation",
+  } as const;
+
+  it("uses the service's own message when it has one", () => {
+    expect(whatsappMessageFor({ ...base, whatsappMessage: "Hi, I need GST registration." })).toBe(
+      "Hi, I need GST registration.",
+    );
+  });
+
+  it("falls back to the site-wide message", () => {
+    expect(whatsappMessageFor(base)).toBe(site.whatsappMessage);
   });
 });

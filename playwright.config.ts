@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { ADMIN_TEST_PASSWORD } from "./e2e/admin-password";
+import { hashPassword } from "./src/lib/admin/password";
+
 // E2E tests run against a production build (what Netlify serves) on port 3100,
 // so they never collide with the dev server on port 3000.
 const PORT = 3100;
@@ -34,7 +37,12 @@ export default defineConfig({
     command: `npm run build && npm run start -- --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     // Absolute URLs (sitemap, canonical, Open Graph) point at the test server.
-    env: { SITE_URL: `http://localhost:${PORT}` },
+    env: {
+      SITE_URL: `http://localhost:${PORT}`,
+      // Throwaway admin login for the test server.
+      ADMIN_PASSWORD_HASH: hashPassword(ADMIN_TEST_PASSWORD),
+      ADMIN_SESSION_SECRET: "e2e-test-signing-secret",
+    },
     reuseExistingServer: false,
     timeout: 180_000,
   },

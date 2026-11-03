@@ -1,9 +1,18 @@
 import Link from "next/link";
 
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 // 404 page: not designed, built in the site's style.
 export default function NotFound() {
+  return (
+    <SiteChrome>
+      <NotFoundContent />
+    </SiteChrome>
+  );
+}
+
+function NotFoundContent() {
   return (
     <main className="relative flex flex-1 overflow-hidden bg-navy text-white">
       <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2">

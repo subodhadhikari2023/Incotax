@@ -113,7 +113,13 @@ compose.yaml  Docker setup for development and testing
 
 The admin login needs a password hash and a cookie-signing secret. Store them in a local
 `.env.local` file, which git ignores. In production, set them in the Netlify dashboard.
-Never commit them. The variable names will be listed here once the admin panel is built.
+Never commit them.
+
+- `ADMIN_PASSWORD_HASH`: the output of
+  `node -e 'import("./src/lib/admin/password.ts").then((m) => console.log(m.hashPassword(process.argv[1])))' 'a-password'`
+- `ADMIN_SESSION_SECRET`: the output of `openssl rand -hex 32` (changing it logs everyone out)
+
+Without them the admin panel stays locked; the public pages don't use them.
 
 ## Deployment
 

@@ -4,13 +4,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
-import { TopBar } from "@/components/layout/TopBar";
 import { site } from "@/content/site";
 import { openGraphDefaults } from "@/lib/metadata";
 import { siteUrl } from "@/lib/site-url";
-import { businessJsonLd } from "@/lib/structured-data";
 
 // Font Awesome CSS is imported above; stop it injecting a second copy at runtime.
 config.autoAddCss = false;
@@ -64,19 +60,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
-        <script
-          type="application/ld+json"
-          // Built from our own content files; escape "<" so the JSON can't close the tag.
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(businessJsonLd()).replace(/</g, "\\u003c"),
-          }}
-        />
-        <TopBar />
-        <Header />
-        <div className="flex flex-1 flex-col">{children}</div>
-        <Footer />
-      </body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

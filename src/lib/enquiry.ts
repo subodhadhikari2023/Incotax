@@ -10,6 +10,8 @@ export type EnquiryValues = {
 
 export type EnquiryErrors = Partial<Record<keyof EnquiryValues, string>>;
 
+export const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 /** Strips +91, spaces and dashes; valid Indian mobiles are 10 digits starting 6–9. */
 const normaliseMobile = (mobile: string) =>
   mobile.replace(/[\s-]/g, "").replace(/^\+?91(?=\d{10}$)/, "");
@@ -20,7 +22,7 @@ export function validateEnquiry(values: EnquiryValues): EnquiryErrors {
   if (!values.mobile.trim()) errors.mobile = "Please enter your mobile number.";
   else if (!/^[6-9]\d{9}$/.test(normaliseMobile(values.mobile)))
     errors.mobile = "Please enter a valid 10-digit mobile number.";
-  if (values.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim()))
+  if (values.email.trim() && !EMAIL_FORMAT.test(values.email.trim()))
     errors.email = "Please enter a valid email address.";
   return errors;
 }

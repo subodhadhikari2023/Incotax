@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
 
-import { readStoredContent, writeStoredContent } from "./content-store";
+import { readStoredContent, readStoredContentOrThrow, writeStoredContent } from "./content-store";
 
 const blobs = vi.hoisted(() => ({
   getStore: vi.fn(),
@@ -69,6 +69,21 @@ describe("with CONTENT_STORE_FILE set (local development and tests)", () => {
     },
   );
 
+  // Saves start from this read: treating bad data as "nothing saved" would wipe other sections.
+  it.each(["not json", "[]", '"text"', "null"])(
+    "the strict read fails when the file holds %s",
+    async (contents) => {
+      writeFileSync(file, contents);
+      await expect(readStoredContentOrThrow()).rejects.toThrow();
+    },
+  );
+
+  it("the strict read returns the content, or nothing before the first save", async () => {
+    await expect(readStoredContentOrThrow()).resolves.toEqual({});
+    await writeStoredContent(SAVED);
+    await expect(readStoredContentOrThrow()).resolves.toEqual(SAVED);
+  });
+
   it("fails a save that could not be written", async () => {
     writeFileSync(file, "{}");
     vi.stubEnv("CONTENT_STORE_FILE", join(file, "not-a-directory.json"));
@@ -113,6 +128,19 @@ describe("without CONTENT_STORE_FILE (Netlify Blobs)", () => {
     });
     await expect(readStoredContent()).resolves.toEqual({});
     expect(logged).toHaveBeenCalled();
+  });
+
+  it("the strict read fails when Blobs fails or holds the wrong shape", async () => {
+    blobs.get.mockRejectedValueOnce(new Error("Blobs is down"));
+    await expect(readStoredContentOrThrow()).rejects.toThrow("Blobs is down");
+
+    blobs.get.mockResolvedValueOnce(["unexpected"]);
+    await expect(readStoredContentOrThrow()).rejects.toThrow();
+  });
+
+  it("the strict read returns nothing before the first save", async () => {
+    blobs.get.mockResolvedValue(null);
+    await expect(readStoredContentOrThrow()).resolves.toEqual({});
   });
 
   it("saves the whole content as JSON", async () => {

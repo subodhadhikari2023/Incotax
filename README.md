@@ -121,6 +121,10 @@ Never commit them.
 
 Without them the admin panel stays locked; the public pages don't use them.
 
+Content edited in the admin panel is saved in Netlify Blobs. Locally, `CONTENT_STORE_FILE` points to
+a JSON file instead. `compose.yaml` sets it; add `CONTENT_STORE_FILE=.content-store.json` to
+`.env.local` when running `npm run dev` on the host. Do not set it on Netlify.
+
 ## Deployment
 
 Netlify deploys the site from this repository:

@@ -129,6 +129,36 @@ test("no accessibility violations on the login page, its error state or the pane
   await check();
 });
 
+test("the business details page needs a login", async ({ page }) => {
+  await page.goto("/admin/business");
+  await expect(page).toHaveURL(/\/admin\/login$/);
+});
+
+test("the panel links to the business details form, which is accessible", async ({ page }) => {
+  await logIn(page);
+  await page.getByRole("link", { name: "Business details" }).click();
+  await expect(page).toHaveURL(/\/admin\/business$/);
+  await expect(page.getByRole("heading", { name: "Business details", level: 1 })).toBeVisible();
+  await expect(page.getByRole("contentinfo")).toHaveCount(0);
+
+  const check = async () => {
+    await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
+    const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
+    expect(violations).toEqual([]);
+  };
+  await check();
+
+  // An invalid value is never saved, so this doesn't disturb tests running alongside it.
+  await page.getByLabel("Email").fill("not-an-email");
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "email" })).toBeVisible();
+  await expect(page.getByLabel("Email")).toHaveAttribute("aria-invalid", "true");
+  await check();
+
+  await page.getByRole("link", { name: "Back to panel" }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+});
+
 // Guards for moving the public pages into their own layout: both pass before and after the move.
 test("an unknown URL still shows the 404 page with the public header and footer", async ({
   page,

@@ -31,4 +31,16 @@ describe("businessJsonLd", () => {
     // No string value may start with "[" (a placeholder); arrays like founder are fine.
     expect(JSON.stringify(data)).not.toMatch(/"\[/);
   });
+
+  it("includes saved details and still leaves out the pending ones", () => {
+    const data = businessJsonLd({
+      phone: "+91 90000 00000",
+      whatsappNumber: null,
+      email: "a@example.test",
+      address: "[Office address]",
+      hours: "Monday to Saturday",
+    });
+    expect(data).toMatchObject({ telephone: "+91 90000 00000", email: "a@example.test" });
+    expect(data).not.toHaveProperty("address");
+  });
 });

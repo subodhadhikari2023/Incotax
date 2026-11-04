@@ -4,7 +4,9 @@ Marketing website for **IncoTax Legal Services**, a tax and legal practice.
 Visitors contact the firm through WhatsApp. There is no client login.
 A small admin panel lets the firm edit site content.
 
-> **Status:** in development. The project has just been scaffolded and no features are built yet.
+> **Status:** in development and not yet deployed. All public pages are built, with bracketed
+> placeholders where content is still pending. The admin panel can edit the business details,
+> site-wide text, and the home, Why IncoTax, contact, service and legal pages.
 
 ## Tech stack
 
@@ -82,7 +84,8 @@ Development is test-first: write a failing test, make it pass, then move on.
 - **Unit and component tests:** Vitest with React Testing Library, in jsdom. Test files sit next
   to the code they test as `*.test.ts(x)` under `src/`.
 - **End-to-end tests:** Playwright, in `e2e/*.spec.ts`. They run against a production build on
-  port 3100 at the three design widths: desktop 1440, tablet 768 and phone 390.
+  port 3100 at the three design widths: desktop 1440, tablet 768 and phone 390. Tests that really
+  save content are in their own project, `content-editing`, which runs after the others.
 
 ## Conventions
 
@@ -102,9 +105,13 @@ Development is test-first: write a failing test, make it pass, then move on.
 
 ```
 src/
-  app/        Routes, layouts and pages (App Router)
+  app/
+    (site)/   Public pages
+    admin/    Admin panel (login and content editor)
+  components/ React components, grouped by area
+  content/    Default site content; values saved in the admin panel override it
+  lib/        Shared logic (admin auth, content store, validation, SEO, WhatsApp links)
 e2e/          Playwright end-to-end tests
-public/       Static files (logo, icons)
 .github/      CI workflow
 compose.yaml  Docker setup for development and testing
 ```

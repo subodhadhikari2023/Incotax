@@ -4,7 +4,17 @@ import { requireAdmin } from "@/lib/admin/auth";
 
 import { logout } from "./actions";
 
-// Panel home. Editable sections are added here as they are built.
+const sections = [
+  { href: "/admin/business", label: "Business details" },
+  { href: "/admin/site", label: "Site-wide text" },
+  { href: "/admin/home", label: "Home page" },
+  { href: "/admin/why-incotax", label: "Why IncoTax" },
+  { href: "/admin/contact", label: "Contact page" },
+  { href: "/admin/services", label: "Service pages" },
+  { href: "/admin/legal", label: "Legal pages" },
+];
+
+// Panel home.
 export default async function AdminPage() {
   await requireAdmin();
 
@@ -22,14 +32,16 @@ export default async function AdminPage() {
         </form>
       </div>
       <ul className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <li>
-          <Link
-            href="/admin/business"
-            className="block rounded-[14px] border border-border bg-white p-6 text-xl font-semibold text-navy shadow-card hover:border-navy"
-          >
-            Business details
-          </Link>
-        </li>
+        {sections.map((section) => (
+          <li key={section.href}>
+            <Link
+              href={section.href}
+              className="block rounded-[14px] border border-border bg-white p-6 text-xl font-semibold text-navy shadow-card hover:border-navy"
+            >
+              {section.label}
+            </Link>
+          </li>
+        ))}
       </ul>
     </main>
   );

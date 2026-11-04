@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
+import { useSiteCopy } from "@/components/SiteCopy";
 import { CloseIcon } from "@/components/icons";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { popup } from "@/content/pages";
 
 import { POPUP_SEEN_KEY } from "./popup-key";
 
@@ -30,6 +30,7 @@ const markSeen = () => {
 // Pop-up enquiry form shown over the home page when the site opens. Shown once
 // per browser session (frequency PENDING; interim default). Closes on ×, Escape or overlay click.
 export function EnquiryPopup() {
+  const { popup } = useSiteCopy();
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
 

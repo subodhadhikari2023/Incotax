@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
+import { useSiteCopy } from "@/components/SiteCopy";
 import { useWhatsAppNumber } from "@/components/WhatsAppNumber";
-import { forms } from "@/content/pages";
 import { servicesByCategory } from "@/content/services";
 import {
   enquiryMessage,
@@ -23,7 +23,7 @@ export function EnquiryForm({
   withMessage = false,
   compact = false,
   twoColumns = false,
-  note = forms.note,
+  note,
 }: {
   idPrefix: string;
   label?: string;
@@ -33,6 +33,7 @@ export function EnquiryForm({
   note?: string;
 }) {
   const whatsappNumber = useWhatsAppNumber();
+  const { forms } = useSiteCopy();
   const [values, setValues] = useState(empty);
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -170,7 +171,9 @@ export function EnquiryForm({
         >
           {forms.submitLabel}
         </button>
-        <p className={`text-[13px] text-text-muted ${twoColumns ? "" : "text-center"}`}>{note}</p>
+        <p className={`text-[13px] text-text-muted ${twoColumns ? "" : "text-center"}`}>
+          {note ?? forms.note}
+        </p>
       </div>
 
       {submitted && (

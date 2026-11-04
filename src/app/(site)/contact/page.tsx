@@ -7,20 +7,22 @@ import { PageHero } from "@/components/ui/PageHero";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { contact } from "@/content/pages";
 import { site } from "@/content/site";
+import { getBusinessDetails } from "@/lib/business";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata(`Contact Us | ${site.name}`, "/contact");
 
-const details = [
-  { label: "Phone", value: site.phone, icon: contactIcons.phone },
-  { label: "Email", value: site.email, icon: contactIcons.email },
-  { label: "Office", value: site.address, icon: contactIcons.office },
-  { label: "Hours", value: site.hours, icon: contactIcons.hours },
-];
-
 // Contact Us: form card + navy WhatsApp card + details list + social links + map block.
 // The form sends to WhatsApp like the pop-up (destination PENDING).
-export default function ContactPage() {
+export default async function ContactPage() {
+  const business = await getBusinessDetails();
+  const details = [
+    { label: "Phone", value: business.phone, icon: contactIcons.phone },
+    { label: "Email", value: business.email, icon: contactIcons.email },
+    { label: "Office", value: business.address, icon: contactIcons.office },
+    { label: "Hours", value: business.hours, icon: contactIcons.hours },
+  ];
+
   return (
     <main>
       <PageHero

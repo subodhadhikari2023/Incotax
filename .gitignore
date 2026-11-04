@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# content saved by the admin panel during local development
+/.content-store.json
+
 # playwright
 /test-results/
 /playwright-report/

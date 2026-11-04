@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { legalLinks, quickLinks, site, type NavLink } from "@/content/site";
+import type { BusinessDetails } from "@/lib/business";
 
 const headingClass = "mb-5 text-[13px] font-semibold tracking-[0.1em] text-gold uppercase";
 
@@ -22,7 +23,7 @@ function LinkGroup({ title, links }: { title: string; links: NavLink[] }) {
 }
 
 // Navy-deep footer: 4 columns on desktop, 2×2 on tablet, 1 column on phones.
-export function Footer() {
+export function Footer({ business = site }: { business?: BusinessDetails }) {
   const year = new Date().getFullYear();
 
   return (
@@ -45,10 +46,10 @@ export function Footer() {
               Contact
             </h2>
             <ul className="space-y-3.5 text-[15px]">
-              <li>{site.phone}</li>
-              <li>{site.email}</li>
-              <li>{site.address}</li>
-              <li>{site.hours}</li>
+              <li>{business.phone}</li>
+              <li>{business.email}</li>
+              <li>{business.address}</li>
+              <li>{business.hours}</li>
             </ul>
           </section>
         </div>

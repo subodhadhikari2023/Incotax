@@ -51,6 +51,26 @@ describe("Footer", () => {
     expect(within(contact).getByText("[Working days], 10 AM to 8 PM")).toBeInTheDocument();
   });
 
+  it("shows the details it is given", () => {
+    render(
+      <Footer
+        business={{
+          phone: "+91 90000 00000",
+          whatsappNumber: null,
+          email: "a@example.test",
+          address: "Patna",
+          hours: "Monday to Saturday",
+        }}
+      />,
+    );
+    const contact = screen.getByRole("region", { name: "Contact" });
+
+    expect(within(contact).getByText("+91 90000 00000")).toBeInTheDocument();
+    expect(within(contact).getByText("a@example.test")).toBeInTheDocument();
+    expect(within(contact).getByText("Patna")).toBeInTheDocument();
+    expect(within(contact).getByText("Monday to Saturday")).toBeInTheDocument();
+  });
+
   it("shows the copyright line with the current year", () => {
     render(<Footer />);
     const year = new Date().getFullYear();

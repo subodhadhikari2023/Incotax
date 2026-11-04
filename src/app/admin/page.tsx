@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { requireAdmin } from "@/lib/admin/auth";
 
 import { logout } from "./actions";
@@ -19,7 +21,16 @@ export default async function AdminPage() {
           </button>
         </form>
       </div>
-      <p className="mt-4 text-text-body">You are logged in. No sections are editable yet.</p>
+      <ul className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <li>
+          <Link
+            href="/admin/business"
+            className="block rounded-[14px] border border-border bg-white p-6 text-xl font-semibold text-navy shadow-card hover:border-navy"
+          >
+            Business details
+          </Link>
+        </li>
+      </ul>
     </main>
   );
 }

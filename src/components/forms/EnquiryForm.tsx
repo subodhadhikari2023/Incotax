@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 
+import { useWhatsAppNumber } from "@/components/WhatsAppNumber";
 import { forms } from "@/content/pages";
 import { servicesByCategory } from "@/content/services";
-import { site } from "@/content/site";
 import {
   enquiryMessage,
   validateEnquiry,
@@ -32,6 +32,7 @@ export function EnquiryForm({
   twoColumns?: boolean;
   note?: string;
 }) {
+  const whatsappNumber = useWhatsAppNumber();
   const [values, setValues] = useState(empty);
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -45,7 +46,7 @@ export function EnquiryForm({
     setErrors(found);
     if (Object.keys(found).length > 0) return;
     window.open(
-      whatsappLink(site.whatsappNumber, enquiryMessage(values)),
+      whatsappLink(whatsappNumber, enquiryMessage(values)),
       "_blank",
       "noopener,noreferrer",
     );

@@ -12,6 +12,8 @@ x-node: &node
     HOME: /tmp
     npm_config_cache: /tmp/.npm
     NEXT_TELEMETRY_DISABLED: "1"
+    # Admin edits are saved here locally; Netlify Blobs is used when this isn't set.
+    CONTENT_STORE_FILE: .content-store.json
   init: true
   ipc: host
 

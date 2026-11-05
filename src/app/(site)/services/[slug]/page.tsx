@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ServiceView } from "@/components/pages/ServiceView";
-import { getServiceDetail } from "@/content/service-details";
 import { getService, serviceHref, services } from "@/content/services";
 import { site } from "@/content/site";
 import { readStoredContent } from "@/lib/content-store";
 import { pageMetadata } from "@/lib/metadata";
-import { serviceCardDescriptions, serviceCopyFor } from "@/lib/service-copy";
+import { serviceCardDescriptions, serviceCopyFor, serviceDetailFor } from "@/lib/service-copy";
 import { mergeSiteCopy } from "@/lib/site-copy";
 
 // One static page per service in the services PDF; any other slug is a 404.
@@ -38,7 +37,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
   return (
     <ServiceView
       service={service}
-      detail={getServiceDetail(slug)}
+      detail={serviceDetailFor(stored, slug)}
       copy={copy}
       message={copy.whatsappMessage}
       coversIntro={siteCopy.serviceCoversIntro}

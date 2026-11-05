@@ -2,7 +2,7 @@ import { CheckIcon } from "@/components/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { home } from "@/content/home";
-import { getServiceDetail } from "@/content/service-details";
+import { getServiceDetail, type Plan } from "@/content/service-details";
 import { formatINR } from "@/lib/format";
 import type { HomeNodes } from "@/lib/home-content";
 
@@ -12,15 +12,19 @@ export function FeesSection({
   content = home,
   after,
   plainHighlights,
+  plans: savedPlans,
 }: {
   content?: HomeNodes;
   /** The panel's add control, on the featured card. */
   after?: React.ReactNode;
   /** The panel edits highlights on the featured card; the other cards repeat them as this text. */
   plainHighlights?: string[];
+  /** The fee service's saved plans. Without any there is nothing to show. */
+  plans?: Plan[];
 }) {
   const { fees } = content;
-  const plans = getServiceDetail(fees.serviceSlug).plans ?? [];
+  const plans = savedPlans ?? getServiceDetail(fees.serviceSlug).plans ?? [];
+  if (plans.length === 0) return null;
 
   return (
     <section aria-labelledby="fees-heading" className="bg-white">

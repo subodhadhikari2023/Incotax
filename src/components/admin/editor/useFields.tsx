@@ -3,7 +3,8 @@
 import { useRef } from "react";
 
 import { CloseIcon } from "@/components/icons";
-import { listDefinition } from "@/lib/admin/editor-state";
+import { PLANS } from "@/content/service-details";
+import { fieldLabel, listDefinition } from "@/lib/admin/editor-state";
 import type { ListRow } from "@/lib/content-section";
 
 import { EditableText } from "./EditableText";
@@ -71,6 +72,84 @@ function AddButton({
   );
 }
 
+function SelectField({
+  section,
+  name,
+  options,
+}: {
+  section: string;
+  name: string;
+  options: { value: string; label: string }[];
+}) {
+  const editor = useEditor();
+  const element = useRef<HTMLSelectElement>(null);
+  useFocusWhenAsked(fieldId(section, name), element);
+  const id = `select-${section}-${name}`.replace(/\W/g, "-");
+  const error = editor.errors[section]?.[name];
+  return (
+    <div className="mt-3 rounded-lg border border-dashed border-gold p-3">
+      <label htmlFor={id} className="mb-1 block text-sm font-semibold">
+        {fieldLabel(editor.schemas[section], name)?.label ?? name}
+      </label>
+      <select
+        ref={element}
+        id={id}
+        value={String(editor.values[section]?.[name] ?? "")}
+        onChange={(event) => editor.setValue(section, name, event.target.value)}
+        className="w-full rounded-lg border border-border-field bg-white px-3 py-2 text-[15px] text-navy"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {error && (
+        <p
+          role="alert"
+          className="mt-1 w-fit rounded bg-white px-2 py-1 text-sm font-semibold text-error"
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Tick boxes for the plans an included item belongs to. Blank means every plan. */
+function PlanChecks({ section, list, index }: { section: string; list: string; index: number }) {
+  const editor = useEditor();
+  const rows = editor.values[section]?.[list] as ListRow[];
+  const current = rows[index]?.plans;
+  const chosen = current ? current.split(",") : PLANS.map((plan) => plan.id as string);
+
+  function toggle(id: string, on: boolean) {
+    const next = PLANS.map((plan) => plan.id as string).filter((each) =>
+      each === id ? on : chosen.includes(each),
+    );
+    editor.setValue(section, `${list}.${index}.plans`, next.join(","));
+  }
+
+  return (
+    <fieldset className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-navy">
+      <legend className="font-semibold">In these plans:</legend>
+      {PLANS.map((plan) => (
+        <label key={plan.id} className="flex items-center gap-1.5">
+          <input
+            type="checkbox"
+            aria-label={`Item ${index + 1} in ${plan.name}`}
+            checked={chosen.includes(plan.id)}
+            // An item must stay in at least one plan, or it would show nowhere.
+            disabled={chosen.length === 1 && chosen.includes(plan.id)}
+            onChange={(event) => toggle(plan.id, event.target.checked)}
+          />
+          {plan.name}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+
 /** Editable pieces of one saved section, ready to hand to a page's own components. */
 export function fieldsFor(editor: EditorContextValue, section: string) {
   const values = editor.values[section];
@@ -87,6 +166,12 @@ export function fieldsFor(editor: EditorContextValue, section: string) {
         name={`${list}.${index}.${field}`}
         placeholder={placeholder}
       />
+    ),
+    select: (name: string, options: { value: string; label: string }[]) => (
+      <SelectField section={section} name={name} options={options} />
+    ),
+    planChecks: (list: string, index: number) => (
+      <PlanChecks section={section} list={list} index={index} />
     ),
     remove: (list: string, index: number) => (
       <RemoveButton section={section} list={list} index={index} />

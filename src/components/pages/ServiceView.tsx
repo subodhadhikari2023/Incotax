@@ -1,14 +1,22 @@
-import { FeeBox } from "@/components/services/FeeBox";
-import { IncludedList } from "@/components/services/IncludedList";
+import { FeeBox, type FeePricing } from "@/components/services/FeeBox";
+import { IncludedList, type IncludedItemNodes } from "@/components/services/IncludedList";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PageHero } from "@/components/ui/PageHero";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import type { ServiceDetail } from "@/content/service-details";
 import { otherServices, type Service } from "@/content/services";
 
 const sectionHeading = "text-[30px]/[1.15] md:text-[34px] lg:text-[40px]";
+
+/** What a service page shows beyond its text. */
+export type ServiceDetailNodes = {
+  included: IncludedItemNodes[];
+  pricing: FeePricing;
+  notIncluded?: React.ReactNode;
+  timeline?: React.ReactNode;
+  note?: React.ReactNode;
+};
 
 // One service's page. The public page and the panel both draw this.
 export function ServiceView({
@@ -19,9 +27,10 @@ export function ServiceView({
   coversIntro,
   otherServicesIntro,
   descriptions,
+  slots = {},
 }: {
   service: Service;
-  detail: ServiceDetail;
+  detail: ServiceDetailNodes;
   copy: {
     shortDescription: React.ReactNode;
     overviewOne: React.ReactNode;
@@ -31,6 +40,12 @@ export function ServiceView({
   coversIntro: React.ReactNode;
   otherServicesIntro: React.ReactNode;
   descriptions: Record<string, React.ReactNode>;
+  /** The panel's controls for what can be added or chosen. */
+  slots?: {
+    included?: React.ReactNode;
+    feeBefore?: React.ReactNode;
+    priceRows?: React.ReactNode;
+  };
 }) {
   return (
     <>
@@ -75,6 +90,7 @@ export function ServiceView({
               </h2>
               <p className="mt-4 mb-7 text-[17px] text-text-muted">{coversIntro}</p>
               <IncludedList items={detail.included} />
+              {slots.included}
               {detail.note && (
                 <p className="mt-6 text-sm text-text-muted">
                   <span className="font-semibold">Please note: </span>
@@ -85,7 +101,13 @@ export function ServiceView({
           </div>
 
           <div className="lg:sticky lg:top-8">
-            <FeeBox pricing={detail.pricing} notIncluded={detail.notIncluded} message={message} />
+            <FeeBox
+              pricing={detail.pricing}
+              notIncluded={detail.notIncluded}
+              message={message}
+              before={slots.feeBefore}
+              rowsAfter={slots.priceRows}
+            />
           </div>
         </div>
       </div>

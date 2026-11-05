@@ -12,15 +12,17 @@ import { LegalView } from "@/components/pages/LegalView";
 import { ServiceView } from "@/components/pages/ServiceView";
 import { WhyIncotaxView } from "@/components/pages/WhyIncotaxView";
 import { SiteCopyProvider } from "@/components/SiteCopy";
+import type { FeePricing } from "@/components/services/FeeBox";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
 import { WhatsAppNumberProvider } from "@/components/WhatsAppNumber";
 import { home } from "@/content/home";
 import { contact, legal, whyIncotax } from "@/content/pages";
-import { getServiceDetail } from "@/content/service-details";
+import { PLANS } from "@/content/service-details";
 import { getService, otherServices } from "@/content/services";
 import { pageCopy, site } from "@/content/site";
 import type { HomeNodes } from "@/lib/home-content";
-import { serviceCopyKey, serviceCopyFor } from "@/lib/service-copy";
+import { formatINR } from "@/lib/format";
+import { serviceCopyFor, serviceCopyKey, serviceDetailFor } from "@/lib/service-copy";
 import { defaultSiteCopy, type SiteCopyNodes } from "@/lib/site-copy-schema";
 
 import { useEditor } from "./EditorContext";
@@ -121,6 +123,8 @@ export function HomeCanvas() {
   const { stats, add: addStat } = useStats();
   const descriptions = useCardDescriptions(home.serviceSlugs);
   const highlights = f.rows("highlights");
+  const editor = useEditor();
+  const feePlans = serviceDetailFor(editor.values, home.fees.serviceSlug).plans ?? [];
 
   const content: HomeNodes = {
     ...home,
@@ -183,6 +187,7 @@ export function HomeCanvas() {
         content={content}
         descriptions={descriptions}
         plainHighlights={highlights.map((row) => row.text)}
+        feePlans={feePlans}
         slots={{
           stats: addStat,
           clients: f.add("clients"),
@@ -283,29 +288,90 @@ export function ContactCanvas() {
   );
 }
 
+const FEE_KINDS = [
+  { value: "plans", label: "Plans (Basic, Standard, Premium)" },
+  { value: "from", label: "Starting from a price" },
+  { value: "fixed", label: "A fixed fee" },
+  { value: "quote", label: "No price: a quote on WhatsApp" },
+];
+
+const PLAN_FIELDS = { basic: "priceBasic", standard: "priceStandard", premium: "pricePremium" };
+
 export function ServiceCanvas({ slug }: { slug: string }) {
   const editor = useEditor();
   const f = fieldsFor(editor, serviceCopyKey(slug));
   const service = getService(slug);
-  const detail = getServiceDetail(slug);
   const descriptions = useCardDescriptions(otherServices(slug).map((other) => other.slug));
   const siteFields = useFields("site");
   if (!service) return null;
+
+  const kind = f.value("pricingKind");
+  const prices = PLANS.map((plan) => Number(f.value(PLAN_FIELDS[plan.id]).replace(/,/g, "")));
+  const lowest = Math.min(...prices.filter((price) => !Number.isNaN(price)));
+  const pricing: FeePricing =
+    kind === "plans"
+      ? {
+          kind: "from",
+          amount: <>{formatINR(Number.isFinite(lowest) ? lowest : 0)}</>,
+          rows: PLANS.map((plan) => ({
+            label: plan.name,
+            value: <>₹{f.text(PLAN_FIELDS[plan.id])}</>,
+          })),
+        }
+      : kind === "quote"
+        ? { kind: "quote", text: f.text("quoteText", "What visitors should do to get a price.") }
+        : {
+            kind: kind === "fixed" ? "fixed" : "from",
+            amount: <>₹{f.text("amount", "0")}</>,
+            suffix: f.text("suffix", "Optional line under the fee"),
+            rows: f.rows("priceRows").map((_, i) => ({
+              label: (
+                <>
+                  {f.cell("priceRows", i, "label")}
+                  {f.remove("priceRows", i)}
+                </>
+              ),
+              value: f.cell("priceRows", i, "value"),
+            })),
+          };
 
   return (
     <SiteFrame>
       <ServiceView
         service={service}
-        detail={detail}
         message={f.value("whatsappMessage") || serviceCopyFor({}, slug).whatsappMessage}
+        detail={{
+          pricing,
+          notIncluded: f.text("notIncluded", "Optional: what the fee does not cover"),
+          timeline: f.text("timeline", "Optional: how long this usually takes"),
+          note: f.text("note", "Optional: conditions or disclaimers"),
+          included: f.rows("included").map((_, i) => ({
+            name: (
+              <>
+                {f.cell("included", i, "name")}
+                {f.remove("included", i)}
+              </>
+            ),
+            description: f.cell("included", i, "description", "Optional description"),
+            extra: kind === "plans" ? f.planChecks("included", i) : undefined,
+          })),
+        }}
         copy={{
           shortDescription: f.text("shortDescription", pageCopy.serviceShortDescription),
-          overviewOne: f.text("overviewOne", detail.overview ?? pageCopy.serviceOverviewOne),
+          overviewOne: f.text(
+            "overviewOne",
+            serviceDetailFor({}, slug).overview ?? pageCopy.serviceOverviewOne,
+          ),
           overviewTwo: f.text("overviewTwo", pageCopy.serviceOverviewTwo),
         }}
         coversIntro={siteFields.text("serviceCoversIntro", pageCopy.serviceCoversIntro)}
         otherServicesIntro={siteFields.text("otherServicesIntro", pageCopy.otherServicesIntro)}
         descriptions={descriptions}
+        slots={{
+          included: f.add("included", ""),
+          feeBefore: f.select("pricingKind", FEE_KINDS),
+          priceRows: kind === "from" || kind === "fixed" ? f.add("priceRows", "") : undefined,
+        }}
       />
     </SiteFrame>
   );

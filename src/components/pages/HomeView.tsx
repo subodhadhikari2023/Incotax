@@ -5,6 +5,7 @@ import { HowItWorks } from "@/components/home/HowItWorks";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
+import type { Plan } from "@/content/service-details";
 import type { HomeNodes } from "@/lib/home-content";
 
 /** The panel's add controls, one per list. */
@@ -21,11 +22,13 @@ export function HomeView({
   content,
   descriptions,
   plainHighlights,
+  feePlans,
   slots = {},
 }: {
   content: HomeNodes;
   descriptions: Record<string, React.ReactNode>;
   plainHighlights?: string[];
+  feePlans?: Plan[];
   slots?: HomeSlots;
 }) {
   return (
@@ -34,7 +37,12 @@ export function HomeView({
       <ClientsSection content={content} after={slots.clients} />
       <ServicesSection content={content} descriptions={descriptions} />
       <HowItWorks content={content} after={slots.steps} />
-      <FeesSection content={content} after={slots.highlights} plainHighlights={plainHighlights} />
+      <FeesSection
+        content={content}
+        after={slots.highlights}
+        plainHighlights={plainHighlights}
+        plans={feePlans}
+      />
       <ReviewsSection content={content} after={slots.reviews} />
       <WhatsAppBand />
     </>

@@ -44,7 +44,12 @@ describe.each([
   ["site", saveSiteCopy, "site", { popupHeading: "Tell us" }],
   ["why-incotax", saveWhyIncotaxContent, "whyIncotax", { title: "Why us" }],
   ["contact", saveContactContent, "contact", { title: "Reach us" }],
-  ["services", gst, "services/gst-registration", { shortDescription: "Short" }],
+  [
+    "services",
+    gst,
+    "services/gst-registration",
+    { shortDescription: "Short", pricingKind: "quote" },
+  ],
   ["legal", privacy, "legal/privacy-policy", { lastUpdated: "1 November 2026" }],
 ] as const)("the %s section's save action", (_name, action, key, values) => {
   it("does nothing unless an admin is logged in", async () => {

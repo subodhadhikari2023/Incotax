@@ -371,6 +371,71 @@ test("a founder's photo is previewed on the page, then published, replaced and r
   });
 });
 
+test("everything on a service page can be edited, including prices", async ({ page }) => {
+  test.setTimeout(150_000);
+  await logIn(page);
+
+  await test.step("a fixed fee, with new wording, on a page without plans", async () => {
+    await page.goto("/admin/services/section-8-company-registration");
+    await frame(page).getByLabel("How this fee is shown").selectOption("fixed");
+    await edit(page, "Fee amount", "12,500");
+    await edit(page, "Estimated timeline", "About two weeks");
+    await edit(page, "Please note", "Stamp duty is extra");
+    await edit(page, "Not included", "Government fees");
+    await edit(page, "Included item 1 name", "Reworded item");
+    await edit(page, "Included item 1 description", "Reworded description");
+    await frame(page).getByRole("button", { name: "Remove included item 2", exact: true }).click();
+    await addRow(page, "included item", {});
+    const added = frame(page)
+      .getByRole("textbox", { name: /^Included item \d+ name$/ })
+      .last();
+    await added.fill("A brand new item");
+    await save(page);
+
+    await page.goto("/services/section-8-company-registration");
+    await expect(page.getByText("Fixed fee")).toBeVisible();
+    await expect(page.getByText("₹12,500")).toBeVisible();
+    await expect(page.getByText("About two weeks")).toBeVisible();
+    await expect(page.getByText("Stamp duty is extra")).toBeVisible();
+    await expect(page.getByText("Not included: Government fees")).toBeVisible();
+    await expect(page.getByText("Reworded item")).toBeVisible();
+    await expect(page.getByText("A brand new item")).toBeVisible();
+  });
+
+  await test.step("a wrong price is refused on the page", async () => {
+    await page.goto("/admin/services/section-8-company-registration");
+    await edit(page, "Fee amount", "twelve");
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(frame(page).getByRole("alert").filter({ hasText: "number" })).toBeVisible();
+    await expect(page.getByRole("status")).toHaveCount(0);
+
+    await page.goto("/services/section-8-company-registration");
+    await expect(page.getByText("₹12,500")).toBeVisible();
+  });
+
+  await test.step("plan prices reach the service page and the home page fee cards", async () => {
+    await page.goto("/admin/services/private-limited-company-incorporation");
+    await edit(page, "Basic price", "1,999");
+    await frame(page).getByLabel("Item 1 in Basic").uncheck();
+    await save(page);
+
+    await page.goto("/services/private-limited-company-incorporation");
+    await expect(page.getByText("Starting from")).toBeVisible();
+    await expect(page.getByText("₹1,999").first()).toBeVisible();
+    await expect(page.getByText("Included in: Standard, Premium").first()).toBeVisible();
+
+    await page.goto("/");
+    const fees = page.getByRole("region", { name: "Fees" });
+    await expect(fees.getByText("₹1,999")).toBeVisible();
+    await expect(fees.getByText("₹1,499")).toHaveCount(0);
+  });
+
+  await test.step("other services keep their own details", async () => {
+    await page.goto("/services/llp-registration");
+    await expect(page.getByText("₹1,499").first()).toBeVisible();
+  });
+});
+
 test("the other pages are edited in place", async ({ page }) => {
   test.setTimeout(150_000);
   await logIn(page);

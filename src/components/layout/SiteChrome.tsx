@@ -1,14 +1,18 @@
+import { SiteCopyProvider } from "@/components/SiteCopy";
 import { WhatsAppNumberProvider } from "@/components/WhatsAppNumber";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { TopBar } from "@/components/layout/TopBar";
-import { getBusinessDetails } from "@/lib/business";
+import { mergeBusinessDetails } from "@/lib/business";
+import { readStoredContent } from "@/lib/content-store";
+import { mergeSiteCopy } from "@/lib/site-copy";
 import { businessJsonLd } from "@/lib/structured-data";
 
 // What every public page shares. Used by the (site) layout and the 404 page, which renders
 // outside that layout.
 export async function SiteChrome({ children }: { children: React.ReactNode }) {
-  const business = await getBusinessDetails();
+  const content = await readStoredContent();
+  const business = mergeBusinessDetails(content);
 
   return (
     <WhatsAppNumberProvider number={business.whatsappNumber}>
@@ -19,10 +23,12 @@ export async function SiteChrome({ children }: { children: React.ReactNode }) {
           __html: JSON.stringify(businessJsonLd(business)).replace(/</g, "\\u003c"),
         }}
       />
-      <TopBar business={business} />
-      <Header />
-      <div className="flex flex-1 flex-col">{children}</div>
-      <Footer business={business} />
+      <SiteCopyProvider copy={mergeSiteCopy(content)}>
+        <TopBar business={business} />
+        <Header />
+        <div className="flex flex-1 flex-col">{children}</div>
+        <Footer business={business} />
+      </SiteCopyProvider>
     </WhatsAppNumberProvider>
   );
 }

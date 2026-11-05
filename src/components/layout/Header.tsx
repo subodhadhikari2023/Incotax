@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { ChevronDownIcon, CloseIcon, MenuIcon, WhatsAppIcon } from "@/components/icons";
+import { useSiteCopy } from "@/components/SiteCopy";
 import { useWhatsAppNumber } from "@/components/WhatsAppNumber";
 import { serviceHref, servicesByCategory } from "@/content/services";
 import { site } from "@/content/site";
@@ -17,9 +18,10 @@ const idleClass = "border-transparent text-navy hover:text-gold-darkest";
 
 function ConsultationButton({ className = "" }: { className?: string }) {
   const whatsappNumber = useWhatsAppNumber();
+  const { whatsappMessage } = useSiteCopy();
   return (
     <a
-      href={whatsappLink(whatsappNumber, site.whatsappMessage)}
+      href={whatsappLink(whatsappNumber, whatsappMessage)}
       target="_blank"
       rel="noopener noreferrer"
       className={`items-center justify-center gap-2 rounded-lg bg-gold px-5 py-3 text-[15px] font-semibold text-navy shadow-button transition-colors hover:bg-gold-arrow ${className}`}

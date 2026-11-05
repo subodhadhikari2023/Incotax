@@ -9,15 +9,12 @@ import { PageHero } from "@/components/ui/PageHero";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { getServiceDetail } from "@/content/service-details";
-import {
-  getService,
-  otherServices,
-  serviceHref,
-  services,
-  whatsappMessageFor,
-} from "@/content/services";
-import { pageCopy, site } from "@/content/site";
+import { getService, otherServices, serviceHref, services } from "@/content/services";
+import { site } from "@/content/site";
+import { readStoredContent } from "@/lib/content-store";
 import { pageMetadata } from "@/lib/metadata";
+import { serviceCardDescriptions, serviceCopyFor } from "@/lib/service-copy";
+import { mergeSiteCopy } from "@/lib/site-copy";
 
 // One static page per service in the services PDF; any other slug is a 404.
 export const dynamicParams = false;
@@ -43,7 +40,11 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
   const service = getService(slug);
   if (!service) notFound();
   const detail = getServiceDetail(slug);
-  const message = whatsappMessageFor(service);
+  const stored = await readStoredContent();
+  const copy = serviceCopyFor(stored, slug);
+  const siteCopy = mergeSiteCopy(stored);
+  const descriptions = serviceCardDescriptions(stored);
+  const message = copy.whatsappMessage;
 
   return (
     <>
@@ -56,7 +57,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
         ]}
       >
         <p className="mt-5 max-w-3xl text-[17px]/[27px] text-on-navy md:text-[19px]/[30px]">
-          {pageCopy.serviceShortDescription}
+          {copy.shortDescription}
         </p>
         <WhatsAppButton message={message} className="mt-8" />
       </PageHero>
@@ -70,8 +71,8 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
                 About this service
               </h2>
               <div className="mt-5 space-y-4 text-[17px] text-text-body">
-                <p>{detail.overview ?? pageCopy.serviceOverviewOne}</p>
-                <p>{pageCopy.serviceOverviewTwo}</p>
+                <p>{copy.overviewOne}</p>
+                <p>{copy.overviewTwo}</p>
                 {detail.timeline && (
                   <p>
                     <span className="font-semibold text-navy">Estimated timeline: </span>
@@ -86,7 +87,7 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
               <h2 id="covers-heading" className={`mt-4 ${sectionHeading}`}>
                 What this service covers
               </h2>
-              <p className="mt-4 mb-7 text-[17px] text-text-muted">{pageCopy.serviceCoversIntro}</p>
+              <p className="mt-4 mb-7 text-[17px] text-text-muted">{siteCopy.serviceCoversIntro}</p>
               <IncludedList items={detail.included} />
               {detail.note && (
                 <p className="mt-6 text-sm text-text-muted">
@@ -112,10 +113,14 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
           >
             Other Services
           </h2>
-          <p className="mt-3 text-center text-lg text-text-muted">{pageCopy.otherServicesIntro}</p>
+          <p className="mt-3 text-center text-lg text-text-muted">{siteCopy.otherServicesIntro}</p>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {otherServices(slug).map((other) => (
-              <ServiceCard key={other.slug} service={other} />
+              <ServiceCard
+                key={other.slug}
+                service={other}
+                description={descriptions[other.slug]}
+              />
             ))}
           </div>
         </div>

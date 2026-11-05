@@ -1,10 +1,13 @@
 import { StarIcon } from "@/components/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { home } from "@/content/home";
+import type { HomeContent } from "@/lib/home-content";
 
-// "What Clients Say": review cards with stars, quote mark, text, name and city/service. Reviews are
-// PENDING (real reviews only). 3 across from tablet up, 1 per row on phones.
-export function ReviewsSection() {
+// "What Clients Say": review cards with stars, quote mark, text, name and city/service. Real reviews
+// only; none hides the section. Centred, 3 across from tablet up, 1 per row on phones.
+export function ReviewsSection({ content = home }: { content?: HomeContent }) {
+  if (content.reviews.length === 0) return null;
+
   return (
     <section aria-labelledby="reviews-heading" className="bg-tint">
       <div className="page-container py-[53px] md:py-[77px] lg:py-24">
@@ -12,13 +15,13 @@ export function ReviewsSection() {
           id="reviews-heading"
           eyebrow="Reviews"
           title="What Clients Say"
-          intro={home.reviewsIntro}
+          intro={content.reviewsIntro}
         />
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {home.reviews.map((review, i) => (
+        <div className="mt-10 flex flex-wrap justify-center gap-6">
+          {content.reviews.map((review, i) => (
             <article
               key={i}
-              className="relative flex flex-col rounded-[20px] bg-white p-7 shadow-card"
+              className="relative flex w-full flex-col rounded-[20px] bg-white p-7 shadow-card md:w-[calc((100%-3rem)/3)]"
             >
               <div>
                 <p role="img" className="flex gap-1 text-gold-deep" aria-label="5 out of 5 stars">
@@ -38,7 +41,7 @@ export function ReviewsSection() {
                 <span aria-hidden="true" className="size-10 shrink-0 rounded-full bg-gold-tint" />
                 <div>
                   <p className="text-[15px] font-semibold text-navy">{review.name}</p>
-                  <p className="text-[13px] text-text-muted">{review.detail}</p>
+                  {review.detail && <p className="text-[13px] text-text-muted">{review.detail}</p>}
                 </div>
               </div>
             </article>

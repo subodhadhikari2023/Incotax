@@ -3,12 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PageHero } from "@/components/ui/PageHero";
-import { legal } from "@/content/pages";
 import { legalLinks, site } from "@/content/site";
+import { readStoredContent } from "@/lib/content-store";
+import { legalContentFor } from "@/lib/legal-content";
 import { pageMetadata } from "@/lib/metadata";
 
-// One template for the five legal pages. The text is PENDING (Zeeshan has it),
-// so the designed section layout is filled with placeholders. Other slugs are a 404.
+// One template for the five legal pages. Until a page's text is saved in the admin panel, the
+// designed section layout is filled with placeholders. Other slugs are a 404.
 export const dynamicParams = false;
 
 const pageFor = (slug: string) => legalLinks.find((l) => l.href === `/${slug}`);
@@ -27,6 +28,7 @@ export default async function LegalPage({ params }: PageProps<"/[legalSlug]">) {
   const { legalSlug } = await params;
   const page = pageFor(legalSlug);
   if (!page) notFound();
+  const legal = legalContentFor(await readStoredContent(), legalSlug);
 
   return (
     <main>

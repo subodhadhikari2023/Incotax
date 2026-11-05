@@ -5,17 +5,20 @@ import { contactIcons, Icon } from "@/components/icons";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PageHero } from "@/components/ui/PageHero";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { contact } from "@/content/pages";
 import { site } from "@/content/site";
-import { getBusinessDetails } from "@/lib/business";
+import { mergeBusinessDetails } from "@/lib/business";
+import { readStoredContent } from "@/lib/content-store";
 import { pageMetadata } from "@/lib/metadata";
+import { mergeContactContent } from "@/lib/pages-content";
 
 export const metadata: Metadata = pageMetadata(`Contact Us | ${site.name}`, "/contact");
 
 // Contact Us: form card + navy WhatsApp card + details list + social links + map block.
 // The form sends to WhatsApp like the pop-up (destination PENDING).
 export default async function ContactPage() {
-  const business = await getBusinessDetails();
+  const stored = await readStoredContent();
+  const business = mergeBusinessDetails(stored);
+  const contact = mergeContactContent(stored);
   const details = [
     { label: "Phone", value: business.phone, icon: contactIcons.phone },
     { label: "Email", value: business.email, icon: contactIcons.email },

@@ -159,6 +159,116 @@ test("the panel links to the business details form, which is accessible", async 
   await expect(page).toHaveURL(/\/admin$/);
 });
 
+test("the home page editor needs a login", async ({ page }) => {
+  await page.goto("/admin/home");
+  await expect(page).toHaveURL(/\/admin\/login$/);
+});
+
+test("the panel links to the home page form, which is accessible", async ({ page }) => {
+  await logIn(page);
+  await page.getByRole("link", { name: "Home page" }).click();
+  await expect(page).toHaveURL(/\/admin\/home$/);
+  await expect(page.getByRole("heading", { name: "Home page", level: 1 })).toBeVisible();
+  await expect(page.getByRole("contentinfo")).toHaveCount(0);
+
+  const check = async () => {
+    await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
+    const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
+    expect(violations).toEqual([]);
+  };
+  await check();
+
+  await page.getByRole("button", { name: "Add review" }).click();
+  await expect(page.getByLabel("Review 1 text")).toBeVisible();
+  await check();
+
+  // An invalid value is never saved, so this doesn't disturb tests running alongside it.
+  await page.getByLabel("Gold words in the headline").fill("Not in the headline");
+  await page.getByLabel("Review 1 text").fill("Only the text");
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "headline" })).toBeVisible();
+  await expect(page.getByLabel("Gold words in the headline")).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  await expect(page.getByLabel("Review 1 name", { exact: true })).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  await check();
+});
+
+const editorPages = [
+  { path: "/admin/site", link: "Site-wide text", heading: "Site-wide text" },
+  { path: "/admin/why-incotax", link: "Why IncoTax", heading: "Why IncoTax" },
+  { path: "/admin/contact", link: "Contact page", heading: "Contact page" },
+];
+
+for (const { path, link, heading } of editorPages) {
+  test(`${path} needs a login, and the panel links to its accessible form`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/admin\/login$/);
+
+    await logIn(page);
+    await expect(page).toHaveURL(/\/admin$/);
+    await page.getByRole("link", { name: link }).click();
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+    await expect(page.getByRole("heading", { name: heading, level: 1 })).toBeVisible();
+
+    await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
+    const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
+    expect(violations).toEqual([]);
+  });
+}
+
+test("the service editors need a login, list all 16 services and are accessible", async ({
+  page,
+}) => {
+  await page.goto("/admin/services");
+  await expect(page).toHaveURL(/\/admin\/login$/);
+  await page.goto("/admin/services/gst-registration");
+  await expect(page).toHaveURL(/\/admin\/login$/);
+
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.getByRole("link", { name: "Service pages" }).click();
+  await expect(page).toHaveURL(/\/admin\/services$/);
+  await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(16);
+
+  await page.getByRole("link", { name: "GST Registration", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/services\/gst-registration$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("GST Registration");
+  await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
+  const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
+  expect(violations).toEqual([]);
+
+  const missing = await page.goto("/admin/services/no-such-service");
+  expect(missing?.status()).toBe(404);
+});
+
+test("the legal editors need a login, list all 5 pages and are accessible", async ({ page }) => {
+  await page.goto("/admin/legal");
+  await expect(page).toHaveURL(/\/admin\/login$/);
+  await page.goto("/admin/legal/privacy-policy");
+  await expect(page).toHaveURL(/\/admin\/login$/);
+
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.getByRole("link", { name: "Legal pages" }).click();
+  await expect(page).toHaveURL(/\/admin\/legal$/);
+  await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(5);
+
+  await page.getByRole("link", { name: "Privacy Policy" }).click();
+  await expect(page).toHaveURL(/\/admin\/legal\/privacy-policy$/);
+  await page.getByRole("button", { name: "Add section" }).click();
+  await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
+  const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
+  expect(violations).toEqual([]);
+
+  const missing = await page.goto("/admin/legal/no-such-page");
+  expect(missing?.status()).toBe(404);
+});
+
 // Guards for moving the public pages into their own layout: both pass before and after the move.
 test("an unknown URL still shows the 404 page with the public header and footer", async ({
   page,

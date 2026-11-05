@@ -4,11 +4,12 @@ import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { home } from "@/content/home";
 import { getServiceDetail } from "@/content/service-details";
 import { formatINR } from "@/lib/format";
+import type { HomeContent } from "@/lib/home-content";
 
 // Fees: the Private Limited plans, Standard raised and highlighted (Subodh, Oct 29). Prices come
 // from the service data so they always match the service page. 3 across from tablet up.
-export function FeesSection() {
-  const { fees } = home;
+export function FeesSection({ content = home }: { content?: HomeContent }) {
+  const { fees } = content;
   const plans = getServiceDetail(fees.serviceSlug).plans ?? [];
 
   return (
@@ -46,16 +47,18 @@ export function FeesSection() {
                 <p className={`mt-3 text-sm ${featured ? "text-on-navy" : "text-text-muted"}`}>
                   Starting from (professional fee)
                 </p>
-                <ul className="mt-6 space-y-3 text-[15px]">
-                  {fees.highlights.map((highlight, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <CheckIcon
-                        className={`text-sm ${featured ? "text-gold" : "text-gold-deep"}`}
-                      />
-                      <span className={featured ? "font-semibold" : ""}>{highlight}</span>
-                    </li>
-                  ))}
-                </ul>
+                {fees.highlights.length > 0 && (
+                  <ul className="mt-6 space-y-3 text-[15px]">
+                    {fees.highlights.map((highlight, i) => (
+                      <li key={i} className="flex items-center gap-3">
+                        <CheckIcon
+                          className={`text-sm ${featured ? "text-gold" : "text-gold-deep"}`}
+                        />
+                        <span className={featured ? "font-semibold" : ""}>{highlight}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <WhatsAppButton variant={featured ? "gold" : "outline"} className="mt-8 w-full" />
               </article>
             );

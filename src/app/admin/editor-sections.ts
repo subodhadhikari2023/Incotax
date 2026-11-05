@@ -1,4 +1,5 @@
 import type { EditorSection, EditorSetting } from "@/components/admin/editor/PageEditor";
+import { whyIncotax } from "@/content/pages";
 import { businessFormValues } from "@/lib/business";
 import { businessSchema } from "@/lib/business-schema";
 import type { StoredContent } from "@/lib/content-store";
@@ -20,6 +21,7 @@ import { saveLegalContent } from "./legal/actions";
 import { saveServiceCopy } from "./services/actions";
 import { saveSiteCopy } from "./site/actions";
 import { saveWhyIncotaxContent } from "./why-incotax/actions";
+import { saveFounderPhoto } from "./why-incotax/photo-actions";
 
 // What each editor page can change, and how each part is saved.
 
@@ -36,6 +38,16 @@ export const whyIncotaxSection = (stored: StoredContent): EditorSection => ({
   action: saveWhyIncotaxContent,
   initial: whyIncotaxFormValues(stored),
 });
+
+export const founderPhotoSections = (stored: StoredContent): EditorSection[] =>
+  whyIncotax.founders.map((_, i) => ({
+    key: `founderPhoto/${i}`,
+    schema: [],
+    action: saveFounderPhoto.bind(null, i),
+    initial: {
+      version: String((stored.founderPhotos as Record<string, unknown> | undefined)?.[i] ?? ""),
+    },
+  }));
 
 export const contactSection = (stored: StoredContent): EditorSection => ({
   key: "contact",

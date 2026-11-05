@@ -12,6 +12,7 @@ const PORT = 3100;
 
 // Saved content for the test server; removed before each build so pages start from the defaults.
 const CONTENT_STORE_FILE = join(tmpdir(), "incotax-e2e-content.json");
+const MEDIA_STORE_DIR = join(tmpdir(), "incotax-e2e-media");
 
 // This spec changes what every public page shows, so nothing may run alongside it.
 const CONTENT_EDITING_SPEC = /admin-content\.spec\.ts/;
@@ -52,7 +53,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `rm -f "${CONTENT_STORE_FILE}" && npm run build && npm run start -- --port ${PORT}`,
+    command: `rm -rf "${CONTENT_STORE_FILE}" "${MEDIA_STORE_DIR}" && npm run build && npm run start -- --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     // Absolute URLs (sitemap, canonical, Open Graph) point at the test server.
     env: {
@@ -61,6 +62,7 @@ export default defineConfig({
       ADMIN_PASSWORD_HASH: hashPassword(ADMIN_TEST_PASSWORD),
       ADMIN_SESSION_SECRET: "e2e-test-signing-secret",
       CONTENT_STORE_FILE,
+      MEDIA_STORE_DIR,
     },
     reuseExistingServer: false,
     timeout: 180_000,

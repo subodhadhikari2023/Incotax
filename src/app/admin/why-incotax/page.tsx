@@ -3,7 +3,13 @@ import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
 
-import { homeSection, sharedSections, sharedSettings, whyIncotaxSection } from "../editor-sections";
+import {
+  founderPhotoSections,
+  homeSection,
+  sharedSections,
+  sharedSettings,
+  whyIncotaxSection,
+} from "../editor-sections";
 
 export default async function AdminWhyIncotaxPage() {
   await requireAdmin();
@@ -16,7 +22,12 @@ export default async function AdminWhyIncotaxPage() {
     <PageEditor
       title="Why IncoTax"
       publicHref="/why-incotax"
-      sections={[whyIncotaxSection(stored), homeSection(stored), ...sharedSections(stored)]}
+      sections={[
+        whyIncotaxSection(stored),
+        ...founderPhotoSections(stored),
+        homeSection(stored),
+        ...sharedSections(stored),
+      ]}
       settings={sharedSettings}
     >
       <WhyIncotaxCanvas />

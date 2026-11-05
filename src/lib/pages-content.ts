@@ -100,6 +100,16 @@ export function mergeWhyIncotaxContent(content: StoredContent): typeof whyIncota
   };
 }
 
+/** Each founder's photo address, which changes with the photo. Null until one is uploaded. */
+export function founderPhotoUrls(content: StoredContent): (string | null)[] {
+  const stored = content.founderPhotos;
+  const photos = typeof stored === "object" && stored !== null ? stored : {};
+  return whyIncotax.founders.map((_, i) => {
+    const version = (photos as Record<string, unknown>)[i];
+    return typeof version === "string" && version ? `/media/founder-${i}?v=${version}` : null;
+  });
+}
+
 export function whyIncotaxFormValues(content: StoredContent) {
   return sectionFormValues(whyIncotaxSchema, content.whyIncotax, {
     title: whyIncotax.title,

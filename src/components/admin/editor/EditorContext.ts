@@ -10,6 +10,9 @@ export type EditorContextValue = {
   schemas: Record<string, SectionSchema>;
   values: Record<string, SectionValues>;
   errors: Record<string, SectionErrors>;
+  /** Files waiting for the next save, per section. "remove" asks for the saved one to go. */
+  files: Record<string, File | "remove" | undefined>;
+  setFile: (section: string, file: File | "remove" | null) => void;
   setValue: (section: string, name: string, value: string) => void;
   add: (section: string, list: string) => void;
   remove: (section: string, list: string, index: number) => void;

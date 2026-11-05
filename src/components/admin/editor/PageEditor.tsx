@@ -69,6 +69,7 @@ export function PageEditor({
     Object.fromEntries(sections.map((section) => [section.key, section.initial])),
   );
   const [errors, setErrors] = useState<Record<string, SectionErrors>>({});
+  const [files, setFiles] = useState<Record<string, File | "remove" | undefined>>({});
   const [dirty, setDirty] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -101,6 +102,12 @@ export function PageEditor({
     setActive,
     pendingFocusRef,
     focusVersion,
+    files,
+    setFile: (section: string, file: File | "remove" | null) => {
+      setFiles((all) => ({ ...all, [section]: file ?? undefined }));
+      setErrors((all) => ({ ...all, [section]: {} }));
+      if (file) changed(section);
+    },
     setValue: (section: string, name: string, value: string) => {
       setValues((all) => ({ ...all, [section]: setField(all[section], name, value) }));
       setErrors((all) => {
@@ -134,12 +141,14 @@ export function PageEditor({
 
       for (const section of sections.filter(({ key }) => dirty.includes(key))) {
         try {
-          const result = await section.action(
-            undefined as never,
-            sectionFormData(values[section.key]),
-          );
+          const data = sectionFormData(values[section.key]);
+          const file = files[section.key];
+          if (file === "remove") data.set("removePhoto", "1");
+          else if (file) data.set("photo", file);
+          const result = await section.action(undefined as never, data);
           if (result?.saved) {
             setValues((all) => ({ ...all, [section.key]: result.values }));
+            setFiles((all) => ({ ...all, [section.key]: undefined }));
             continue;
           }
           stillDirty.push(section.key);

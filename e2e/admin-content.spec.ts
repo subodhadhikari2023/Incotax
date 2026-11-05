@@ -298,6 +298,79 @@ test("the home page is edited in place and shows on the public site", async ({ p
   });
 });
 
+// A real 4x5 PNG, small enough to keep in the test.
+const PHOTO = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAIAAADtz9qMAAAAEElEQVR4nGPglreCIwYyOAD6fQfRAXL/QAAAAABJRU5ErkJggg==",
+  "base64",
+);
+
+test("a founder's photo is previewed on the page, then published, replaced and removed", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await logIn(page);
+  await page.goto("/admin/why-incotax");
+
+  const choose = () =>
+    frame(page)
+      .getByLabel("Upload a photo of Zeeshan Khan")
+      .setInputFiles({ name: "me.png", mimeType: "image/png", buffer: PHOTO });
+  const shown = async (image: ReturnType<Page["getByRole"]>) => {
+    await expect(image).toBeVisible();
+    await expect
+      .poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
+  };
+
+  await test.step("a chosen photo shows on the page before it is saved", async () => {
+    await choose();
+    await expect(frame(page).getByRole("img", { name: "Zeeshan Khan" })).toHaveAttribute(
+      "src",
+      /^blob:/,
+    );
+    await expect(page.getByText("Unsaved changes", { exact: true })).toBeVisible();
+
+    const live = await page.context().newPage();
+    await live.goto("/why-incotax");
+    await expect(live.getByRole("img", { name: "Zeeshan Khan" })).toHaveCount(0);
+    await live.close();
+  });
+
+  let firstAddress = "";
+  await test.step("saving publishes it, on the real image address", async () => {
+    await save(page);
+    await page.goto("/why-incotax");
+    const image = page.getByRole("img", { name: "Zeeshan Khan" });
+    await shown(image);
+    firstAddress = (await image.getAttribute("src")) ?? "";
+    await expect(page.getByText("[Professional photo]")).toHaveCount(1);
+
+    const response = await page.request.get("/media/founder-0");
+    expect(response.headers()["content-type"]).toBe("image/png");
+  });
+
+  await test.step("replacing it changes the address, so no old copy is shown", async () => {
+    await page.goto("/admin/why-incotax");
+    await expect(frame(page).getByText("Replace photo")).toBeVisible();
+    await choose();
+    await save(page);
+    await page.goto("/why-incotax");
+    const image = page.getByRole("img", { name: "Zeeshan Khan" });
+    await shown(image);
+    expect(await image.getAttribute("src")).not.toBe(firstAddress);
+  });
+
+  await test.step("removing it brings the placeholder back", async () => {
+    await page.goto("/admin/why-incotax");
+    await frame(page).getByRole("button", { name: "Remove photo of Zeeshan Khan" }).click();
+    await save(page);
+    await page.goto("/why-incotax");
+    await expect(page.getByRole("img", { name: "Zeeshan Khan" })).toHaveCount(0);
+    await expect(page.getByText("[Professional photo]")).toHaveCount(2);
+    expect((await page.request.get("/media/founder-0")).status()).toBe(404);
+  });
+});
+
 test("the other pages are edited in place", async ({ page }) => {
   test.setTimeout(150_000);
   await logIn(page);

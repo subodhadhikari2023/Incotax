@@ -281,6 +281,31 @@ test("the phone view really uses the site's phone layout", async ({ page }, info
   await expect(site.getByRole("button", { name: "Open menu" })).toBeVisible();
 });
 
+test("a photo that can't be used is refused on the page, and nothing is saved", async ({
+  page,
+}) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto("/admin/why-incotax");
+
+  await frame(page)
+    .getByLabel("Upload a photo of Zeeshan Khan")
+    .setInputFiles({
+      name: "logo.svg",
+      mimeType: "image/svg+xml",
+      buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>'),
+    });
+  await expect(
+    frame(page).getByRole("alert").filter({ hasText: "JPG, PNG or WebP" }),
+  ).toBeVisible();
+  await expect(page.getByText("No unsaved changes")).toBeVisible();
+  await axeCheck(page);
+});
+
+test("an unknown media address is a 404", async ({ request }) => {
+  expect((await request.get("/media/not-a-photo")).status()).toBe(404);
+});
+
 test("unsaved work is protected", async ({ page }) => {
   await logIn(page);
   await expect(page).toHaveURL(/\/admin$/);

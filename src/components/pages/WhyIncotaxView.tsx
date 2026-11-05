@@ -1,5 +1,6 @@
 import { CheckIcon, contactIcons, Icon } from "@/components/icons";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { FounderPhoto } from "@/components/ui/FounderPhoto";
 import { PageHero } from "@/components/ui/PageHero";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatsList } from "@/components/ui/StatsList";
@@ -14,6 +15,7 @@ const section = "page-container py-[53px] md:py-[77px] lg:py-24";
 /** The panel's add controls. With one, its section stays on screen while empty. */
 export type WhyIncotaxSlots = {
   about?: React.ReactNode;
+  photo?: (index: number) => React.ReactNode;
   stats?: React.ReactNode;
   founderPoints?: (index: number) => React.ReactNode;
   practice?: React.ReactNode;
@@ -25,11 +27,14 @@ export type WhyIncotaxSlots = {
 export function WhyIncotaxView({
   content,
   stats,
+  photos = [],
   slots = {},
   echo = {},
 }: {
   content: Nodes<typeof whyIncotax>;
   stats: HomeNodes["stats"];
+  /** Each founder's uploaded photo, if any. */
+  photos?: (string | null)[];
   slots?: WhyIncotaxSlots;
   /** One line repeats on every card; the panel edits it on the first and repeats this text. */
   echo?: { courtLine?: string; areaLine?: string };
@@ -97,10 +102,9 @@ export function WhyIncotaxView({
                     aria-hidden="true"
                     className="absolute inset-0 top-4 left-4 rounded-[20px] border-2 border-gold"
                   />
-                  {/* Photo slot: placeholder until photos are confirmed. */}
-                  <div className="relative flex aspect-[4/5] items-center justify-center rounded-[20px] bg-placeholder text-sm text-text-muted">
-                    [Professional photo]
-                  </div>
+                  {slots.photo?.(i) ?? (
+                    <FounderPhoto src={photos[i] ?? null} name={String(founder.name)} />
+                  )}
                 </div>
                 <div>
                   <Eyebrow>{`${founder.role} · ${founder.title}`}</Eyebrow>

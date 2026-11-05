@@ -24,6 +24,7 @@ import { serviceCopyKey, serviceCopyFor } from "@/lib/service-copy";
 import { defaultSiteCopy, type SiteCopyNodes } from "@/lib/site-copy-schema";
 
 import { useEditor } from "./EditorContext";
+import { PhotoSlot } from "./PhotoSlot";
 import { fieldsFor, useFields } from "./useFields";
 
 // One canvas per public page: the page's own components, with each piece of text swapped for an
@@ -243,6 +244,9 @@ export function WhyIncotaxCanvas() {
         }}
         slots={{
           about: f.add("aboutParagraphs"),
+          photo: (i) => (
+            <PhotoSlot section={`founderPhoto/${i}`} index={i} name={whyIncotax.founders[i].name} />
+          ),
           stats: addStat,
           founderPoints: (i) => f.add(`founderPoints${i}`, NO_NOTE),
           practice: (

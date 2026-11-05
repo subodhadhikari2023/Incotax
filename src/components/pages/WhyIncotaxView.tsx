@@ -80,7 +80,7 @@ export function WhyIncotaxView({
           {stats.length > 0 && (
             <StatsList stats={stats} className="page-container py-12 lg:py-14" />
           )}
-          {slots.stats}
+          {slots.stats && <div className="pb-10">{slots.stats}</div>}
         </section>
       )}
 

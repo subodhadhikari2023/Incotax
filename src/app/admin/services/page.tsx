@@ -99,7 +99,7 @@ export default async function AdminServicesPage() {
                               }
                               className={button}
                             >
-                              {home ? "Off home page" : "On home page"}
+                              {home ? "Take off home page" : "Add to home page"}
                             </button>
                           </form>
                           <form action={hideServiceAction.bind(null, entry.slug)}>

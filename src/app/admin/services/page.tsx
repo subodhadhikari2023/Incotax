@@ -1,29 +1,30 @@
-import Link from "next/link";
-
 import { AdminSection } from "@/components/admin/AdminSection";
+import { EditorList } from "@/components/admin/EditorList";
 import { servicesByCategory } from "@/content/services";
 import { requireAdmin } from "@/lib/admin/auth";
+import { readStoredContent } from "@/lib/content-store";
+import { serviceCopyKey } from "@/lib/service-copy";
 
 export default async function AdminServicesPage() {
   await requireAdmin();
+  const stored = await readStoredContent();
 
   return (
-    <AdminSection title="Service pages" intro="Choose a service to edit its text.">
+    <AdminSection
+      title="Service pages"
+      intro="Each service has its own page. Choose the one you want to change."
+      editing={false}
+    >
       {servicesByCategory.map((category) => (
         <section key={category.id} className="mt-8">
-          <h2 className="text-[28px] text-navy">{category.name}</h2>
-          <ul className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {category.services.map((service) => (
-              <li key={service.slug}>
-                <Link
-                  href={`/admin/services/${service.slug}`}
-                  className="block rounded-[14px] border border-border bg-white p-5 font-semibold text-navy shadow-card hover:border-navy"
-                >
-                  {service.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <h2 className="text-[28px]/[1.2] text-navy">{category.name}</h2>
+          <EditorList
+            items={category.services.map((service) => ({
+              href: `/admin/services/${service.slug}`,
+              label: service.name,
+              edited: serviceCopyKey(service.slug) in stored,
+            }))}
+          />
         </section>
       ))}
     </AdminSection>

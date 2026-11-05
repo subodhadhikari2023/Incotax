@@ -23,8 +23,8 @@ export default async function AdminLegalEditorPage({ params }: PageProps<"/admin
     <AdminSection
       title={page.label}
       intro="A field left blank keeps showing its default."
-      backHref="/admin/legal"
-      backLabel="Back to legal pages"
+      parent={{ label: "Legal pages", href: "/admin/legal" }}
+      publicHref={page.href}
     >
       <ContentForm
         schema={legalSchema}

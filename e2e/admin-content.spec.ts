@@ -164,7 +164,10 @@ test("saved home page content shows on the public site, and empty lists hide sec
   test.setTimeout(120_000);
 
   await logIn(page);
-  await page.getByRole("link", { name: "Home page" }).click();
+  await page
+    .getByRole("navigation", { name: "Admin sections" })
+    .getByRole("link", { name: "Home page" })
+    .click();
   await expect(page).toHaveURL(/\/admin\/home$/);
 
   await test.step("save text and lists", async () => {
@@ -369,6 +372,12 @@ test("the remaining editors change the public pages they belong to", async ({ pa
       "Card description": "GST registration, done for you",
       "WhatsApp message": "Hello, I need GST registration",
     });
+
+    await page.goto("/admin/services");
+    const card = (name: string) =>
+      page.getByRole("main").locator("ul > li").filter({ hasText: name });
+    await expect(card("GST Registration")).toContainText("Edited");
+    await expect(card("ISO")).toContainText("Not edited yet");
 
     await page.goto("/services/gst-registration");
     await expect(page.getByText("Register for GST without the paperwork")).toBeVisible();

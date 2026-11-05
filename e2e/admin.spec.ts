@@ -6,6 +6,8 @@ import { expect, test } from "./test";
 
 const wcag = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
+const adminNav = (page: Page) => page.getByRole("navigation", { name: "Admin sections" });
+
 async function logIn(page: Page, password = ADMIN_TEST_PASSWORD) {
   await page.goto("/admin/login");
   await page.getByLabel("Password").fill(password);
@@ -136,7 +138,7 @@ test("the business details page needs a login", async ({ page }) => {
 
 test("the panel links to the business details form, which is accessible", async ({ page }) => {
   await logIn(page);
-  await page.getByRole("link", { name: "Business details" }).click();
+  await adminNav(page).getByRole("link", { name: "Business details" }).click();
   await expect(page).toHaveURL(/\/admin\/business$/);
   await expect(page.getByRole("heading", { name: "Business details", level: 1 })).toBeVisible();
   await expect(page.getByRole("contentinfo")).toHaveCount(0);
@@ -155,7 +157,12 @@ test("the panel links to the business details form, which is accessible", async 
   await expect(page.getByLabel("Email")).toHaveAttribute("aria-invalid", "true");
   await check();
 
-  await page.getByRole("link", { name: "Back to panel" }).click();
+  // The refused value is still unsaved, so leaving asks first.
+  page.once("dialog", (dialog) => dialog.accept());
+  await page
+    .getByRole("navigation", { name: "Breadcrumb" })
+    .getByRole("link", { name: "Admin panel" })
+    .click();
   await expect(page).toHaveURL(/\/admin$/);
 });
 
@@ -166,7 +173,7 @@ test("the home page editor needs a login", async ({ page }) => {
 
 test("the panel links to the home page form, which is accessible", async ({ page }) => {
   await logIn(page);
-  await page.getByRole("link", { name: "Home page" }).click();
+  await adminNav(page).getByRole("link", { name: "Home page" }).click();
   await expect(page).toHaveURL(/\/admin\/home$/);
   await expect(page.getByRole("heading", { name: "Home page", level: 1 })).toBeVisible();
   await expect(page.getByRole("contentinfo")).toHaveCount(0);
@@ -211,7 +218,7 @@ for (const { path, link, heading } of editorPages) {
 
     await logIn(page);
     await expect(page).toHaveURL(/\/admin$/);
-    await page.getByRole("link", { name: link }).click();
+    await adminNav(page).getByRole("link", { name: link }).click();
     await expect(page).toHaveURL(new RegExp(`${path}$`));
     await expect(page.getByRole("heading", { name: heading, level: 1 })).toBeVisible();
 
@@ -231,9 +238,9 @@ test("the service editors need a login, list all 16 services and are accessible"
 
   await logIn(page);
   await expect(page).toHaveURL(/\/admin$/);
-  await page.getByRole("link", { name: "Service pages" }).click();
+  await adminNav(page).getByRole("link", { name: "Service pages" }).click();
   await expect(page).toHaveURL(/\/admin\/services$/);
-  await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(16);
+  await expect(page.getByRole("main").locator("ul > li")).toHaveCount(16);
 
   await page.getByRole("link", { name: "GST Registration", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/services\/gst-registration$/);
@@ -254,9 +261,9 @@ test("the legal editors need a login, list all 5 pages and are accessible", asyn
 
   await logIn(page);
   await expect(page).toHaveURL(/\/admin$/);
-  await page.getByRole("link", { name: "Legal pages" }).click();
+  await adminNav(page).getByRole("link", { name: "Legal pages" }).click();
   await expect(page).toHaveURL(/\/admin\/legal$/);
-  await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(5);
+  await expect(page.getByRole("main").locator("ul > li")).toHaveCount(5);
 
   await page.getByRole("link", { name: "Privacy Policy" }).click();
   await expect(page).toHaveURL(/\/admin\/legal\/privacy-policy$/);
@@ -267,6 +274,85 @@ test("the legal editors need a login, list all 5 pages and are accessible", asyn
 
   const missing = await page.goto("/admin/legal/no-such-page");
   expect(missing?.status()).toBe(404);
+});
+
+test("every editor shows where the editor is and links to the page being changed", async ({
+  page,
+}) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+
+  const nav = adminNav(page);
+  await nav.getByRole("link", { name: "Service pages" }).click();
+  await page.getByRole("main").getByRole("link", { name: "GST Registration", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/services\/gst-registration$/);
+
+  await expect(nav.getByRole("link", { name: "Service pages" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
+  await expect(breadcrumb.getByRole("link")).toHaveText(["Admin panel", "Service pages"]);
+  await expect(breadcrumb).toContainText("GST Registration");
+
+  const view = page.getByRole("link", { name: "View this page on the live site" });
+  await expect(view).toHaveAttribute("href", "/services/gst-registration");
+  await expect(view).toHaveAttribute("target", "_blank");
+});
+
+test("the links from the home editor reach real places on the home page", async ({ page }) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto("/admin/home");
+
+  const links = page.getByRole("main").getByRole("link", { name: /^See .* on the site$/ });
+  const hrefs = await links.evaluateAll((all) => all.map((a) => a.getAttribute("href") ?? ""));
+  expect(hrefs.length).toBeGreaterThan(3);
+
+  await page.goto("/");
+  for (const href of hrefs) {
+    const id = href.split("#")[1];
+    expect(id, href).toBeTruthy();
+    await expect(page.locator(`[id="${id}"]`), href).toHaveCount(1);
+  }
+});
+
+test("the save button stays on screen and unsaved work is protected", async ({ page }) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto("/admin/home");
+
+  const save = page.getByRole("button", { name: "Save changes" });
+  await expect(save).toBeInViewport();
+  await page.getByRole("button", { name: "Add review" }).scrollIntoViewIfNeeded();
+  await expect(save).toBeInViewport();
+
+  await expect(page.getByText("No unsaved changes")).toBeVisible();
+  await page.getByLabel("Headline", { exact: true }).fill("Not saved");
+  await expect(page.getByText("Unsaved changes", { exact: true })).toBeVisible();
+
+  const open = page.getByRole("navigation", { name: "Admin sections" });
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await open.getByRole("link", { name: "Legal pages" }).click({ force: true });
+  await expect(page).toHaveURL(/\/admin\/home$/);
+  await expect(page.getByLabel("Headline", { exact: true })).toHaveValue("Not saved");
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await open.getByRole("link", { name: "Legal pages" }).click({ force: true });
+  await expect(page).toHaveURL(/\/admin\/legal$/);
+});
+
+test("admin pages fit the screen without sideways scrolling", async ({ page }) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+
+  for (const path of ["/admin", "/admin/home", "/admin/services", "/admin/legal/privacy-policy"]) {
+    await page.goto(path);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, path).toBeLessThanOrEqual(0);
+  }
 });
 
 // Guards for moving the public pages into their own layout: both pass before and after the move.

@@ -9,7 +9,11 @@ import { HeroHeadline } from "./HeroHeadline";
 // Navy home hero: label, headline, supporting text, WhatsApp button and up to 4 stats.
 export function HeroSection({ content = home }: { content?: HomeContent }) {
   return (
-    <section aria-label="Introduction" className="relative overflow-hidden bg-navy text-white">
+    <section
+      id="hero"
+      aria-label="Introduction"
+      className="relative overflow-hidden bg-navy text-white"
+    >
       <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2">
         <span className="absolute top-0 -right-48 size-[760px] rounded-full border border-navy-line" />
         <span className="absolute top-0 -right-16 size-[400px] rounded-full border border-navy-line" />

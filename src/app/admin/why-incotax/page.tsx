@@ -16,6 +16,7 @@ export default async function AdminWhyIncotaxPage() {
   return (
     <AdminSection
       title="Why IncoTax"
+      publicHref="/why-incotax"
       intro="A text field left blank keeps showing its default. Saving also applies every list below."
     >
       <ContentForm schema={whyIncotaxSchema} action={saveWhyIncotaxContent} initial={initial} />

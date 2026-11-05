@@ -14,6 +14,7 @@ export default async function AdminHomePage() {
   return (
     <AdminSection
       title="Home page"
+      publicHref="/"
       intro="A text field left blank keeps showing its default. Saving also applies every list below, so an empty list hides its section."
     >
       <HomeForm initial={initial} />

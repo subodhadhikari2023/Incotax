@@ -27,7 +27,7 @@ const initial: HomeFormValues = {
   reviews: [],
 };
 
-const save = () => screen.getByRole("button", { name: "Save" });
+const save = () => screen.getByRole("button", { name: "Save changes" });
 
 afterEach(() => {
   vi.clearAllMocks();

@@ -23,8 +23,8 @@ export default async function AdminServicePage({ params }: PageProps<"/admin/ser
     <AdminSection
       title={service.name}
       intro="A field left blank keeps showing its default. Prices and what is included are not edited here."
-      backHref="/admin/services"
-      backLabel="Back to service pages"
+      parent={{ label: "Service pages", href: "/admin/services" }}
+      publicHref={`/services/${slug}`}
     >
       <ContentForm
         schema={serviceCopySchema}

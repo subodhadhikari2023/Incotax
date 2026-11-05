@@ -15,6 +15,8 @@ const names = (rows: ListRow[] | undefined) => rows?.map((row) => row.name);
 export const whyIncotaxSchema: SectionSchema = [
   {
     title: "Page top",
+    where: "The navy banner at the top of the Why IncoTax page.",
+    href: "/why-incotax",
     items: [
       { kind: "text", name: "title", label: "Page headline", max: 120 },
       { kind: "text", name: "intro", label: "Page intro", max: 300, multiline: true },
@@ -22,6 +24,8 @@ export const whyIncotaxSchema: SectionSchema = [
   },
   {
     title: "About IncoTax",
+    where: "Just under the banner on the Why IncoTax page.",
+    href: "/why-incotax#about-heading",
     items: [
       {
         kind: "list",
@@ -35,6 +39,8 @@ export const whyIncotaxSchema: SectionSchema = [
   },
   ...whyIncotax.founders.map((founder, i) => ({
     title: founder.name,
+    where: `${founder.name}'s card in the Our Team section. The name and title are not edited here.`,
+    href: "/why-incotax#team-heading",
     items: [
       {
         kind: "text" as const,
@@ -54,6 +60,8 @@ export const whyIncotaxSchema: SectionSchema = [
   })),
   {
     title: "Courts and areas of law",
+    where: "The cards near the bottom of the Why IncoTax page.",
+    href: "/why-incotax#practice-heading",
     items: [
       { kind: "text", name: "practiceIntro", label: "Courts and areas intro", max: 200 },
       { kind: "text", name: "courtLine", label: "Line under each court", max: 200 },
@@ -123,6 +131,8 @@ export function whyIncotaxFormValues(content: StoredContent) {
 export const contactSchema: SectionSchema = [
   {
     title: "Page top",
+    where: "The navy banner at the top of the Contact page.",
+    href: "/contact",
     items: [
       { kind: "text", name: "title", label: "Page headline", max: 120 },
       { kind: "text", name: "intro", label: "Page intro", max: 300, multiline: true },
@@ -130,6 +140,9 @@ export const contactSchema: SectionSchema = [
   },
   {
     title: "Contact form",
+    where:
+      "Above the form on the Contact page. The form's button and notes are under Site-wide text.",
+    href: "/contact#form-heading",
     items: [
       { kind: "text", name: "formHeading", label: "Form heading", max: 120 },
       { kind: "text", name: "formLine", label: "Line under the form heading", max: 200 },
@@ -137,6 +150,8 @@ export const contactSchema: SectionSchema = [
   },
   {
     title: "WhatsApp card",
+    where: "The navy card beside the form on the Contact page.",
+    href: "/contact#whatsapp-card-heading",
     items: [
       { kind: "text", name: "whatsappLabel", label: "WhatsApp card label", max: 60 },
       { kind: "text", name: "whatsappHeading", label: "WhatsApp card heading", max: 120 },

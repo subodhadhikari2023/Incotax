@@ -8,6 +8,8 @@ export type TextDef = {
   max: number;
   hint?: string;
   multiline?: boolean;
+  /** The keyboard a phone shows, such as "tel". */
+  inputType?: "tel" | "email";
 };
 
 export type ListFieldDef = {
@@ -30,7 +32,14 @@ export type ListDef = {
   fields: ListFieldDef[];
 };
 
-export type SectionSchema = { title: string; items: (TextDef | ListDef)[] }[];
+export type SectionSchema = {
+  title: string;
+  /** Where these fields appear on the site, so the editor never has to guess. */
+  where: string;
+  /** A page of this site showing them, when there is one place to look. */
+  href?: string;
+  items: (TextDef | ListDef)[];
+}[];
 
 export type ListRow = Record<string, string>;
 export type SectionValues = Record<string, string | ListRow[]>;

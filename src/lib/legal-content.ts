@@ -11,6 +11,7 @@ import type { StoredContent } from "./content-store";
 export const legalSchema: SectionSchema = [
   {
     title: "Page details",
+    where: "Under the page title, and beside the Contact us button at the end of the page.",
     items: [
       { kind: "text", name: "lastUpdated", label: "Last updated", max: 40 },
       {
@@ -24,6 +25,7 @@ export const legalSchema: SectionSchema = [
   },
   {
     title: "Sections",
+    where: "The main text of the page. The contents list beside it is built from the headings.",
     items: [
       {
         kind: "list",

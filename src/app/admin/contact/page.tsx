@@ -16,6 +16,7 @@ export default async function AdminContactPage() {
   return (
     <AdminSection
       title="Contact page"
+      publicHref="/contact"
       intro="A field left blank keeps showing its default. Phone, email, address and hours are under Business details."
     >
       <ContentForm schema={contactSchema} action={saveContactContent} initial={initial} />

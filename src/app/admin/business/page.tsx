@@ -1,9 +1,11 @@
-import Link from "next/link";
-
-import { BusinessForm } from "@/components/admin/BusinessForm";
+import { AdminSection } from "@/components/admin/AdminSection";
+import { ContentForm } from "@/components/admin/ContentForm";
 import { requireAdmin } from "@/lib/admin/auth";
 import { businessFields, savedBusinessDetails, type BusinessFormValues } from "@/lib/business";
+import { businessSchema } from "@/lib/business-schema";
 import { readStoredContentOrThrow } from "@/lib/content-store";
+
+import { saveBusinessDetails } from "./actions";
 
 export default async function AdminBusinessPage() {
   await requireAdmin();
@@ -16,15 +18,12 @@ export default async function AdminBusinessPage() {
   ) as BusinessFormValues;
 
   return (
-    <main className="page-container flex-1 py-12">
-      <Link href="/admin" className="text-[15px] font-semibold text-navy underline">
-        Back to panel
-      </Link>
-      <h1 className="mt-4 text-[40px]/[46px] text-navy">Business details</h1>
-      <p className="mt-3 max-w-[720px] text-text-body">
-        Shown across the public site. A field left blank keeps showing its placeholder.
-      </p>
-      <BusinessForm initial={initial} />
-    </main>
+    <AdminSection
+      title="Business details"
+      intro="How visitors reach the firm. A field left blank keeps showing its placeholder."
+      publicHref="/contact"
+    >
+      <ContentForm schema={businessSchema} action={saveBusinessDetails} initial={initial} />
+    </AdminSection>
   );
 }

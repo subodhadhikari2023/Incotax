@@ -1,23 +1,11 @@
 // @vitest-environment node
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { site } from "@/content/site";
 
-import {
-  getBusinessDetails,
-  mergeBusinessDetails,
-  savedBusinessDetails,
-  validateBusinessDetails,
-} from "./business";
-import { readStoredContent } from "./content-store";
-
-vi.mock("./content-store", () => ({ readStoredContent: vi.fn() }));
+import { mergeBusinessDetails, savedBusinessDetails, validateBusinessDetails } from "./business";
 
 const blank = { phone: "", whatsappNumber: "", email: "", address: "", hours: "" };
-
-afterEach(() => {
-  vi.clearAllMocks();
-});
 
 describe("savedBusinessDetails", () => {
   it("is empty when nothing is saved or the saved section has the wrong shape", () => {
@@ -54,15 +42,6 @@ describe("mergeBusinessDetails", () => {
     expect(merged.phone).toBe("+91 90000 00000");
     expect(merged.whatsappNumber).toBe("919000000000");
     expect(merged.email).toBe(site.email);
-  });
-});
-
-describe("getBusinessDetails", () => {
-  it("merges what the store holds over the defaults", async () => {
-    vi.mocked(readStoredContent).mockResolvedValue({ business: { email: "a@example.test" } });
-    const details = await getBusinessDetails();
-    expect(details.email).toBe("a@example.test");
-    expect(details.phone).toBe(site.phone);
   });
 });
 

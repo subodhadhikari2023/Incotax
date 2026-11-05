@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { ServiceCard } from "@/components/services/ServiceCard";
+import { ServiceListProvider } from "@/components/ServiceList";
 import { SiteCopyProvider } from "@/components/SiteCopy";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
@@ -90,5 +91,24 @@ describe("ServiceCard", () => {
   it("shows the description it is given", () => {
     render(<ServiceCard service={services[0]} description="Saved description" />);
     expect(screen.getByText("Saved description")).toBeInTheDocument();
+  });
+});
+
+describe("the service list reaches the browser components", () => {
+  it("EnquiryForm offers the saved list, under its categories", () => {
+    render(
+      <ServiceListProvider
+        services={[{ slug: "tax-audit", name: "Tax Audit", category: "compliance-taxation" }]}
+      >
+        <EnquiryForm idPrefix="test" />
+      </ServiceListProvider>,
+    );
+    const options = screen.getAllByRole("option").map((option) => option.textContent);
+    expect(options).toEqual(["Choose a service", "Tax Audit"]);
+  });
+
+  it("EnquiryForm uses the code's services without a provider", () => {
+    render(<EnquiryForm idPrefix="test" />);
+    expect(screen.getByRole("option", { name: "GST Registration" })).toBeInTheDocument();
   });
 });

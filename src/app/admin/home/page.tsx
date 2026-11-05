@@ -1,22 +1,33 @@
-import { AdminSection } from "@/components/admin/AdminSection";
-import { HomeForm } from "@/components/admin/HomeForm";
+import { HomeCanvas } from "@/components/admin/editor/canvases";
+import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
-import { homeFormValues } from "@/lib/home-content";
+
+import { homeServiceSlugs, publicServices } from "@/lib/service-catalog";
+
+import { homeSection, serviceSection, sharedSections, sharedSettings } from "../editor-sections";
 
 export default async function AdminHomePage() {
   await requireAdmin();
 
-  // Strict read: if the store is down this fails, rather than offering a form that could overwrite
+  // Strict read: if the store is down this fails, rather than offering a page that could overwrite
   // real content.
-  const initial = homeFormValues(await readStoredContentOrThrow());
+  const stored = await readStoredContentOrThrow();
+  const slugs = homeServiceSlugs(stored);
 
   return (
-    <AdminSection
+    <PageEditor
       title="Home page"
-      intro="A text field left blank keeps showing its default. Saving also applies every list below, so an empty list hides its section."
+      serviceList={publicServices(stored)}
+      publicHref="/"
+      sections={[
+        homeSection(stored),
+        ...slugs.map((slug) => serviceSection(stored, slug)),
+        ...sharedSections(stored),
+      ]}
+      settings={[{ section: "home", name: "goldPhrase" }, ...sharedSettings]}
     >
-      <HomeForm initial={initial} />
-    </AdminSection>
+      <HomeCanvas serviceSlugs={slugs} />
+    </PageEditor>
   );
 }

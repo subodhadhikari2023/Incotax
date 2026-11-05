@@ -1,11 +1,9 @@
 // @vitest-environment node
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { home } from "@/content/home";
 
-import { readStoredContent } from "./content-store";
 import {
-  getHomeContent,
   homeFormValues,
   homeListLimits,
   mergeHomeContent,
@@ -13,8 +11,6 @@ import {
   validateHomeContent,
   type HomeFormValues,
 } from "./home-content";
-
-vi.mock("./content-store", () => ({ readStoredContent: vi.fn() }));
 
 const blank: HomeFormValues = {
   heroLabel: "",
@@ -33,10 +29,6 @@ const blank: HomeFormValues = {
   highlights: [],
   reviews: [],
 };
-
-afterEach(() => {
-  vi.clearAllMocks();
-});
 
 describe("mergeHomeContent", () => {
   it("shows the src/content defaults when nothing is saved", () => {
@@ -127,15 +119,6 @@ describe("mergeHomeContent", () => {
     expect(merged.stats).toEqual(home.stats);
     expect(merged.clients).toEqual(["Acme Traders"]);
     expect(merged.reviews).toEqual([{ text: "Good", name: "A. Client", detail: "" }]);
-  });
-});
-
-describe("getHomeContent", () => {
-  it("merges what the store holds over the defaults", async () => {
-    vi.mocked(readStoredContent).mockResolvedValue({ home: { headline: "Saved headline" } });
-    const content = await getHomeContent();
-    expect(content.hero.headline).toBe("Saved headline");
-    expect(content.hero.text).toBe(home.hero.text);
   });
 });
 

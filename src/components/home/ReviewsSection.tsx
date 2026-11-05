@@ -1,12 +1,19 @@
 import { StarIcon } from "@/components/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { home } from "@/content/home";
-import type { HomeContent } from "@/lib/home-content";
+import type { HomeNodes } from "@/lib/home-content";
 
 // "What Clients Say": review cards with stars, quote mark, text, name and city/service. Real reviews
 // only; none hides the section. Centred, 3 across from tablet up, 1 per row on phones.
-export function ReviewsSection({ content = home }: { content?: HomeContent }) {
-  if (content.reviews.length === 0) return null;
+export function ReviewsSection({
+  content = home,
+  after,
+}: {
+  content?: HomeNodes;
+  /** The panel's add control. With it, the section stays on screen while empty. */
+  after?: React.ReactNode;
+}) {
+  if (content.reviews.length === 0 && !after) return null;
 
   return (
     <section aria-labelledby="reviews-heading" className="bg-tint">
@@ -47,6 +54,7 @@ export function ReviewsSection({ content = home }: { content?: HomeContent }) {
             </article>
           ))}
         </div>
+        {after}
       </div>
     </section>
   );

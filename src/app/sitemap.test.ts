@@ -6,6 +6,9 @@ import { legalLinks } from "@/content/site";
 import robots from "./robots";
 import sitemap from "./sitemap";
 
+vi.mock("@/lib/content-store", () => ({ readStoredContent: vi.fn(async () => stored.content) }));
+const stored = vi.hoisted(() => ({ content: {} as Record<string, unknown> }));
+
 describe("sitemap and robots", () => {
   beforeEach(() => {
     vi.stubEnv("SITE_URL", "https://example.test");
@@ -14,8 +17,25 @@ describe("sitemap and robots", () => {
     vi.unstubAllEnvs();
   });
 
-  it("lists home, Why IncoTax, Contact, all 16 services and the 5 legal pages", () => {
-    const urls = sitemap().map((entry) => entry.url);
+  it("leaves out hidden services and drafts, and lists published additions", async () => {
+    stored.content = {
+      serviceCatalog: {
+        hidden: ["gst-registration"],
+        added: [
+          { slug: "tax-audit", name: "Tax Audit", category: "registration", published: true },
+          { slug: "new-idea", name: "New Idea", category: "registration", published: false },
+        ],
+      },
+    };
+    const urls = (await sitemap()).map((entry) => entry.url);
+    stored.content = {};
+    expect(urls).toContain("https://example.test/services/tax-audit");
+    expect(urls).not.toContain("https://example.test/services/new-idea");
+    expect(urls).not.toContain("https://example.test/services/gst-registration");
+  });
+
+  it("lists home, Why IncoTax, Contact, all 16 services and the 5 legal pages", async () => {
+    const urls = (await sitemap()).map((entry) => entry.url);
     expect(urls).toContain("https://example.test/");
     expect(urls).toContain("https://example.test/why-incotax");
     expect(urls).toContain("https://example.test/contact");

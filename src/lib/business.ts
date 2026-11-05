@@ -1,6 +1,7 @@
 import { site } from "@/content/site";
 
-import { readStoredContent, type StoredContent } from "./content-store";
+import type { StoredContent } from "./content-store";
+import type { Nodes } from "./editable-content";
 import { EMAIL_FORMAT } from "./enquiry";
 
 export const businessFields = ["phone", "whatsappNumber", "email", "address", "hours"] as const;
@@ -12,6 +13,11 @@ export type BusinessErrors = Partial<BusinessFormValues>;
 /** What the public pages show: a saved value, or the default from src/content/site.ts. */
 export type BusinessDetails = Omit<BusinessFormValues, "whatsappNumber"> & {
   whatsappNumber: string | null;
+};
+
+/** The details a page draws: text in public, editable elements in the admin panel. */
+export type BusinessNodes = Nodes<Omit<BusinessFormValues, "whatsappNumber">> & {
+  whatsappNumber?: string | null;
 };
 
 /** The details the admin has saved. Ignores anything unexpected, since this is stored data. */
@@ -27,6 +33,14 @@ export function savedBusinessDetails(content: StoredContent): Partial<BusinessFo
   );
 }
 
+/** Only saved values, so a [placeholder] can't be saved as if it were real. */
+export function businessFormValues(content: StoredContent): BusinessFormValues {
+  const saved = savedBusinessDetails(content);
+  return Object.fromEntries(
+    businessFields.map((field) => [field, saved[field] ?? ""]),
+  ) as BusinessFormValues;
+}
+
 export function mergeBusinessDetails(content: StoredContent): BusinessDetails {
   const { phone, whatsappNumber, email, address, hours } = site;
   return {
@@ -37,10 +51,6 @@ export function mergeBusinessDetails(content: StoredContent): BusinessDetails {
     hours,
     ...savedBusinessDetails(content),
   };
-}
-
-export async function getBusinessDetails(): Promise<BusinessDetails> {
-  return mergeBusinessDetails(await readStoredContent());
 }
 
 const PHONE_FORMAT = /^\+?[\d\s()-]+$/;

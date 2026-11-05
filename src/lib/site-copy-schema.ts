@@ -2,6 +2,7 @@ import { forms, popup } from "@/content/pages";
 import { pageCopy, site } from "@/content/site";
 
 import type { SectionSchema } from "./content-section";
+import type { Nodes } from "./editable-content";
 
 export type SiteCopy = {
   whatsappMessage: string | null;
@@ -10,6 +11,11 @@ export type SiteCopy = {
   otherServicesIntro: string;
   forms: typeof forms;
   popup: typeof popup;
+};
+
+/** What browser components draw: text in public, editable elements in the admin panel. */
+export type SiteCopyNodes = Omit<Nodes<SiteCopy>, "whatsappMessage"> & {
+  whatsappMessage: string | null;
 };
 
 export const defaultSiteCopy: SiteCopy = {

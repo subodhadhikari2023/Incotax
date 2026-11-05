@@ -1,3 +1,4 @@
+import { ServiceListProvider } from "@/components/ServiceList";
 import { SiteCopyProvider } from "@/components/SiteCopy";
 import { WhatsAppNumberProvider } from "@/components/WhatsAppNumber";
 import { Footer } from "@/components/layout/Footer";
@@ -5,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { TopBar } from "@/components/layout/TopBar";
 import { mergeBusinessDetails } from "@/lib/business";
 import { readStoredContent } from "@/lib/content-store";
+import { publicServices } from "@/lib/service-catalog";
 import { mergeSiteCopy } from "@/lib/site-copy";
 import { businessJsonLd } from "@/lib/structured-data";
 
@@ -23,12 +25,14 @@ export async function SiteChrome({ children }: { children: React.ReactNode }) {
           __html: JSON.stringify(businessJsonLd(business)).replace(/</g, "\\u003c"),
         }}
       />
-      <SiteCopyProvider copy={mergeSiteCopy(content)}>
-        <TopBar business={business} />
-        <Header />
-        <div className="flex flex-1 flex-col">{children}</div>
-        <Footer business={business} />
-      </SiteCopyProvider>
+      <ServiceListProvider services={publicServices(content)}>
+        <SiteCopyProvider copy={mergeSiteCopy(content)}>
+          <TopBar business={business} />
+          <Header />
+          <div className="flex flex-1 flex-col">{children}</div>
+          <Footer business={business} />
+        </SiteCopyProvider>
+      </ServiceListProvider>
     </WhatsAppNumberProvider>
   );
 }

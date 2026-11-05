@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { legalLinks, quickLinks, site, type NavLink } from "@/content/site";
-import type { BusinessDetails } from "@/lib/business";
+import type { BusinessNodes } from "@/lib/business";
 
 const headingClass = "mb-5 text-[13px] font-semibold tracking-[0.1em] text-gold uppercase";
 
@@ -23,7 +23,7 @@ function LinkGroup({ title, links }: { title: string; links: NavLink[] }) {
 }
 
 // Navy-deep footer: 4 columns on desktop, 2×2 on tablet, 1 column on phones.
-export function Footer({ business = site }: { business?: BusinessDetails }) {
+export function Footer({ business = site }: { business?: BusinessNodes }) {
   const year = new Date().getFullYear();
 
   return (

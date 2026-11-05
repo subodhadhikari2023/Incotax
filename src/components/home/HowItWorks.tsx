@@ -1,16 +1,23 @@
 import { ChevronRightIcon } from "@/components/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { home } from "@/content/home";
-import type { HomeContent } from "@/lib/home-content";
+import type { HomeNodes } from "@/lib/home-content";
 
 // Written out so Tailwind can find the class names: the row divides evenly for 1 to 4 steps.
 const columns = ["", "md:grid-cols-1", "md:grid-cols-2", "md:grid-cols-3", "md:grid-cols-4"];
 
 // Numbered steps joined by dotted gold arrows: a row from tablet up, stacked with downward arrows
 // on phones. Labelled directly because the heading text is still PENDING. No steps hides the section.
-export function HowItWorks({ content = home }: { content?: HomeContent }) {
+export function HowItWorks({
+  content = home,
+  after,
+}: {
+  content?: HomeNodes;
+  /** The panel's add control. With it, the section stays on screen while empty. */
+  after?: React.ReactNode;
+}) {
   const { steps, howItWorks } = content;
-  if (steps.length === 0) return null;
+  if (steps.length === 0 && !after) return null;
 
   return (
     <section aria-label="How it works" className="bg-bg">
@@ -41,6 +48,7 @@ export function HowItWorks({ content = home }: { content?: HomeContent }) {
             </li>
           ))}
         </ol>
+        {after}
       </div>
     </section>
   );

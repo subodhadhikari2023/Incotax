@@ -2,12 +2,19 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { StatsList } from "@/components/ui/StatsList";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { home } from "@/content/home";
-import type { HomeContent } from "@/lib/home-content";
+import type { HomeNodes } from "@/lib/home-content";
 
 import { HeroHeadline } from "./HeroHeadline";
 
 // Navy home hero: label, headline, supporting text, WhatsApp button and up to 4 stats.
-export function HeroSection({ content = home }: { content?: HomeContent }) {
+export function HeroSection({
+  content = home,
+  statsAfter,
+}: {
+  content?: HomeNodes;
+  /** The panel's add control for the stats. */
+  statsAfter?: React.ReactNode;
+}) {
   return (
     <section aria-label="Introduction" className="relative overflow-hidden bg-navy text-white">
       <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2">
@@ -28,6 +35,7 @@ export function HeroSection({ content = home }: { content?: HomeContent }) {
             className="mt-14 border-t border-navy-line pt-10 lg:mt-20"
           />
         )}
+        {statsAfter}
       </div>
     </section>
   );

@@ -5,6 +5,7 @@ import { contact, whyIncotax } from "@/content/pages";
 
 import {
   contactFormValues,
+  founderPhotoUrls,
   mergeContactContent,
   mergeWhyIncotaxContent,
   whyIncotaxFormValues,
@@ -85,4 +86,24 @@ describe("contact content", () => {
       intro: "",
     });
   });
+});
+
+describe("founderPhotoUrls", () => {
+  it("has no photos until some are saved", () => {
+    expect(founderPhotoUrls({})).toEqual([null, null]);
+  });
+
+  it("gives each saved photo an address that changes with its version", () => {
+    expect(founderPhotoUrls({ founderPhotos: { "1": "abc" } })).toEqual([
+      null,
+      "/media/founder-1?v=abc",
+    ]);
+  });
+
+  it.each([{ founderPhotos: "text" }, { founderPhotos: { "0": 5 } }, { founderPhotos: null }])(
+    "ignores stored data of the wrong shape: %j",
+    (content) => {
+      expect(founderPhotoUrls(content)).toEqual([null, null]);
+    },
+  );
 });

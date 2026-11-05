@@ -1,24 +1,38 @@
-import { AdminSection } from "@/components/admin/AdminSection";
-import { ContentForm } from "@/components/admin/ContentForm";
+import { WhyIncotaxCanvas } from "@/components/admin/editor/canvases";
+import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
-import { whyIncotaxFormValues, whyIncotaxSchema } from "@/lib/pages-content";
+import { publicServices } from "@/lib/service-catalog";
 
-import { saveWhyIncotaxContent } from "./actions";
+import {
+  founderPhotoSections,
+  homeSection,
+  sharedSections,
+  sharedSettings,
+  whyIncotaxSection,
+} from "../editor-sections";
 
 export default async function AdminWhyIncotaxPage() {
   await requireAdmin();
 
-  // Strict read: if the store is down this fails, rather than offering a form that could overwrite
+  // Strict read: if the store is down this fails, rather than offering a page that could overwrite
   // real content.
-  const initial = whyIncotaxFormValues(await readStoredContentOrThrow());
+  const stored = await readStoredContentOrThrow();
 
   return (
-    <AdminSection
+    <PageEditor
+      serviceList={publicServices(stored)}
       title="Why IncoTax"
-      intro="A text field left blank keeps showing its default. Saving also applies every list below."
+      publicHref="/why-incotax"
+      sections={[
+        whyIncotaxSection(stored),
+        ...founderPhotoSections(stored),
+        homeSection(stored),
+        ...sharedSections(stored),
+      ]}
+      settings={sharedSettings}
     >
-      <ContentForm schema={whyIncotaxSchema} action={saveWhyIncotaxContent} initial={initial} />
-    </AdminSection>
+      <WhyIncotaxCanvas />
+    </PageEditor>
   );
 }

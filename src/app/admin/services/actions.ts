@@ -1,10 +1,11 @@
 "use server";
 
-import { getService } from "@/content/services";
 import { requireAdmin } from "@/lib/admin/auth";
 import { saveSection } from "@/lib/admin/save-section";
 import type { SectionState, SectionValues } from "@/lib/content-section";
-import { serviceCopyKey, serviceCopySchema } from "@/lib/service-copy";
+import { readStoredContentOrThrow } from "@/lib/content-store";
+import { catalogEntry } from "@/lib/service-catalog";
+import { checkServiceDetails, serviceCopyKey, serviceCopySchema } from "@/lib/service-copy";
 
 export async function saveServiceCopy(
   slug: string,
@@ -12,6 +13,8 @@ export async function saveServiceCopy(
   formData: FormData,
 ): Promise<SectionState<SectionValues>> {
   await requireAdmin();
-  if (!getService(slug)) throw new Error(`Unknown service: ${slug}`);
-  return saveSection(serviceCopyKey(slug), serviceCopySchema, formData);
+  if (!catalogEntry(await readStoredContentOrThrow(), slug)) {
+    throw new Error(`Unknown service: ${slug}`);
+  }
+  return saveSection(serviceCopyKey(slug), serviceCopySchema, formData, checkServiceDetails);
 }

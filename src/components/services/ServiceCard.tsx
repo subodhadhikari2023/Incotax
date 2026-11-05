@@ -10,7 +10,7 @@ export function ServiceCard({
   description = pageCopy.serviceCardDescription,
 }: {
   service: Service;
-  description?: string;
+  description?: React.ReactNode;
 }) {
   return (
     <article className="flex flex-col rounded-[20px] bg-white p-7 shadow-card">

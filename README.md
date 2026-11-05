@@ -132,6 +132,9 @@ Content edited in the admin panel is saved in Netlify Blobs. Locally, `CONTENT_S
 a JSON file instead. `compose.yaml` sets it; add `CONTENT_STORE_FILE=.content-store.json` to
 `.env.local` when running `npm run dev` on the host. Do not set it on Netlify.
 
+Uploaded images work the same way: Netlify Blobs on the live site, or the folder in `MEDIA_STORE_DIR`
+locally (`compose.yaml` sets it). Local and live images are separate.
+
 ## Deployment
 
 Netlify deploys the site from this repository:

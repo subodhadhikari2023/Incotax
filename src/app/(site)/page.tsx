@@ -1,33 +1,27 @@
-import { ClientsSection } from "@/components/home/ClientsSection";
 import { EnquiryPopup } from "@/components/home/EnquiryPopup";
-import { FeesSection } from "@/components/home/FeesSection";
-import { HeroSection } from "@/components/home/HeroSection";
-import { HowItWorks } from "@/components/home/HowItWorks";
-import { ReviewsSection } from "@/components/home/ReviewsSection";
-import { ServicesSection } from "@/components/home/ServicesSection";
-import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
+import { HomeView } from "@/components/pages/HomeView";
 import { site } from "@/content/site";
 import { readStoredContent } from "@/lib/content-store";
 import { mergeHomeContent } from "@/lib/home-content";
 import { pageMetadata } from "@/lib/metadata";
-import { serviceCardDescriptions } from "@/lib/service-copy";
+import { homeServiceSlugs, publicServices } from "@/lib/service-catalog";
+import { serviceCardDescriptions, serviceDetailFor } from "@/lib/service-copy";
 
 export const metadata = pageMetadata(site.name, "/");
 
 // Home page, sections in the designed order.
 export default async function Home() {
   const stored = await readStoredContent();
-  const content = mergeHomeContent(stored);
+  const content = { ...mergeHomeContent(stored), serviceSlugs: homeServiceSlugs(stored) };
 
   return (
     <main>
-      <HeroSection content={content} />
-      <ClientsSection content={content} />
-      <ServicesSection content={content} descriptions={serviceCardDescriptions(stored)} />
-      <HowItWorks content={content} />
-      <FeesSection content={content} />
-      <ReviewsSection content={content} />
-      <WhatsAppBand />
+      <HomeView
+        content={content}
+        descriptions={serviceCardDescriptions(stored)}
+        services={publicServices(stored)}
+        feePlans={serviceDetailFor(stored, content.fees.serviceSlug).plans ?? []}
+      />
       <EnquiryPopup />
     </main>
   );

@@ -1,26 +1,26 @@
-import Link from "next/link";
-
 import { AdminSection } from "@/components/admin/AdminSection";
+import { EditorList } from "@/components/admin/EditorList";
 import { legalLinks } from "@/content/site";
 import { requireAdmin } from "@/lib/admin/auth";
+import { readStoredContent } from "@/lib/content-store";
+import { legalContentKey } from "@/lib/legal-content";
 
 export default async function AdminLegalPage() {
   await requireAdmin();
+  const stored = await readStoredContent();
 
   return (
-    <AdminSection title="Legal pages" intro="Choose a page to edit its text.">
-      <ul className="mt-8 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {legalLinks.map((link) => (
-          <li key={link.href}>
-            <Link
-              href={`/admin/legal${link.href}`}
-              className="block rounded-[14px] border border-border bg-white p-5 font-semibold text-navy shadow-card hover:border-navy"
-            >
-              {link.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <AdminSection
+      title="Legal pages"
+      intro="Each legal page has its own text. Choose the one you want to change."
+    >
+      <EditorList
+        items={legalLinks.map((link) => ({
+          href: `/admin/legal${link.href}`,
+          label: link.label,
+          edited: legalContentKey(link.href.slice(1)) in stored,
+        }))}
+      />
     </AdminSection>
   );
 }

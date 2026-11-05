@@ -6,6 +6,8 @@ import { expect, test } from "./test";
 
 const wcag = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
+const adminNav = (page: Page) => page.getByRole("navigation", { name: "Admin sections" });
+
 async function logIn(page: Page, password = ADMIN_TEST_PASSWORD) {
   await page.goto("/admin/login");
   await page.getByLabel("Password").fill(password);
@@ -129,95 +131,48 @@ test("no accessibility violations on the login page, its error state or the pane
   await check();
 });
 
-test("the business details page needs a login", async ({ page }) => {
-  await page.goto("/admin/business");
-  await expect(page).toHaveURL(/\/admin\/login$/);
-});
+const frame = (page: Page) => page.frameLocator('iframe[title="Page preview"]');
+const openFromOverview = async (page: Page, name: string) => {
+  await page.getByRole("main").getByRole("link", { name }).click();
+};
 
-test("the panel links to the business details form, which is accessible", async ({ page }) => {
-  await logIn(page);
-  await page.getByRole("link", { name: "Business details" }).click();
-  await expect(page).toHaveURL(/\/admin\/business$/);
-  await expect(page.getByRole("heading", { name: "Business details", level: 1 })).toBeVisible();
-  await expect(page.getByRole("contentinfo")).toHaveCount(0);
+const axeCheck = async (page: Page) => {
+  await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
+  const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
+  expect(violations).toEqual([]);
+};
 
-  const check = async () => {
-    await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
-    const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
-    expect(violations).toEqual([]);
-  };
-  await check();
-
-  // An invalid value is never saved, so this doesn't disturb tests running alongside it.
-  await page.getByLabel("Email").fill("not-an-email");
-  await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "email" })).toBeVisible();
-  await expect(page.getByLabel("Email")).toHaveAttribute("aria-invalid", "true");
-  await check();
-
-  await page.getByRole("link", { name: "Back to panel" }).click();
-  await expect(page).toHaveURL(/\/admin$/);
-});
-
-test("the home page editor needs a login", async ({ page }) => {
-  await page.goto("/admin/home");
-  await expect(page).toHaveURL(/\/admin\/login$/);
-});
-
-test("the panel links to the home page form, which is accessible", async ({ page }) => {
-  await logIn(page);
-  await page.getByRole("link", { name: "Home page" }).click();
-  await expect(page).toHaveURL(/\/admin\/home$/);
-  await expect(page.getByRole("heading", { name: "Home page", level: 1 })).toBeVisible();
-  await expect(page.getByRole("contentinfo")).toHaveCount(0);
-
-  const check = async () => {
-    await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
-    const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
-    expect(violations).toEqual([]);
-  };
-  await check();
-
-  await page.getByRole("button", { name: "Add review" }).click();
-  await expect(page.getByLabel("Review 1 text")).toBeVisible();
-  await check();
-
-  // An invalid value is never saved, so this doesn't disturb tests running alongside it.
-  await page.getByLabel("Gold words in the headline").fill("Not in the headline");
-  await page.getByLabel("Review 1 text").fill("Only the text");
-  await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "headline" })).toBeVisible();
-  await expect(page.getByLabel("Gold words in the headline")).toHaveAttribute(
-    "aria-invalid",
-    "true",
-  );
-  await expect(page.getByLabel("Review 1 name", { exact: true })).toHaveAttribute(
-    "aria-invalid",
-    "true",
-  );
-  await check();
-});
-
-const editorPages = [
-  { path: "/admin/site", link: "Site-wide text", heading: "Site-wide text" },
-  { path: "/admin/why-incotax", link: "Why IncoTax", heading: "Why IncoTax" },
-  { path: "/admin/contact", link: "Contact page", heading: "Contact page" },
+const editors = [
+  { path: "/admin/home", link: "Home page", field: "Headline", live: "/" },
+  { path: "/admin/why-incotax", link: "Why IncoTax", field: "Page headline", live: "/why-incotax" },
+  { path: "/admin/contact", link: "Contact page", field: "Page headline", live: "/contact" },
+  { path: "/admin/business", link: "Business details", field: "Phone", live: "/contact" },
+  { path: "/admin/site", link: "Site-wide text", field: "WhatsApp band heading", live: "/" },
 ];
 
-for (const { path, link, heading } of editorPages) {
-  test(`${path} needs a login, and the panel links to its accessible form`, async ({ page }) => {
+for (const { path, link, field, live } of editors) {
+  test(`${path} needs a login, opens the real page to edit and is accessible`, async ({ page }) => {
     await page.goto(path);
     await expect(page).toHaveURL(/\/admin\/login$/);
 
     await logIn(page);
     await expect(page).toHaveURL(/\/admin$/);
-    await page.getByRole("link", { name: link }).click();
+    await openFromOverview(page, link);
     await expect(page).toHaveURL(new RegExp(`${path}$`));
-    await expect(page.getByRole("heading", { name: heading, level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(link);
+    await expect(page.getByRole("contentinfo")).toHaveCount(0);
 
-    await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
-    const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
-    expect(violations).toEqual([]);
+    // The page's own header and footer are in the frame, drawn by the site's own components.
+    await expect(frame(page).getByRole("banner")).toBeVisible();
+    await expect(frame(page).getByRole("contentinfo")).toBeVisible();
+    await expect(
+      frame(page).getByRole("textbox", { name: field, exact: true }).first(),
+    ).toBeVisible();
+
+    const view = page.getByRole("link", { name: "View live page" });
+    await expect(view).toHaveAttribute("href", live);
+    await expect(view).toHaveAttribute("target", "_blank");
+    await axeCheck(page);
   });
 }
 
@@ -231,16 +186,20 @@ test("the service editors need a login, list all 16 services and are accessible"
 
   await logIn(page);
   await expect(page).toHaveURL(/\/admin$/);
-  await page.getByRole("link", { name: "Service pages" }).click();
+  await adminNav(page).getByRole("link", { name: "Service pages" }).click();
   await expect(page).toHaveURL(/\/admin\/services$/);
-  await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(16);
+  await expect(page.getByRole("main").locator("ul > li")).toHaveCount(16);
 
   await page.getByRole("link", { name: "GST Registration", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/services\/gst-registration$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("GST Registration");
-  await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
-  const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
-  expect(violations).toEqual([]);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("GST Registration");
+  await expect(frame(page).getByRole("heading", { level: 1 })).toHaveText("GST Registration");
+  await expect(frame(page).getByRole("textbox", { name: "Short description" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "View live page" })).toHaveAttribute(
+    "href",
+    "/services/gst-registration",
+  );
+  await axeCheck(page);
 
   const missing = await page.goto("/admin/services/no-such-service");
   expect(missing?.status()).toBe(404);
@@ -254,19 +213,132 @@ test("the legal editors need a login, list all 5 pages and are accessible", asyn
 
   await logIn(page);
   await expect(page).toHaveURL(/\/admin$/);
-  await page.getByRole("link", { name: "Legal pages" }).click();
+  await adminNav(page).getByRole("link", { name: "Legal pages" }).click();
   await expect(page).toHaveURL(/\/admin\/legal$/);
-  await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(5);
+  await expect(page.getByRole("main").locator("ul > li")).toHaveCount(5);
 
   await page.getByRole("link", { name: "Privacy Policy" }).click();
   await expect(page).toHaveURL(/\/admin\/legal\/privacy-policy$/);
-  await page.getByRole("button", { name: "Add section" }).click();
-  await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
-  const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
-  expect(violations).toEqual([]);
+  await frame(page).getByRole("button", { name: "Add section" }).click();
+  await expect(frame(page).getByRole("textbox", { name: "Section 1 heading" })).toBeFocused();
+  await axeCheck(page);
 
   const missing = await page.goto("/admin/legal/no-such-page");
   expect(missing?.status()).toBe(404);
+});
+
+test("the home editor draws the same page visitors see, and a refused edit is marked on it", async ({
+  page,
+}) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto("/admin/home");
+
+  const site = frame(page);
+  await expect(site.getByRole("heading", { name: "Our Services" })).toBeVisible();
+  await expect(site.getByRole("heading", { name: "Fees" })).toBeVisible();
+  await expect(site.getByText("₹3,499").first()).toBeVisible();
+
+  // Built styles really reach the frame: the hero is navy and the headline uses the heading font.
+  const hero = site.getByRole("region", { name: "Introduction" });
+  await expect(hero).toHaveCSS("background-color", "rgb(11, 31, 58)");
+  await expect(site.getByRole("heading", { level: 1 })).toHaveCSS("font-family", /cormorant/i);
+
+  // Nothing here is saved, so this doesn't disturb tests running alongside it.
+  const before = page.url();
+  await site.getByRole("link", { name: "Chat on WhatsApp" }).first().click({ force: true });
+  await expect(page.getByText(/links don't open while you edit/i)).toBeVisible();
+  expect(page.url()).toBe(before);
+
+  await site.getByRole("button", { name: "Add review" }).click();
+  await site.getByRole("textbox", { name: "Review 1 text" }).fill("Only the text");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.getByText("Please fix the 1 field marked in red.")).toBeVisible();
+  await expect(site.getByRole("textbox", { name: "Review 1 name" })).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  await expect(site.getByRole("textbox", { name: "Review 1 name" })).toBeFocused();
+  await axeCheck(page);
+});
+
+test("the phone view really uses the site's phone layout", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "The switch matters when the window itself is wide.");
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto("/admin/home");
+
+  const site = frame(page);
+  const statTops = () =>
+    site
+      .getByRole("region", { name: "Introduction" })
+      .getByRole("listitem")
+      .evaluateAll((items) => items.map((el) => Math.round(el.getBoundingClientRect().top)));
+
+  await expect.poll(async () => new Set(await statTops()).size).toBe(1);
+  await page.getByRole("button", { name: "Phone" }).click();
+  await expect.poll(async () => new Set(await statTops()).size).toBe(2);
+  await expect(site.getByRole("button", { name: "Open menu" })).toBeVisible();
+});
+
+test("a photo that can't be used is refused on the page, and nothing is saved", async ({
+  page,
+}) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto("/admin/why-incotax");
+
+  await frame(page)
+    .getByLabel("Upload a photo of Zeeshan Khan")
+    .setInputFiles({
+      name: "logo.svg",
+      mimeType: "image/svg+xml",
+      buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>'),
+    });
+  await expect(
+    frame(page).getByRole("alert").filter({ hasText: "JPG, PNG or WebP" }),
+  ).toBeVisible();
+  await expect(page.getByText("No unsaved changes")).toBeVisible();
+  await axeCheck(page);
+});
+
+test("an unknown media address is a 404", async ({ request }) => {
+  expect((await request.get("/media/not-a-photo")).status()).toBe(404);
+});
+
+test("unsaved work is protected", async ({ page }) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  await page.goto("/admin/home");
+  const headline = frame(page).getByRole("textbox", { name: "Headline", exact: true });
+
+  await expect(page.getByText("No unsaved changes")).toBeVisible();
+  await headline.click();
+  await headline.fill("Not saved");
+  await expect(page.getByText("Unsaved changes", { exact: true })).toBeVisible();
+
+  const back = page.getByRole("link", { name: "Admin panel" });
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await back.click();
+  await expect(page).toHaveURL(/\/admin\/home$/);
+  await expect(headline).toHaveText("Not saved");
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await back.click();
+  await expect(page).toHaveURL(/\/admin$/);
+});
+
+test("admin pages fit the screen without sideways scrolling", async ({ page }) => {
+  await logIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+
+  for (const path of ["/admin", "/admin/home", "/admin/services", "/admin/legal/privacy-policy"]) {
+    await page.goto(path);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, path).toBeLessThanOrEqual(0);
+  }
 });
 
 // Guards for moving the public pages into their own layout: both pass before and after the move.

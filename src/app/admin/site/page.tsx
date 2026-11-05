@@ -1,24 +1,27 @@
-import { AdminSection } from "@/components/admin/AdminSection";
-import { ContentForm } from "@/components/admin/ContentForm";
+import { SiteCanvas } from "@/components/admin/editor/canvases";
+import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
-import { siteCopyFormValues, siteCopySchema } from "@/lib/site-copy";
+import { publicServices } from "@/lib/service-catalog";
 
-import { saveSiteCopy } from "./actions";
+import { sharedSections, sharedSettings } from "../editor-sections";
 
 export default async function AdminSitePage() {
   await requireAdmin();
 
-  // Strict read: if the store is down this fails, rather than offering a form that could overwrite
+  // Strict read: if the store is down this fails, rather than offering a page that could overwrite
   // real content.
-  const initial = siteCopyFormValues(await readStoredContentOrThrow());
+  const stored = await readStoredContentOrThrow();
 
   return (
-    <AdminSection
+    <PageEditor
+      serviceList={publicServices(stored)}
       title="Site-wide text"
-      intro="Text used on many pages. A field left blank keeps showing its default."
+      publicHref="/"
+      sections={sharedSections(stored)}
+      settings={[...sharedSettings, { section: "site", name: "afterSubmit" }]}
     >
-      <ContentForm schema={siteCopySchema} action={saveSiteCopy} initial={initial} />
-    </AdminSection>
+      <SiteCanvas />
+    </PageEditor>
   );
 }

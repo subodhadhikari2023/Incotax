@@ -2,15 +2,29 @@ import { CheckIcon } from "@/components/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { home } from "@/content/home";
-import { getServiceDetail } from "@/content/service-details";
+import { getServiceDetail, type Plan } from "@/content/service-details";
 import { formatINR } from "@/lib/format";
-import type { HomeContent } from "@/lib/home-content";
+import type { HomeNodes } from "@/lib/home-content";
 
 // Fees: the Private Limited plans, Standard raised and highlighted (Subodh, Oct 29). Prices come
 // from the service data so they always match the service page. 3 across from tablet up.
-export function FeesSection({ content = home }: { content?: HomeContent }) {
+export function FeesSection({
+  content = home,
+  after,
+  plainHighlights,
+  plans: savedPlans,
+}: {
+  content?: HomeNodes;
+  /** The panel's add control, on the featured card. */
+  after?: React.ReactNode;
+  /** The panel edits highlights on the featured card; the other cards repeat them as this text. */
+  plainHighlights?: string[];
+  /** The fee service's saved plans. Without any there is nothing to show. */
+  plans?: Plan[];
+}) {
   const { fees } = content;
-  const plans = getServiceDetail(fees.serviceSlug).plans ?? [];
+  const plans = savedPlans ?? getServiceDetail(fees.serviceSlug).plans ?? [];
+  if (plans.length === 0) return null;
 
   return (
     <section aria-labelledby="fees-heading" className="bg-white">
@@ -47,18 +61,21 @@ export function FeesSection({ content = home }: { content?: HomeContent }) {
                 <p className={`mt-3 text-sm ${featured ? "text-on-navy" : "text-text-muted"}`}>
                   Starting from (professional fee)
                 </p>
-                {fees.highlights.length > 0 && (
+                {(featured ? fees.highlights : (plainHighlights ?? fees.highlights)).length > 0 && (
                   <ul className="mt-6 space-y-3 text-[15px]">
-                    {fees.highlights.map((highlight, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <CheckIcon
-                          className={`text-sm ${featured ? "text-gold" : "text-gold-deep"}`}
-                        />
-                        <span className={featured ? "font-semibold" : ""}>{highlight}</span>
-                      </li>
-                    ))}
+                    {(featured ? fees.highlights : (plainHighlights ?? fees.highlights)).map(
+                      (highlight, i) => (
+                        <li key={i} className="relative flex items-center gap-3">
+                          <CheckIcon
+                            className={`text-sm ${featured ? "text-gold" : "text-gold-deep"}`}
+                          />
+                          <span className={featured ? "font-semibold" : ""}>{highlight}</span>
+                        </li>
+                      ),
+                    )}
                   </ul>
                 )}
+                {featured && after}
                 <WhatsAppButton variant={featured ? "gold" : "outline"} className="mt-8 w-full" />
               </article>
             );

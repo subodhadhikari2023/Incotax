@@ -1,27 +1,37 @@
 import Link from "next/link";
 
-// The frame every editor page shares: link back, heading and a line about how the page works.
+import { AdminShell } from "./AdminShell";
+
+// The frame around a list of pages to choose from: the way back, what this list is, and the list.
 export function AdminSection({
   title,
   intro,
-  backHref = "/admin",
-  backLabel = "Back to panel",
   children,
 }: {
   title: string;
   intro: string;
-  backHref?: string;
-  backLabel?: string;
   children: React.ReactNode;
 }) {
   return (
-    <main className="page-container flex-1 py-12">
-      <Link href={backHref} className="text-[15px] font-semibold text-navy underline">
-        {backLabel}
-      </Link>
-      <h1 className="mt-4 text-[40px]/[46px] text-navy">{title}</h1>
-      <p className="mt-3 max-w-[720px] text-text-body">{intro}</p>
+    <AdminShell>
+      <nav aria-label="Breadcrumb">
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px] text-text-muted">
+          <li>
+            <Link href="/admin" className="underline hover:text-navy">
+              Admin panel
+            </Link>
+          </li>
+          <li className="flex items-center gap-2">
+            <span aria-hidden="true">›</span>
+            <span aria-current="page" className="font-semibold text-navy">
+              {title}
+            </span>
+          </li>
+        </ol>
+      </nav>
+      <h1 className="mt-6 text-[36px]/[1.15] text-navy md:text-[44px]">{title}</h1>
+      <p className="mt-3 text-[17px] text-text-body">{intro}</p>
       {children}
-    </main>
+    </AdminShell>
   );
 }

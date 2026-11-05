@@ -25,7 +25,7 @@ export type ServiceDetail = {
   note?: string;
 };
 
-const PLANS: Plan[] = [
+export const PLANS: Plan[] = [
   { id: "basic", name: "Basic", price: 1499 },
   { id: "standard", name: "Standard", price: 3499 },
   { id: "premium", name: "Premium", price: 7499 },
@@ -859,6 +859,10 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     note: "Trademark registration is subject to examination, possible objections or oppositions, and approval by the Trade Marks Registry. Filing an application does not guarantee registration.",
   },
 };
+
+/** The details in this file, or a blank start for a service added in the admin panel. */
+export const defaultServiceDetail = (slug: string): ServiceDetail =>
+  serviceDetails[slug] ?? { included: [], pricing: { kind: "quote", text: "" } };
 
 export function getServiceDetail(slug: string): ServiceDetail {
   const detail = serviceDetails[slug];

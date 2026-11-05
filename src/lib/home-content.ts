@@ -7,12 +7,22 @@ import {
   validateSection,
   type SectionErrors,
 } from "./content-section";
-import { readStoredContent, type StoredContent } from "./content-store";
+import type { StoredContent } from "./content-store";
+import type { Nodes } from "./editable-content";
 import { homeListLimits, homeSchema, type HomeFormValues } from "./home-schema";
 
 export { homeListLimits, homeSchema, type HomeFormValues };
 
 export type HomeContent = typeof home;
+
+/** What the home sections draw: text in public, editable elements in the admin panel. */
+export type HomeNodes = Omit<Nodes<HomeContent>, "serviceSlugs" | "fees"> & {
+  serviceSlugs: string[];
+  fees: Omit<Nodes<HomeContent["fees"]>, "serviceSlug" | "serviceLabel"> & {
+    serviceSlug: string;
+    serviceLabel: string;
+  };
+};
 
 const defaults: HomeFormValues = {
   heroLabel: home.hero.label,
@@ -60,10 +70,6 @@ export function mergeHomeContent(content: StoredContent): HomeContent {
     reviewsIntro: saved.reviewsIntro ?? home.reviewsIntro,
     reviews: (saved.reviews as HomeContent["reviews"]) ?? home.reviews,
   };
-}
-
-export async function getHomeContent(): Promise<HomeContent> {
-  return mergeHomeContent(await readStoredContent());
 }
 
 export function homeFormValues(content: StoredContent): HomeFormValues {

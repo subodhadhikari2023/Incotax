@@ -10,8 +10,8 @@ export function SectionHeader({
 }: {
   id: string;
   eyebrow: string;
-  title: string;
-  intro?: string;
+  title: React.ReactNode;
+  intro?: React.ReactNode;
   onNavy?: boolean;
 }) {
   return (

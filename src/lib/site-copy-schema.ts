@@ -2,6 +2,7 @@ import { forms, popup } from "@/content/pages";
 import { pageCopy, site } from "@/content/site";
 
 import type { SectionSchema } from "./content-section";
+import type { Nodes } from "./editable-content";
 
 export type SiteCopy = {
   whatsappMessage: string | null;
@@ -10,6 +11,11 @@ export type SiteCopy = {
   otherServicesIntro: string;
   forms: typeof forms;
   popup: typeof popup;
+};
+
+/** What browser components draw: text in public, editable elements in the admin panel. */
+export type SiteCopyNodes = Omit<Nodes<SiteCopy>, "whatsappMessage"> & {
+  whatsappMessage: string | null;
 };
 
 export const defaultSiteCopy: SiteCopy = {
@@ -24,7 +30,6 @@ export const defaultSiteCopy: SiteCopy = {
 export const siteCopySchema: SectionSchema = [
   {
     title: "WhatsApp",
-    where: "On every WhatsApp button, and in the gold band near the bottom of most pages.",
     items: [
       {
         kind: "text",
@@ -40,7 +45,6 @@ export const siteCopySchema: SectionSchema = [
   },
   {
     title: "Service pages",
-    where: "On every service page, above what is included and above the other services.",
     items: [
       {
         kind: "text",
@@ -53,8 +57,6 @@ export const siteCopySchema: SectionSchema = [
   },
   {
     title: "Enquiry forms",
-    where: "On the Contact page form and the home page pop-up form.",
-    href: "/contact#form-heading",
     items: [
       { kind: "text", name: "submitLabel", label: "Form submit button", max: 40 },
       {
@@ -69,8 +71,6 @@ export const siteCopySchema: SectionSchema = [
   },
   {
     title: "Pop-up",
-    where: "The enquiry form that opens over the home page when someone first visits.",
-    href: "/",
     items: [
       { kind: "text", name: "popupLabel", label: "Pop-up label", max: 60 },
       { kind: "text", name: "popupHeading", label: "Pop-up heading", max: 120 },

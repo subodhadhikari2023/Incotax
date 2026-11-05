@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
 
-import { AdminSection } from "@/components/admin/AdminSection";
-import { ContentForm } from "@/components/admin/ContentForm";
-import { getService } from "@/content/services";
+import { ServiceCanvas } from "@/components/admin/editor/canvases";
+import { PageEditor } from "@/components/admin/editor/PageEditor";
+import { getService, otherServices, serviceHref } from "@/content/services";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
-import { serviceCopyFormValues, serviceCopySchema } from "@/lib/service-copy";
+import { serviceCopyKey } from "@/lib/service-copy";
 
-import { saveServiceCopy } from "../actions";
+import { serviceSection, sharedSections, sharedSettings } from "../../editor-sections";
 
 export default async function AdminServicePage({ params }: PageProps<"/admin/services/[slug]">) {
   await requireAdmin();
@@ -15,22 +15,24 @@ export default async function AdminServicePage({ params }: PageProps<"/admin/ser
   const service = getService(slug);
   if (!service) notFound();
 
-  // Strict read: if the store is down this fails, rather than offering a form that could overwrite
+  // Strict read: if the store is down this fails, rather than offering a page that could overwrite
   // real content.
-  const initial = serviceCopyFormValues(await readStoredContentOrThrow(), slug);
+  const stored = await readStoredContentOrThrow();
 
   return (
-    <AdminSection
+    <PageEditor
       title={service.name}
-      intro="A field left blank keeps showing its default. Prices and what is included are not edited here."
-      parent={{ label: "Service pages", href: "/admin/services" }}
-      publicHref={`/services/${slug}`}
+      publicHref={serviceHref(slug)}
+      backHref="/admin/services"
+      backLabel="Service pages"
+      sections={[
+        serviceSection(stored, slug),
+        ...otherServices(slug).map((other) => serviceSection(stored, other.slug)),
+        ...sharedSections(stored),
+      ]}
+      settings={[{ section: serviceCopyKey(slug), name: "whatsappMessage" }, ...sharedSettings]}
     >
-      <ContentForm
-        schema={serviceCopySchema}
-        action={saveServiceCopy.bind(null, slug)}
-        initial={initial}
-      />
-    </AdminSection>
+      <ServiceCanvas slug={slug} />
+    </PageEditor>
   );
 }

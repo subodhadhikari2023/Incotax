@@ -25,9 +25,6 @@ export type HomeFormValues = {
 export const homeSchema: SectionSchema = [
   {
     title: "Hero",
-    where:
-      "The first thing visitors see, at the top of the home page. The stats also show on Why IncoTax.",
-    href: "/#hero",
     items: [
       { kind: "text", name: "heroLabel", label: "Label above the headline", max: 60 },
       { kind: "text", name: "headline", label: "Headline", max: 120 },
@@ -54,8 +51,6 @@ export const homeSchema: SectionSchema = [
   },
   {
     title: "Clients",
-    where: "Just under the hero on the home page.",
-    href: "/#clients-heading",
     items: [
       {
         kind: "list",
@@ -69,14 +64,10 @@ export const homeSchema: SectionSchema = [
   },
   {
     title: "Services",
-    where: "The line above the service cards on the home page.",
-    href: "/#services",
     items: [{ kind: "text", name: "servicesIntro", label: "Services intro", max: 200 }],
   },
   {
     title: "How it works",
-    where: "The numbered steps, under the service cards on the home page.",
-    href: "/#how-heading",
     items: [
       { kind: "text", name: "howHeading", label: "How it works heading", max: 120 },
       { kind: "text", name: "howIntro", label: "How it works intro", max: 200 },
@@ -95,8 +86,6 @@ export const homeSchema: SectionSchema = [
   },
   {
     title: "Fees",
-    where: "The three price cards on the home page.",
-    href: "/#fees-heading",
     items: [
       { kind: "text", name: "feesIntro", label: "Fees intro", max: 200 },
       { kind: "text", name: "featuredTag", label: "Featured plan tag", max: 30 },
@@ -112,8 +101,6 @@ export const homeSchema: SectionSchema = [
   },
   {
     title: "Reviews",
-    where: "Near the bottom of the home page, above the gold WhatsApp band.",
-    href: "/#reviews-heading",
     items: [
       { kind: "text", name: "reviewsIntro", label: "Reviews intro", max: 200 },
       {

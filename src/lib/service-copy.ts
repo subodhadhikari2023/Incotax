@@ -9,7 +9,6 @@ import type { StoredContent } from "./content-store";
 export const serviceCopySchema: SectionSchema = [
   {
     title: "Page text",
-    where: "The banner and the About this service section of this service's page.",
     items: [
       {
         kind: "text",
@@ -36,7 +35,6 @@ export const serviceCopySchema: SectionSchema = [
   },
   {
     title: "Card and WhatsApp",
-    where: "This service's card on other pages, and the chat its buttons open.",
     items: [
       {
         kind: "text",

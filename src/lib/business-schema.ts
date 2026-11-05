@@ -4,8 +4,6 @@ import type { SectionSchema } from "./content-section";
 export const businessSchema: SectionSchema = [
   {
     title: "Contact details",
-    where: "In the top bar and footer of every page, and on the Contact page.",
-    href: "/contact",
     items: [
       { kind: "text", name: "phone", label: "Phone", max: 30, inputType: "tel" },
       {

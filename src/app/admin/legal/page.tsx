@@ -13,7 +13,6 @@ export default async function AdminLegalPage() {
     <AdminSection
       title="Legal pages"
       intro="Each legal page has its own text. Choose the one you want to change."
-      editing={false}
     >
       <EditorList
         items={legalLinks.map((link) => ({

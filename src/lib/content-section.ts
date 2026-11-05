@@ -34,10 +34,6 @@ export type ListDef = {
 
 export type SectionSchema = {
   title: string;
-  /** Where these fields appear on the site, so the editor never has to guess. */
-  where: string;
-  /** A page of this site showing them, when there is one place to look. */
-  href?: string;
   items: (TextDef | ListDef)[];
 }[];
 

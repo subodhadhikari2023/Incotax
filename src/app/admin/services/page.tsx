@@ -13,7 +13,6 @@ export default async function AdminServicesPage() {
     <AdminSection
       title="Service pages"
       intro="Each service has its own page. Choose the one you want to change."
-      editing={false}
     >
       {servicesByCategory.map((category) => (
         <section key={category.id} className="mt-8">

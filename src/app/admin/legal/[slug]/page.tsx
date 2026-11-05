@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
 
-import { AdminSection } from "@/components/admin/AdminSection";
-import { ContentForm } from "@/components/admin/ContentForm";
+import { LegalCanvas } from "@/components/admin/editor/canvases";
+import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { legalLinks } from "@/content/site";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
-import { legalFormValues, legalSchema } from "@/lib/legal-content";
 
-import { saveLegalContent } from "../actions";
+import { legalSection, sharedSections, sharedSettings } from "../../editor-sections";
 
 export default async function AdminLegalEditorPage({ params }: PageProps<"/admin/legal/[slug]">) {
   await requireAdmin();
@@ -15,22 +14,20 @@ export default async function AdminLegalEditorPage({ params }: PageProps<"/admin
   const page = legalLinks.find((link) => link.href === `/${slug}`);
   if (!page) notFound();
 
-  // Strict read: if the store is down this fails, rather than offering a form that could overwrite
+  // Strict read: if the store is down this fails, rather than offering a page that could overwrite
   // real content.
-  const initial = legalFormValues(await readStoredContentOrThrow(), slug);
+  const stored = await readStoredContentOrThrow();
 
   return (
-    <AdminSection
+    <PageEditor
       title={page.label}
-      intro="A field left blank keeps showing its default."
-      parent={{ label: "Legal pages", href: "/admin/legal" }}
       publicHref={page.href}
+      backHref="/admin/legal"
+      backLabel="Legal pages"
+      sections={[legalSection(stored, slug), ...sharedSections(stored)]}
+      settings={sharedSettings}
     >
-      <ContentForm
-        schema={legalSchema}
-        action={saveLegalContent.bind(null, slug)}
-        initial={initial}
-      />
-    </AdminSection>
+      <LegalCanvas slug={slug} label={page.label} />
+    </PageEditor>
   );
 }

@@ -24,13 +24,16 @@ export function EnquiryForm({
   compact = false,
   twoColumns = false,
   note,
+  preview = false,
 }: {
   idPrefix: string;
   label?: string;
   withMessage?: boolean;
   compact?: boolean;
   twoColumns?: boolean;
-  note?: string;
+  note?: React.ReactNode;
+  /** The panel shows the form as it looks: nothing to fill in, and no button to press. */
+  preview?: boolean;
 }) {
   const whatsappNumber = useWhatsAppNumber();
   const { forms } = useSiteCopy();
@@ -57,6 +60,9 @@ export function EnquiryForm({
   const field = `w-full rounded-lg border border-border-field bg-white px-3.5 text-base text-navy placeholder:text-text-muted focus:border-navy focus:outline-2 focus:outline-gold ${
     compact ? "h-12" : "h-[50px]"
   }`;
+  const submitClass = `rounded-lg bg-gold px-7 py-3.5 text-base font-semibold text-navy shadow-button transition-colors hover:bg-gold-arrow ${
+    twoColumns ? "md:w-auto" : "w-full"
+  }`;
   const labelClass = "mb-1.5 block text-sm font-semibold text-navy";
   const errorId = (key: string) => `${idPrefix}-${key}-error`;
   const errorText = (key: keyof EnquiryValues) =>
@@ -70,7 +76,10 @@ export function EnquiryForm({
 
   return (
     <form aria-label={label} noValidate onSubmit={onSubmit}>
-      <div className={`grid gap-4 ${twoColumns ? "md:grid-cols-2 md:gap-x-5" : ""}`}>
+      <fieldset
+        disabled={preview}
+        className={`grid gap-4 ${twoColumns ? "md:grid-cols-2 md:gap-x-5" : ""}`}
+      >
         <div>
           <label htmlFor={`${idPrefix}-name`} className={labelClass}>
             Full Name*
@@ -158,19 +167,18 @@ export function EnquiryForm({
             />
           </div>
         )}
-      </div>
+      </fieldset>
 
       <div
         className={`mt-6 flex flex-col gap-4 ${twoColumns ? "md:flex-row md:items-center md:gap-5" : ""}`}
       >
-        <button
-          type="submit"
-          className={`rounded-lg bg-gold px-7 py-3.5 text-base font-semibold text-navy shadow-button transition-colors hover:bg-gold-arrow ${
-            twoColumns ? "md:w-auto" : "w-full"
-          }`}
-        >
-          {forms.submitLabel}
-        </button>
+        {preview ? (
+          <span className={submitClass}>{forms.submitLabel}</span>
+        ) : (
+          <button type="submit" className={submitClass}>
+            {forms.submitLabel}
+          </button>
+        )}
         <p className={`text-[13px] text-text-muted ${twoColumns ? "" : "text-center"}`}>
           {note ?? forms.note}
         </p>

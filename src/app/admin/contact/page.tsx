@@ -1,25 +1,25 @@
-import { AdminSection } from "@/components/admin/AdminSection";
-import { ContentForm } from "@/components/admin/ContentForm";
+import { ContactCanvas } from "@/components/admin/editor/canvases";
+import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
-import { contactFormValues, contactSchema } from "@/lib/pages-content";
 
-import { saveContactContent } from "./actions";
+import { contactSection, sharedSections, sharedSettings } from "../editor-sections";
 
 export default async function AdminContactPage() {
   await requireAdmin();
 
-  // Strict read: if the store is down this fails, rather than offering a form that could overwrite
+  // Strict read: if the store is down this fails, rather than offering a page that could overwrite
   // real content.
-  const initial = contactFormValues(await readStoredContentOrThrow());
+  const stored = await readStoredContentOrThrow();
 
   return (
-    <AdminSection
+    <PageEditor
       title="Contact page"
       publicHref="/contact"
-      intro="A field left blank keeps showing its default. Phone, email, address and hours are under Business details."
+      sections={[contactSection(stored), ...sharedSections(stored)]}
+      settings={[...sharedSettings, { section: "site", name: "afterSubmit" }]}
     >
-      <ContentForm schema={contactSchema} action={saveContactContent} initial={initial} />
-    </AdminSection>
+      <ContactCanvas />
+    </PageEditor>
   );
 }

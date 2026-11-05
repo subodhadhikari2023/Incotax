@@ -1,8 +1,8 @@
 import { site } from "@/content/site";
-import type { BusinessDetails } from "@/lib/business";
+import type { BusinessNodes } from "@/lib/business";
 
 // Navy strip above the header: three across from tablet up; on phones the hours wrap to row two.
-export function TopBar({ business = site }: { business?: BusinessDetails }) {
+export function TopBar({ business = site }: { business?: BusinessNodes }) {
   return (
     <div className="bg-navy-deep text-sm text-on-navy">
       <div className="page-container grid grid-cols-2 gap-x-4 gap-y-1 py-2.5 md:flex md:items-center md:justify-between">

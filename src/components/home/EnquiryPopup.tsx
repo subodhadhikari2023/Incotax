@@ -27,10 +27,27 @@ const markSeen = () => {
   }
 };
 
+/** The pop-up's text and form, which the panel also shows on its own to edit. */
+export function PopupContent({ preview = false }: { preview?: boolean }) {
+  const { popup } = useSiteCopy();
+  return (
+    <>
+      <Eyebrow>{popup.label}</Eyebrow>
+      <h2
+        id="popup-heading"
+        className="mt-4 pr-10 text-[30px]/[1.15] md:text-[34px] lg:text-[38px]"
+      >
+        {popup.heading}
+      </h2>
+      <p className="mt-3 mb-6 text-[15px] text-text-muted">{popup.line}</p>
+      <EnquiryForm idPrefix="popup" compact note={popup.note} preview={preview} />
+    </>
+  );
+}
+
 // Pop-up enquiry form shown over the home page when the site opens. Shown once
 // per browser session (frequency PENDING; interim default). Closes on ×, Escape or overlay click.
 export function EnquiryPopup() {
-  const { popup } = useSiteCopy();
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -79,15 +96,7 @@ export function EnquiryPopup() {
         >
           <CloseIcon className="text-lg" />
         </button>
-        <Eyebrow>{popup.label}</Eyebrow>
-        <h2
-          id="popup-heading"
-          className="mt-4 pr-10 text-[30px]/[1.15] md:text-[34px] lg:text-[38px]"
-        >
-          {popup.heading}
-        </h2>
-        <p className="mt-3 mb-6 text-[15px] text-text-muted">{popup.line}</p>
-        <EnquiryForm idPrefix="popup" compact note={popup.note} />
+        <PopupContent />
       </div>
     </div>
   );

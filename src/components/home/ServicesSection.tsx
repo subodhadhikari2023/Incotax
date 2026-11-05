@@ -2,7 +2,7 @@ import { ServiceCard } from "@/components/services/ServiceCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { home } from "@/content/home";
 import { getService, type Service } from "@/content/services";
-import type { HomeContent } from "@/lib/home-content";
+import type { HomeNodes } from "@/lib/home-content";
 
 // Navy "Our Services" section with the selected services. id="services" is the target of the
 // footer and breadcrumb "Services" links (/#services).
@@ -10,9 +10,9 @@ export function ServicesSection({
   content = home,
   descriptions = {},
 }: {
-  content?: HomeContent;
+  content?: HomeNodes;
   /** Saved card text by service slug. */
-  descriptions?: Record<string, string>;
+  descriptions?: Record<string, React.ReactNode>;
 }) {
   const selected = content.serviceSlugs.map(getService).filter((s): s is Service => Boolean(s));
 

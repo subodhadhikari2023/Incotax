@@ -21,6 +21,10 @@ services:
   app:
     <<: *node
     command: npm run dev -- --hostname 0.0.0.0
+    # Admin login settings. Optional, so a fresh clone still starts (the panel just stays locked).
+    env_file:
+      - path: .env.local
+        required: false
     ports:
       - "3000:3000"
 
@@ -30,6 +34,9 @@ services:
     <<: *node
     profiles: ["tools"]
     command: sh -c "npm run build && npm run start -- --hostname 0.0.0.0 --port 3001"
+    env_file:
+      - path: .env.local
+        required: false
     ports:
       - "3001:3001"
 

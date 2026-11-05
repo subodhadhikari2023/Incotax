@@ -2,6 +2,7 @@ import { ContactCanvas } from "@/components/admin/editor/canvases";
 import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
+import { publicServices } from "@/lib/service-catalog";
 
 import { contactSection, sharedSections, sharedSettings } from "../editor-sections";
 
@@ -14,6 +15,7 @@ export default async function AdminBusinessPage() {
 
   return (
     <PageEditor
+      serviceList={publicServices(stored)}
       title="Business details"
       publicHref="/contact"
       sections={[...sharedSections(stored), contactSection(stored)]}

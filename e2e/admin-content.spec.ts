@@ -436,6 +436,142 @@ test("everything on a service page can be edited, including prices", async ({ pa
   });
 });
 
+test("a service is added as a draft, published, renamed, hidden and restored", async ({ page }) => {
+  test.setTimeout(180_000);
+  await logIn(page);
+
+  const card = (name: string) =>
+    page.getByRole("main").locator("ul > li").filter({ hasText: name });
+  const menuHas = async (name: string, count: number) => {
+    await page.goto("/contact");
+    await expect(page.getByRole("option", { name, exact: true })).toHaveCount(count);
+  };
+
+  await test.step("a mistake is explained, and nothing is created", async () => {
+    await page.goto("/admin/services");
+    await page.getByLabel("Name of the new service").fill("GST Registration");
+    await page.getByRole("button", { name: "Add service" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "already" })).toBeVisible();
+    expect(page.url()).toMatch(/\/admin\/services$/);
+  });
+
+  await test.step("a new service opens as a draft on the page design", async () => {
+    await page.getByLabel("Name of the new service").fill("Tax Audit");
+    await page.getByLabel("Category").selectOption("compliance-taxation");
+    await page.getByRole("button", { name: "Add service" }).click();
+    await expect(page).toHaveURL(/\/admin\/services\/tax-audit$/);
+    await expect(page.getByText(/draft/i).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "View live page" })).toHaveCount(0);
+    await edit(page, "Short description", "An audit of your accounts");
+    await save(page);
+  });
+
+  await test.step("a draft is not public", async () => {
+    const response = await page.goto("/services/tax-audit");
+    expect(response?.status()).toBe(404);
+    await menuHas("Tax Audit", 0);
+    const sitemap = await (await page.request.get("/sitemap.xml")).text();
+    expect(sitemap).not.toContain("tax-audit");
+  });
+
+  await test.step("publishing puts it everywhere", async () => {
+    await page.goto("/admin/services/tax-audit");
+    await page.getByRole("button", { name: "Publish" }).click();
+    await expect(page.getByText(/draft/i)).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "View live page" })).toBeVisible();
+
+    await page.goto("/services/tax-audit");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Tax Audit");
+    await expect(page.getByText("An audit of your accounts")).toBeVisible();
+    await menuHas("Tax Audit", 1);
+    const sitemap = await (await page.request.get("/sitemap.xml")).text();
+    expect(sitemap).toContain("/services/tax-audit");
+  });
+
+  await test.step("renaming keeps the address", async () => {
+    await page.goto("/admin/services/tax-audit");
+    await edit(page, "Service name", "Statutory Audit");
+    await save(page);
+
+    const response = await page.goto("/services/tax-audit");
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Statutory Audit");
+    await menuHas("Statutory Audit", 1);
+  });
+
+  await test.step("choosing what shows on the home page", async () => {
+    await page.goto("/admin/services");
+    await card("Statutory Audit")
+      .getByRole("button", { name: /add .* to the home page/i })
+      .click();
+    await expect(
+      card("Statutory Audit").getByRole("button", { name: /take .* off the home page/i }),
+    ).toBeVisible();
+
+    await page.goto("/");
+    await expect(
+      page.locator("#services").getByRole("heading", { name: "Statutory Audit" }),
+    ).toBeVisible();
+    await expect(page.locator("#services").getByRole("link", { name: /Learn more/ })).toHaveCount(
+      7,
+    );
+  });
+
+  await test.step("hiding takes it off the site and old links go to the services", async () => {
+    await page.goto("/admin/services");
+    await card("Statutory Audit").getByRole("button", { name: /^Hide/ }).click();
+    await expect(card("Statutory Audit").getByRole("button", { name: /^Restore/ })).toBeVisible();
+    await expect(card("Statutory Audit")).toContainText("Hidden");
+
+    await page.goto("/services/tax-audit");
+    await expect(page).toHaveURL(/\/#services$/);
+    await expect(
+      page.locator("#services").getByRole("heading", { name: "Statutory Audit" }),
+    ).toHaveCount(0);
+    await menuHas("Statutory Audit", 0);
+  });
+
+  await test.step("restoring brings it back, with its text", async () => {
+    await page.goto("/admin/services");
+    await card("Statutory Audit")
+      .getByRole("button", { name: /^Restore/ })
+      .click();
+    await expect(card("Statutory Audit").getByRole("button", { name: /^Hide/ })).toBeVisible();
+
+    const response = await page.goto("/services/tax-audit");
+    expect(response?.status()).toBe(200);
+    await expect(page.getByText("An audit of your accounts")).toBeVisible();
+  });
+
+  await test.step("a service from the original list can be hidden too", async () => {
+    await page.goto("/admin/services");
+    await card("ISO Certification").getByRole("button", { name: /^Hide/ }).click();
+    await expect(card("ISO Certification").getByRole("button", { name: /^Restore/ })).toBeVisible();
+    await menuHas("ISO Certification", 0);
+    await page.goto("/admin/services");
+    await card("ISO Certification")
+      .getByRole("button", { name: /^Restore/ })
+      .click();
+    await expect(card("ISO Certification").getByRole("button", { name: /^Hide/ })).toBeVisible();
+    await menuHas("ISO Certification", 1);
+  });
+
+  await test.step("an unpublished draft can be deleted for good", async () => {
+    await page.goto("/admin/services");
+    await page.getByLabel("Name of the new service").fill("Changed My Mind");
+    await page.getByRole("button", { name: "Add service" }).click();
+    await expect(page).toHaveURL(/\/admin\/services\/changed-my-mind$/);
+
+    await page.goto("/admin/services");
+    page.once("dialog", (dialog) => dialog.accept());
+    await card("Changed My Mind")
+      .getByRole("button", { name: /^Delete/ })
+      .click();
+    await expect(card("Changed My Mind")).toHaveCount(0);
+    await expect(card("Statutory Audit").getByRole("button", { name: /^Delete/ })).toHaveCount(0);
+  });
+});
+
 test("the other pages are edited in place", async ({ page }) => {
   test.setTimeout(150_000);
   await logIn(page);

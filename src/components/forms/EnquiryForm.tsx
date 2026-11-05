@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 
+import { useServiceList } from "@/components/ServiceList";
 import { useSiteCopy } from "@/components/SiteCopy";
 import { useWhatsAppNumber } from "@/components/WhatsAppNumber";
-import { servicesByCategory } from "@/content/services";
+
 import {
   enquiryMessage,
   validateEnquiry,
   type EnquiryErrors,
   type EnquiryValues,
 } from "@/lib/enquiry";
+import { groupByCategory } from "@/lib/service-catalog";
 import { whatsappLink } from "@/lib/whatsapp";
 
 const empty: EnquiryValues = { name: "", mobile: "", email: "", service: "", message: "" };
@@ -37,6 +39,7 @@ export function EnquiryForm({
 }) {
   const whatsappNumber = useWhatsAppNumber();
   const { forms } = useSiteCopy();
+  const serviceList = useServiceList();
   const [values, setValues] = useState(empty);
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -141,15 +144,17 @@ export function EnquiryForm({
             onChange={set("service")}
           >
             <option value="">Choose a service</option>
-            {servicesByCategory.map((category) => (
-              <optgroup key={category.id} label={category.name}>
-                {category.services.map((service) => (
-                  <option key={service.slug} value={service.shortName ?? service.name}>
-                    {service.shortName ?? service.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
+            {groupByCategory(serviceList)
+              .filter((category) => category.services.length > 0)
+              .map((category) => (
+                <optgroup key={category.id} label={category.name}>
+                  {category.services.map((service) => (
+                    <option key={service.slug} value={service.shortName ?? service.name}>
+                      {service.shortName ?? service.name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
           </select>
         </div>
         {withMessage && (

@@ -9,12 +9,17 @@ import type { HomeNodes } from "@/lib/home-content";
 export function ServicesSection({
   content = home,
   descriptions = {},
+  services,
 }: {
   content?: HomeNodes;
   /** Saved card text by service slug. */
   descriptions?: Record<string, React.ReactNode>;
+  /** The services that can be shown, when some were added or hidden in the panel. */
+  services?: Service[];
 }) {
-  const selected = content.serviceSlugs.map(getService).filter((s): s is Service => Boolean(s));
+  const find = (slug: string) =>
+    services ? services.find((service) => service.slug === slug) : getService(slug);
+  const selected = content.serviceSlugs.map(find).filter((s): s is Service => Boolean(s));
 
   return (
     <section id="services" aria-labelledby="services-heading" className="scroll-mt-4 bg-navy">

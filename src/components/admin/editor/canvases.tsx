@@ -11,6 +11,7 @@ import { HomeView } from "@/components/pages/HomeView";
 import { LegalView } from "@/components/pages/LegalView";
 import { ServiceView } from "@/components/pages/ServiceView";
 import { WhyIncotaxView } from "@/components/pages/WhyIncotaxView";
+import { ServiceListProvider } from "@/components/ServiceList";
 import { SiteCopyProvider } from "@/components/SiteCopy";
 import type { FeePricing } from "@/components/services/FeeBox";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
@@ -18,7 +19,7 @@ import { WhatsAppNumberProvider } from "@/components/WhatsAppNumber";
 import { home } from "@/content/home";
 import { contact, legal, whyIncotax } from "@/content/pages";
 import { PLANS } from "@/content/service-details";
-import { getService, otherServices } from "@/content/services";
+import type { Service } from "@/content/services";
 import { pageCopy, site } from "@/content/site";
 import type { HomeNodes } from "@/lib/home-content";
 import { formatINR } from "@/lib/format";
@@ -73,15 +74,18 @@ function useSiteCopyNodes(): SiteCopyNodes {
 function SiteFrame({ children }: { children: React.ReactNode }) {
   const business = useFields("business");
   const nodes = useBusinessNodes();
+  const { serviceList } = useEditor();
   return (
-    <WhatsAppNumberProvider number={business.value("whatsappNumber") || site.whatsappNumber}>
-      <SiteCopyProvider copy={useSiteCopyNodes()}>
-        <TopBar business={nodes} />
-        <Header />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <Footer business={nodes} />
-      </SiteCopyProvider>
-    </WhatsAppNumberProvider>
+    <ServiceListProvider services={serviceList}>
+      <WhatsAppNumberProvider number={business.value("whatsappNumber") || site.whatsappNumber}>
+        <SiteCopyProvider copy={useSiteCopyNodes()}>
+          <TopBar business={nodes} />
+          <Header />
+          <main className="flex flex-1 flex-col">{children}</main>
+          <Footer business={nodes} />
+        </SiteCopyProvider>
+      </WhatsAppNumberProvider>
+    </ServiceListProvider>
   );
 }
 
@@ -95,7 +99,7 @@ function useCardDescriptions(slugs: string[]) {
         "cardDescription",
         pageCopy.serviceCardDescription,
         {
-          label: `${getService(slug)?.name ?? slug} card description`,
+          label: `${editor.serviceList.find((service) => service.slug === slug)?.name ?? slug} card description`,
         },
       ),
     ]),
@@ -118,16 +122,17 @@ function useStats(): { stats: HomeNodes["stats"]; add: React.ReactNode } {
   };
 }
 
-export function HomeCanvas() {
+export function HomeCanvas({ serviceSlugs }: { serviceSlugs: string[] }) {
   const f = useFields("home");
   const { stats, add: addStat } = useStats();
-  const descriptions = useCardDescriptions(home.serviceSlugs);
+  const descriptions = useCardDescriptions(serviceSlugs);
   const highlights = f.rows("highlights");
   const editor = useEditor();
   const feePlans = serviceDetailFor(editor.values, home.fees.serviceSlug).plans ?? [];
 
   const content: HomeNodes = {
     ...home,
+    serviceSlugs,
     hero: {
       label: f.text("heroLabel", home.hero.label),
       headline: f.text("headline", home.hero.headline, {
@@ -188,6 +193,7 @@ export function HomeCanvas() {
         descriptions={descriptions}
         plainHighlights={highlights.map((row) => row.text)}
         feePlans={feePlans}
+        services={editor.serviceList}
         slots={{
           stats: addStat,
           clients: f.add("clients"),
@@ -297,13 +303,12 @@ const FEE_KINDS = [
 
 const PLAN_FIELDS = { basic: "priceBasic", standard: "priceStandard", premium: "pricePremium" };
 
-export function ServiceCanvas({ slug }: { slug: string }) {
+export function ServiceCanvas({ service, others }: { service: Service; others: Service[] }) {
+  const { slug } = service;
   const editor = useEditor();
   const f = fieldsFor(editor, serviceCopyKey(slug));
-  const service = getService(slug);
-  const descriptions = useCardDescriptions(otherServices(slug).map((other) => other.slug));
+  const descriptions = useCardDescriptions(others.map((other) => other.slug));
   const siteFields = useFields("site");
-  if (!service) return null;
 
   const kind = f.value("pricingKind");
   const prices = PLANS.map((plan) => Number(f.value(PLAN_FIELDS[plan.id]).replace(/,/g, "")));
@@ -339,6 +344,8 @@ export function ServiceCanvas({ slug }: { slug: string }) {
     <SiteFrame>
       <ServiceView
         service={service}
+        others={others}
+        title={f.text("name", service.name)}
         message={f.value("whatsappMessage") || serviceCopyFor({}, slug).whatsappMessage}
         detail={{
           pricing,

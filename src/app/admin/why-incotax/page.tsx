@@ -2,6 +2,7 @@ import { WhyIncotaxCanvas } from "@/components/admin/editor/canvases";
 import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
+import { publicServices } from "@/lib/service-catalog";
 
 import {
   founderPhotoSections,
@@ -20,6 +21,7 @@ export default async function AdminWhyIncotaxPage() {
 
   return (
     <PageEditor
+      serviceList={publicServices(stored)}
       title="Why IncoTax"
       publicHref="/why-incotax"
       sections={[

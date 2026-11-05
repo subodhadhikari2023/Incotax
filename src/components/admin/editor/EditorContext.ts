@@ -2,12 +2,15 @@
 
 import { createContext, useContext, useEffect, type RefObject } from "react";
 
+import type { Service } from "@/content/services";
 import type { SectionErrors, SectionSchema, SectionValues } from "@/lib/content-section";
 
 export type ActiveField = { label: string; length: number; max: number };
 
 export type EditorContextValue = {
   schemas: Record<string, SectionSchema>;
+  /** The services visitors can see, for the menu, the form and the cards. */
+  serviceList: Service[];
   values: Record<string, SectionValues>;
   errors: Record<string, SectionErrors>;
   /** Files waiting for the next save, per section. "remove" asks for the saved one to go. */

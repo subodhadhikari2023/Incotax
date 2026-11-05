@@ -5,7 +5,7 @@ import {
   type PriceRow,
   type ServiceDetail,
 } from "@/content/service-details";
-import { getService, services, whatsappMessageFor } from "@/content/services";
+import { getService, whatsappMessageFor } from "@/content/services";
 import { pageCopy } from "@/content/site";
 
 import {
@@ -18,11 +18,13 @@ import {
 } from "./content-section";
 import type { StoredContent } from "./content-store";
 import { formatINR } from "./format";
+import { catalogEntry, publicServices } from "./service-catalog";
 
 export const serviceCopySchema: SectionSchema = [
   {
     title: "Page text",
     items: [
+      { kind: "text", name: "name", label: "Service name", max: 150 },
       {
         kind: "text",
         name: "shortDescription",
@@ -234,7 +236,7 @@ function detailDefaults(slug: string) {
 
 export function serviceCardDescriptions(content: StoredContent): Record<string, string> {
   return Object.fromEntries(
-    services.map(({ slug }) => [
+    publicServices(content).map(({ slug }) => [
       slug,
       savedFor(content, slug).cardDescription ?? pageCopy.serviceCardDescription,
     ]),
@@ -243,6 +245,7 @@ export function serviceCardDescriptions(content: StoredContent): Record<string, 
 
 export function serviceCopyFormValues(content: StoredContent, slug: string) {
   return sectionFormValues(serviceCopySchema, content[serviceCopyKey(slug)], {
+    name: catalogEntry(content, slug)?.name ?? "",
     shortDescription: pageCopy.serviceShortDescription,
     overviewOne: defaultServiceDetail(slug).overview ?? pageCopy.serviceOverviewOne,
     overviewTwo: pageCopy.serviceOverviewTwo,

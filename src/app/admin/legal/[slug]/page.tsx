@@ -5,6 +5,7 @@ import { PageEditor } from "@/components/admin/editor/PageEditor";
 import { legalLinks } from "@/content/site";
 import { requireAdmin } from "@/lib/admin/auth";
 import { readStoredContentOrThrow } from "@/lib/content-store";
+import { publicServices } from "@/lib/service-catalog";
 
 import { legalSection, sharedSections, sharedSettings } from "../../editor-sections";
 
@@ -20,6 +21,7 @@ export default async function AdminLegalEditorPage({ params }: PageProps<"/admin
 
   return (
     <PageEditor
+      serviceList={publicServices(stored)}
       title={page.label}
       publicHref={page.href}
       backHref="/admin/legal"

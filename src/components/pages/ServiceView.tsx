@@ -5,7 +5,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PageHero } from "@/components/ui/PageHero";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { otherServices, type Service } from "@/content/services";
+import type { Service } from "@/content/services";
 
 const sectionHeading = "text-[30px]/[1.15] md:text-[34px] lg:text-[40px]";
 
@@ -27,6 +27,8 @@ export function ServiceView({
   coversIntro,
   otherServicesIntro,
   descriptions,
+  others,
+  title,
   slots = {},
 }: {
   service: Service;
@@ -40,6 +42,10 @@ export function ServiceView({
   coversIntro: React.ReactNode;
   otherServicesIntro: React.ReactNode;
   descriptions: Record<string, React.ReactNode>;
+  /** The services in the "Other Services" section. */
+  others: Service[];
+  /** The page title, when it isn't plain text. */
+  title?: React.ReactNode;
   /** The panel's controls for what can be added or chosen. */
   slots?: {
     included?: React.ReactNode;
@@ -50,7 +56,7 @@ export function ServiceView({
   return (
     <>
       <PageHero
-        title={service.name}
+        title={title ?? service.name}
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Services", href: "/#services" },
@@ -123,7 +129,7 @@ export function ServiceView({
           </h2>
           <p className="mt-3 text-center text-lg text-text-muted">{otherServicesIntro}</p>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {otherServices(service.slug).map((other) => (
+            {others.map((other) => (
               <ServiceCard
                 key={other.slug}
                 service={other}

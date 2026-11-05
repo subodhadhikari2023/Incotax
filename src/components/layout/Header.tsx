@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { ChevronDownIcon, CloseIcon, MenuIcon, WhatsAppIcon } from "@/components/icons";
+import { useServiceList } from "@/components/ServiceList";
 import { useSiteCopy } from "@/components/SiteCopy";
 import { useWhatsAppNumber } from "@/components/WhatsAppNumber";
-import { serviceHref, servicesByCategory } from "@/content/services";
+import { serviceHref } from "@/content/services";
+import { groupByCategory } from "@/lib/service-catalog";
 import { site } from "@/content/site";
 import { whatsappLink } from "@/lib/whatsapp";
 
@@ -50,7 +52,7 @@ function useDismiss(open: boolean, close: () => void, ref: React.RefObject<HTMLE
 }
 
 function ServiceLinks({ onNavigate }: { onNavigate: () => void }) {
-  return servicesByCategory.map((category) => (
+  return groupByCategory(useServiceList()).map((category) => (
     <div key={category.id}>
       <h3 className="mb-3 font-sans text-[13px] font-semibold tracking-[0.1em] text-text-muted uppercase">
         {category.name}

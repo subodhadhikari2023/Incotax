@@ -11,6 +11,7 @@ import {
   sectionFormData,
   setField,
 } from "@/lib/admin/editor-state";
+import { services as defaultServices, type Service } from "@/content/services";
 import type {
   SectionErrors,
   SectionSchema,
@@ -49,12 +50,21 @@ export function PageEditor({
   publicHref,
   backHref = "/admin",
   backLabel = "Admin panel",
+  notice,
+  publish,
+  serviceList = defaultServices,
   sections,
   settings = [],
   children,
 }: {
   title: string;
-  publicHref: string;
+  /** The live page, if there is one: a draft isn't public yet. */
+  publicHref?: string;
+  /** Something the editor must know about this page, such as it being a draft. */
+  notice?: string;
+  /** Makes a draft public. */
+  publish?: () => Promise<void>;
+  serviceList?: Service[];
   backHref?: string;
   backLabel?: string;
   sections: EditorSection[];
@@ -78,6 +88,7 @@ export function PageEditor({
   const [device, setDevice] = useState<Device>("desktop");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [saving, startSaving] = useTransition();
+  const [publishing, startPublishing] = useTransition();
 
   const pendingFocusRef = useRef<string | null>(null);
   const [focusVersion, setFocusVersion] = useState(0);
@@ -97,6 +108,7 @@ export function PageEditor({
 
   const context = {
     schemas,
+    serviceList,
     values,
     errors,
     setActive,
@@ -237,15 +249,28 @@ export function PageEditor({
                   {`Not on the page (${settings.length})`}
                 </button>
               )}
-              <a
-                href={publicHref}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="View live page"
-                className="px-1 text-sm font-semibold text-navy underline"
-              >
-                View live <span aria-hidden="true">↗</span>
-              </a>
+              {publicHref && (
+                <a
+                  href={publicHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="View live page"
+                  className="px-1 text-sm font-semibold text-navy underline"
+                >
+                  View live <span aria-hidden="true">↗</span>
+                </a>
+              )}
+              {publish && (
+                <button
+                  type="button"
+                  disabled={dirty.length > 0 || publishing}
+                  title={dirty.length > 0 ? "Save your changes first" : undefined}
+                  onClick={() => startPublishing(publish)}
+                  className="rounded-lg border-[1.5px] border-navy bg-white px-4 py-1.5 text-[15px] font-semibold text-navy hover:bg-tint disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Publish
+                </button>
+              )}
               <button
                 type="button"
                 onClick={save}
@@ -265,6 +290,7 @@ export function PageEditor({
               />
               <span>{dirty.length > 0 ? "Unsaved changes" : "No unsaved changes"}</span>
             </p>
+            {notice && <p className="font-semibold text-gold-darkest">{notice}</p>}
             {saved && (
               <p role="status" className="text-text-body">
                 Saved. The live site now shows these changes.

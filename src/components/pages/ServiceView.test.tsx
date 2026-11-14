@@ -38,6 +38,15 @@ describe("ServiceView", () => {
     expect(screen.queryByRole("tabpanel")).toBeNull();
   });
 
+  it("links to the Contact form with this service already chosen", () => {
+    renderService("gst-registration");
+
+    expect(screen.getByRole("link", { name: "Get a Quote" })).toHaveAttribute(
+      "href",
+      "/contact?service=gst-registration#form-heading",
+    );
+  });
+
   it("keeps the item list under the cards in the panel, where items are edited", () => {
     renderService("private-limited-company-incorporation", { included: <button>Add</button> });
 

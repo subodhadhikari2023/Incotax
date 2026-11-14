@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { FeeBox, type FeePricing } from "@/components/services/FeeBox";
 import { IncludedList, type IncludedItemNodes } from "@/components/services/IncludedList";
 import { PlanCards, type PlanCardItem } from "@/components/services/PlanCards";
@@ -89,7 +91,15 @@ export function ServiceView({
         <p className="mt-5 max-w-3xl text-[17px]/[27px] text-on-navy md:text-[19px]/[30px]">
           {copy.shortDescription}
         </p>
-        <WhatsAppButton message={message} className="mt-8" />
+        <div className="mt-8 flex flex-wrap gap-4">
+          <WhatsAppButton message={message} />
+          <Link
+            href={`/contact?service=${service.slug}#form-heading`}
+            className="inline-flex items-center justify-center rounded-lg border-[1.5px] border-white px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-white/10"
+          >
+            Get a Quote
+          </Link>
+        </div>
       </PageHero>
 
       <div className="bg-white">

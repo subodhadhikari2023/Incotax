@@ -35,31 +35,59 @@ describe("validateEnquiry", () => {
   });
 });
 
+// Zeeshan's wording for the form's WhatsApp message.
+const opening = [
+  "Hello IncoTax Team,",
+  "",
+  "I am interested in availing your services and would like to request a quotation for the following service.",
+  "",
+  "My Details:",
+  "",
+];
+const closing = [
+  "",
+  "Kindly review my enquiry and get in touch with me to discuss the requirements, process and applicable charges.",
+  "",
+  "Looking forward to hearing from you.",
+  "",
+  "Thank you!",
+];
+
 describe("enquiryMessage", () => {
-  it("lists the filled-in details, one per line", () => {
+  it("fills Zeeshan's message with the details, adding the visitor's own message", () => {
     expect(
       enquiryMessage({
-        name: "Asha Verma",
+        name: " Asha Verma ",
         mobile: "9876543210",
         email: "asha@example.com",
         service: "GST Registration",
-        message: "Need help soon.",
+        message: " Need help soon. ",
       }),
     ).toBe(
       [
-        "New enquiry from the website",
-        "Name: Asha Verma",
-        "Mobile: 9876543210",
-        "Email: asha@example.com",
-        "Service: GST Registration",
-        "Message: Need help soon.",
+        ...opening,
+        "👤 Name: Asha Verma",
+        "📱 Mobile: 9876543210",
+        "📧 Email: asha@example.com",
+        "",
+        "Service Required: GST Registration",
+        "📝 Message: Need help soon.",
+        ...closing,
       ].join("\n"),
     );
   });
 
-  it("leaves out empty optional fields", () => {
-    expect(enquiryMessage(valid)).toBe(
-      ["New enquiry from the website", "Name: Asha Verma", "Mobile: 9876543210"].join("\n"),
+  it('says "Not provided" for a blank email or service, and leaves out an empty message', () => {
+    expect(enquiryMessage({ ...valid, message: "  " })).toBe(
+      [
+        ...opening,
+        "👤 Name: Asha Verma",
+        "📱 Mobile: 9876543210",
+        "📧 Email: Not provided",
+        "",
+        "Service Required: Not provided",
+        ...closing,
+      ].join("\n"),
     );
   });
 });

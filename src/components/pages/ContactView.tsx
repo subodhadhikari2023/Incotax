@@ -2,9 +2,9 @@ import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { contactIcons, Icon } from "@/components/icons";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PageHero } from "@/components/ui/PageHero";
+import { SocialLinks } from "@/components/ui/SocialLinks";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import type { contact as contactContent } from "@/content/pages";
-import { site } from "@/content/site";
 import type { BusinessNodes } from "@/lib/business";
 import type { Nodes } from "@/lib/editable-content";
 
@@ -14,10 +14,16 @@ import type { Nodes } from "@/lib/editable-content";
 export function ContactView({
   contact,
   business,
+  map = null,
+  mapEdit,
   preview = false,
 }: {
   contact: Nodes<typeof contactContent>;
   business: BusinessNodes;
+  /** The office map (see officeMap); null hides the block. */
+  map?: { embed: string | null; open: string } | null;
+  /** The panel's Google Maps link field. With it, the block stays on screen. */
+  mapEdit?: React.ReactNode;
   /** The panel shows the form as it looks, with nothing to fill in. */
   preview?: boolean;
 }) {
@@ -94,22 +100,49 @@ export function ContactView({
                 </li>
               ))}
             </ul>
-            <p className="text-[15px] text-text-muted">{site.socialLinks}</p>
+            <SocialLinks links={business} tone="light" />
           </div>
         </div>
       </div>
 
-      <section aria-labelledby="map-heading" className="bg-tint">
-        <div className="page-container py-[53px] md:py-[77px] lg:py-24">
-          <Eyebrow as="h2" id="map-heading">
-            Find the office
-          </Eyebrow>
-          {/* Map embed goes here once the office address is chosen. */}
-          <div className="mt-6 flex h-[280px] items-center justify-center rounded-[20px] bg-placeholder text-center text-sm text-text-muted md:h-[380px]">
-            {contact.map}
+      {(map || mapEdit) && (
+        <section aria-labelledby="map-heading" className="bg-tint">
+          <div className="page-container py-[53px] md:py-[77px] lg:py-24">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <Eyebrow as="h2" id="map-heading">
+                Find the office
+              </Eyebrow>
+              {map && (
+                <a
+                  href={map.open}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border-[1.5px] border-navy bg-white px-5 font-semibold text-navy hover:bg-bg"
+                >
+                  <Icon icon={contactIcons.office} className="text-base" />
+                  Open in Google Maps
+                </a>
+              )}
+            </div>
+            {mapEdit}
+            {map?.embed ? (
+              <iframe
+                title="Office location map"
+                src={map.embed}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="mt-6 h-[280px] w-full rounded-[20px] border-0 md:h-[380px]"
+              />
+            ) : (
+              !map && (
+                <div className="mt-6 flex h-[280px] items-center justify-center rounded-[20px] bg-placeholder text-center text-sm text-text-muted md:h-[380px]">
+                  The map appears once the office address or a Google Maps link is added.
+                </div>
+              )
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }

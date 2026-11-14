@@ -11,6 +11,8 @@ export function contentSecurityPolicy(dev: boolean): string {
     "img-src 'self' data: blob:",
     "font-src 'self'",
     `connect-src 'self'${dev ? " ws:" : ""}`,
+    // The office map on the Contact page.
+    "frame-src https://www.google.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

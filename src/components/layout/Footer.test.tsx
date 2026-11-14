@@ -45,10 +45,10 @@ describe("Footer", () => {
     render(<Footer />);
     const contact = screen.getByRole("region", { name: "Contact" });
 
-    expect(within(contact).getByText("[Phone number]")).toBeInTheDocument();
-    expect(within(contact).getByText("[Email address]")).toBeInTheDocument();
+    expect(within(contact).getByText("+91 88937 89730")).toBeInTheDocument();
+    expect(within(contact).getByText("info@incotax.in")).toBeInTheDocument();
     expect(within(contact).getByText("[Office address]")).toBeInTheDocument();
-    expect(within(contact).getByText("[Working days], 10 AM to 8 PM")).toBeInTheDocument();
+    expect(within(contact).getByText("Monday to Saturday, 10 AM to 8 PM")).toBeInTheDocument();
   });
 
   it("shows the details it is given", () => {

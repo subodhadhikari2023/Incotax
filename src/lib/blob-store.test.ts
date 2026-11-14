@@ -49,6 +49,53 @@ describe("blobStore fetch", () => {
     expect(original).toHaveBeenCalledWith("https://blobs.example/x", { cache: "no-store" });
     expect(wrapped).not.toHaveBeenCalled();
   });
+
+  // @netlify/blobs retries failed requests with 5-second pauses and never logs why, so a failing
+  // store looks like a hang. Each failed attempt is logged here; signed URLs carry credentials in the
+  // query string, so only the host and path are written.
+  it("logs a failed request's error and cause, then rethrows it", async () => {
+    const error = new TypeError("fetch failed", { cause: new Error("getaddrinfo ENOTFOUND") });
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(error));
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    blobStore("site-content");
+    const { fetch } = blobs.getStore.mock.calls[0][0];
+
+    await expect(fetch("https://blobs.example/site/content?signature=secret")).rejects.toBe(error);
+    const text = log.mock.calls.flat().join(" ");
+    expect(text).toContain("blobs.example/site/content");
+    expect(text).toContain("fetch failed");
+    expect(text).toContain("getaddrinfo ENOTFOUND");
+    expect(text).not.toContain("secret");
+    log.mockRestore();
+  });
+
+  it("logs an error status and still returns the response", async () => {
+    const response = new Response("denied", { status: 403 });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response));
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    blobStore("site-content");
+    const { fetch } = blobs.getStore.mock.calls[0][0];
+
+    await expect(fetch("https://blobs.example/site/content?signature=secret")).resolves.toBe(
+      response,
+    );
+    const text = log.mock.calls.flat().join(" ");
+    expect(text).toContain("403");
+    expect(text).toContain("blobs.example/site/content");
+    expect(text).not.toContain("secret");
+    log.mockRestore();
+  });
+
+  it("logs nothing for a successful request", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}")));
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    blobStore("site-content");
+    const { fetch } = blobs.getStore.mock.calls[0][0];
+
+    await fetch("https://blobs.example/site/content");
+    expect(log).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
 });
 
 describe("blobsDiagnostics", () => {

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -48,8 +48,38 @@ describe("EnquiryForm", () => {
     const [url, target] = open.mock.calls[0];
     expect(url).toMatch(/^https:\/\/wa\.me\/918893789730\?text=/);
     expect(decodeURIComponent(String(url))).toContain("Name: Asha Verma");
-    expect(decodeURIComponent(String(url))).toContain("Service: GST Registration");
+    expect(decodeURIComponent(String(url))).toContain("Service Required: GST Registration");
     expect(target).toBe("_blank");
     expect(screen.getByRole("status")).toBeInTheDocument();
+  });
+
+  // Service pages link to the Contact form with ?service=<slug>.
+  describe("service from the address", () => {
+    afterEach(() => window.history.replaceState(null, "", "/"));
+
+    it("selects the service named in the address", async () => {
+      window.history.replaceState(null, "", "/contact?service=gst-registration");
+      render(<EnquiryForm idPrefix="t" serviceFromAddress />);
+
+      await waitFor(() =>
+        expect(screen.getByLabelText("Select Service")).toHaveValue("GST Registration"),
+      );
+    });
+
+    it("ignores a service that doesn't exist", async () => {
+      window.history.replaceState(null, "", "/contact?service=no-such-service");
+      render(<EnquiryForm idPrefix="t" serviceFromAddress />);
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      expect(screen.getByLabelText("Select Service")).toHaveValue("");
+    });
+
+    it("leaves the choice empty on forms that don't read the address", async () => {
+      window.history.replaceState(null, "", "/contact?service=gst-registration");
+      render(<EnquiryForm idPrefix="t" />);
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      expect(screen.getByLabelText("Select Service")).toHaveValue("");
+    });
   });
 });

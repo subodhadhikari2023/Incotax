@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useServiceList } from "@/components/ServiceList";
 import { useSiteCopy } from "@/components/SiteCopy";
@@ -29,6 +29,7 @@ export function EnquiryForm({
   twoColumns = false,
   note,
   preview = false,
+  serviceFromAddress = false,
 }: {
   idPrefix: string;
   label?: string;
@@ -38,6 +39,8 @@ export function EnquiryForm({
   note?: React.ReactNode;
   /** The panel shows the form as it looks: nothing to fill in, and no button to press. */
   preview?: boolean;
+  /** Start with the service named by ?service=<slug>, as service pages link to the Contact form. */
+  serviceFromAddress?: boolean;
 }) {
   const whatsappNumber = useWhatsAppNumber();
   const { forms } = useSiteCopy();
@@ -45,6 +48,19 @@ export function EnquiryForm({
   const [values, setValues] = useState(empty);
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!serviceFromAddress) return;
+    const slug = new URLSearchParams(window.location.search).get("service");
+    const chosen = serviceList.find((service) => service.slug === slug);
+    if (!chosen) return;
+    // After mount, so the server-rendered page and the first client render match.
+    const id = window.setTimeout(
+      () => setValues((v) => ({ ...v, service: chosen.shortName ?? chosen.name })),
+      0,
+    );
+    return () => window.clearTimeout(id);
+  }, [serviceFromAddress, serviceList]);
 
   const set = (key: keyof EnquiryValues) => (e: { target: { value: string } }) =>
     setValues((v) => ({ ...v, [key]: e.target.value }));

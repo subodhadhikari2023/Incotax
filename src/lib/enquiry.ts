@@ -27,15 +27,29 @@ export function validateEnquiry(values: EnquiryValues): EnquiryErrors {
   return errors;
 }
 
-/** The WhatsApp message: one line per filled-in field. */
+const NOT_PROVIDED = "Not provided";
+
+/** The WhatsApp message, in Zeeshan's wording. The visitor's own message is added when given. */
 export function enquiryMessage(values: EnquiryValues): string {
-  const lines = [
-    "New enquiry from the website",
-    `Name: ${values.name.trim()}`,
-    `Mobile: ${values.mobile.trim()}`,
-  ];
-  if (values.email.trim()) lines.push(`Email: ${values.email.trim()}`);
-  if (values.service) lines.push(`Service: ${values.service}`);
-  if (values.message.trim()) lines.push(`Message: ${values.message.trim()}`);
-  return lines.join("\n");
+  const message = values.message.trim();
+  return [
+    "Hello IncoTax Team,",
+    "",
+    "I am interested in availing your services and would like to request a quotation for the following service.",
+    "",
+    "My Details:",
+    "",
+    `👤 Name: ${values.name.trim()}`,
+    `📱 Mobile: ${values.mobile.trim()}`,
+    `📧 Email: ${values.email.trim() || NOT_PROVIDED}`,
+    "",
+    `Service Required: ${values.service || NOT_PROVIDED}`,
+    ...(message ? [`📝 Message: ${message}`] : []),
+    "",
+    "Kindly review my enquiry and get in touch with me to discuss the requirements, process and applicable charges.",
+    "",
+    "Looking forward to hearing from you.",
+    "",
+    "Thank you!",
+  ].join("\n");
 }

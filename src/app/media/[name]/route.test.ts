@@ -52,4 +52,17 @@ describe("GET /media/[name]", () => {
     vi.mocked(readMedia).mockRejectedValue(new Error("Blobs is down"));
     expect((await get("founder-0")).status).toBe(404);
   });
+
+  it("serves an uploaded client logo", async () => {
+    vi.mocked(readMedia).mockResolvedValue(png);
+    expect((await get("client-k3x9q2", "?v=abc")).status).toBe(200);
+  });
+
+  it.each(["client-", "client-UPPER", "client-a.b", "client-" + "a".repeat(40)])(
+    "only serves well-formed client logo names, not %s",
+    async (name) => {
+      expect((await get(name)).status).toBe(404);
+      expect(readMedia).not.toHaveBeenCalled();
+    },
+  );
 });

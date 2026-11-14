@@ -1,10 +1,11 @@
 import { whyIncotax } from "@/content/pages";
-import { detectImageType } from "@/lib/admin/photo";
+import { CLIENT_LOGO_NAME, detectImageType } from "@/lib/admin/photo";
 import { readMedia } from "@/lib/media-store";
 
 export const dynamic = "force-dynamic";
 
 const known = (name: string) => {
+  if (CLIENT_LOGO_NAME.test(name)) return true;
   const match = name.match(/^founder-(\d+)$/);
   return match !== null && whyIncotax.founders[Number(match[1])] !== undefined;
 };

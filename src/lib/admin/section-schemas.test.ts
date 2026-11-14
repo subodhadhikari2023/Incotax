@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { businessSchema } from "@/lib/business-schema";
 
 describe("the business details form", () => {
-  it("keeps its fields, with the phone keyboard and email keyboard on phones", () => {
+  it("keeps its fields, with the phone, email and link keyboards on phones", () => {
     const fields = businessSchema.flatMap((group) => group.items);
     expect(fields.map((field) => field.name)).toEqual([
       "phone",
@@ -12,6 +12,9 @@ describe("the business details form", () => {
       "email",
       "address",
       "hours",
+      "instagram",
+      "facebook",
+      "mapLink",
     ]);
     expect(fields.map((field) => field.kind === "text" && field.inputType)).toEqual([
       "tel",
@@ -19,6 +22,9 @@ describe("the business details form", () => {
       "email",
       undefined,
       undefined,
+      "url",
+      "url",
+      "url",
     ]);
   });
 });

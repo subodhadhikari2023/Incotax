@@ -1,9 +1,12 @@
+import Image from "next/image";
+
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { home } from "@/content/home";
 import type { HomeNodes } from "@/lib/home-content";
 
 // "Clients We Have Worked With": boxes centred in rows of 6 on desktop, 3 on tablet, 2 on phones,
-// so one or two clients still look deliberate. Real clients only; none hides the section.
+// so one or two clients still look deliberate. Real clients only; none hides the section. A client
+// with a logo shows it, any other its name.
 export function ClientsSection({
   content = home,
   after,
@@ -22,9 +25,19 @@ export function ClientsSection({
           {content.clients.map((client, i) => (
             <li
               key={i}
-              className="relative flex h-24 w-[calc(50%-0.5rem)] items-center justify-center rounded-[14px] border border-border bg-white px-3 text-center text-sm text-text-muted md:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-6.25rem)/6)]"
+              className="relative flex min-h-24 w-[calc(50%-0.5rem)] items-center justify-center overflow-hidden rounded-[14px] border border-border bg-white px-3 text-center text-sm text-text-muted md:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-6.25rem)/6)]"
             >
-              {client}
+              {typeof client === "string" && content.clientLogos[client] ? (
+                <Image
+                  src={content.clientLogos[client]}
+                  alt={client}
+                  fill
+                  sizes="(min-width: 1024px) 190px, (min-width: 768px) 33vw, 50vw"
+                  className="object-contain p-3"
+                />
+              ) : (
+                client
+              )}
             </li>
           ))}
         </ul>

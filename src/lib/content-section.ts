@@ -9,7 +9,7 @@ export type TextDef = {
   hint?: string;
   multiline?: boolean;
   /** The keyboard a phone shows, such as "tel". */
-  inputType?: "tel" | "email";
+  inputType?: "tel" | "email" | "url";
 };
 
 export type ListFieldDef = {

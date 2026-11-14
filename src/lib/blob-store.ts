@@ -25,6 +25,21 @@ const describeError = (error: unknown) => {
   return reason ? `${error.message} (${reason})` : error.message;
 };
 
+/**
+ * The same response with its body read into memory. Next's fetch can hand back a clone, and
+ * cancelling a cloned body waits for the other copy, which nobody reads; @netlify/blobs cancels the
+ * body of every 404, so reading a key that was never saved hung. Blobs bodies are small.
+ */
+async function withOwnBody(response: Response): Promise<Response> {
+  const init = {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  };
+  if (response.body === null) return new Response(null, init);
+  return new Response(await response.arrayBuffer(), init);
+}
+
 // Next.js wraps the global fetch to cache responses, and on Netlify that cache is kept in Blobs as
 // well, so a Blobs read can end up waiting on itself. Blobs calls use the fetch Next wrapped, when
 // it is there, and never cache.
@@ -40,7 +55,7 @@ const uncachedFetch: typeof fetch = async (input, init) => {
     if (response.status >= 400) {
       console.error(`Netlify Blobs request to ${describeUrl(input)} returned ${response.status}`);
     }
-    return response;
+    return await withOwnBody(response);
   } catch (error) {
     console.error(`Netlify Blobs request to ${describeUrl(input)} failed: ${describeError(error)}`);
     throw error;

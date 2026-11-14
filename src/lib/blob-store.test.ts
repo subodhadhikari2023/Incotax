@@ -70,20 +70,66 @@ describe("blobStore fetch", () => {
   });
 
   it("logs an error status and still returns the response", async () => {
-    const response = new Response("denied", { status: 403 });
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("denied", { status: 403 })));
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
     blobStore("site-content");
     const { fetch } = blobs.getStore.mock.calls[0][0];
 
-    await expect(fetch("https://blobs.example/site/content?signature=secret")).resolves.toBe(
-      response,
-    );
+    const response: Response = await fetch("https://blobs.example/site/content?signature=secret");
+    expect(response.status).toBe(403);
+    await expect(response.text()).resolves.toBe("denied");
     const text = log.mock.calls.flat().join(" ");
     expect(text).toContain("403");
     expect(text).toContain("blobs.example/site/content");
     expect(text).not.toContain("secret");
     log.mockRestore();
+  });
+
+  // Next's fetch clones responses, and cancelling a cloned body waits until the other copy is read
+  // or cancelled too, which never happens. @netlify/blobs cancels the body of every 404, so a read
+  // of a key that was never saved hung until the timeout. The body must be one Blobs owns outright.
+  it("returns a response whose body can be cancelled even when fetch handed back a clone", async () => {
+    const original = new Response("not found", { status: 404 });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(original.clone()));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    blobStore("site-content");
+    const { fetch } = blobs.getStore.mock.calls[0][0];
+
+    const response: Response = await fetch("https://blobs.example/site/content");
+    const cancelled = response.body?.cancel().then(() => "cancelled");
+    const outcome = await Promise.race([
+      cancelled,
+      new Promise((resolve) => setTimeout(() => resolve("still pending"), 100)),
+    ]);
+    expect(outcome).toBe("cancelled");
+    expect(response.status).toBe(404);
+  });
+
+  it("keeps the status, headers and body of a successful response", async () => {
+    const original = new Response('{"a":1}', {
+      status: 200,
+      headers: { "content-type": "application/json", etag: '"v1"' },
+    });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(original.clone()));
+    blobStore("site-content");
+    const { fetch } = blobs.getStore.mock.calls[0][0];
+
+    const response: Response = await fetch("https://blobs.example/site/content");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("etag")).toBe('"v1"');
+    await expect(response.json()).resolves.toEqual({ a: 1 });
+  });
+
+  it("passes on a response that has no body", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 204 })));
+    blobStore("site-content");
+    const { fetch } = blobs.getStore.mock.calls[0][0];
+
+    const response: Response = await fetch("https://blobs.example/site/content", {
+      method: "DELETE",
+    });
+    expect(response.status).toBe(204);
+    expect(response.body).toBeNull();
   });
 
   it("logs nothing for a successful request", async () => {

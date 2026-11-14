@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local build output of the Netlify CLI
+    ".netlify/**",
     // Test output
     "playwright-report/**",
     "test-results/**",

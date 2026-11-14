@@ -46,7 +46,7 @@ describe("EnquiryForm", () => {
 
     expect(open).toHaveBeenCalledTimes(1);
     const [url, target] = open.mock.calls[0];
-    expect(url).toMatch(/^https:\/\/wa\.me\/\?text=/);
+    expect(url).toMatch(/^https:\/\/wa\.me\/918893789730\?text=/);
     expect(decodeURIComponent(String(url))).toContain("Name: Asha Verma");
     expect(decodeURIComponent(String(url))).toContain("Service: GST Registration");
     expect(target).toBe("_blank");

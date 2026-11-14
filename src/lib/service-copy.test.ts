@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { getServiceDetail } from "@/content/service-details";
 import { services } from "@/content/services";
-import { pageCopy } from "@/content/site";
+import { enquiryAbout, pageCopy } from "@/content/site";
 
 import { validateSection } from "./content-section";
 import {
@@ -32,7 +32,7 @@ describe("serviceCopyFor", () => {
       shortDescription: pageCopy.serviceShortDescription,
       overviewTwo: pageCopy.serviceOverviewTwo,
       cardDescription: pageCopy.serviceCardDescription,
-      whatsappMessage: null,
+      whatsappMessage: enquiryAbout("GST Registration"),
     });
   });
 

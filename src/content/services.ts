@@ -1,4 +1,4 @@
-import { site } from "./site";
+import { enquiryAbout } from "./site";
 
 // Services from "SERVICES REVISED & FINAL.pdf" (00-Requirements). Names and categories only for
 // now; plans, included items and prices are added when the service pages are built.
@@ -102,9 +102,9 @@ export const serviceHref = (slug: string) => `/services/${slug}`;
 
 export const getService = (slug: string) => services.find((s) => s.slug === slug);
 
-/** The service's own WhatsApp message, or the site-wide one until Zeeshan writes it. */
+/** The service's own WhatsApp message, or Zeeshan's message naming the service. */
 export const whatsappMessageFor = (service: Service) =>
-  service.whatsappMessage ?? site.whatsappMessage;
+  service.whatsappMessage ?? enquiryAbout(service.name);
 
 /** Up to `count` other services for the "Other Services" section, same category first. */
 export function otherServices(slug: string, count = 3): Service[] {

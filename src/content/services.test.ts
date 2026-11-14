@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { serviceCategories, services, whatsappMessageFor } from "./services";
-import { site } from "./site";
+import { enquiryAbout } from "./site";
 
 describe("services content", () => {
   it("has the three categories from the services PDF, in order", () => {
@@ -42,7 +42,7 @@ describe("per-service WhatsApp message", () => {
     );
   });
 
-  it("falls back to the site-wide message", () => {
-    expect(whatsappMessageFor(base)).toBe(site.whatsappMessage);
+  it("falls back to the general message, naming the service", () => {
+    expect(whatsappMessageFor(base)).toBe(enquiryAbout(base.name));
   });
 });

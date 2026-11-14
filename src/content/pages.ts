@@ -2,22 +2,30 @@
 // Bracketed values are PENDING (checklist rows); replace them when Zeeshan sends them.
 
 export const forms = {
-  submitLabel: "[Submit button]",
-  afterSubmit: "[Message shown after a form is submitted]",
-  note: "[Short note: privacy / reply time]",
+  submitLabel: "Get My Quote",
+  /** Second button: opens a WhatsApp chat without filling in the form. */
+  whatsappLabel: "WhatsApp",
+  /** Paragraphs separated by a blank line; the first and last are shown in bold. */
+  afterSubmit:
+    "Thank You for Your Enquiry!\n\nYour form has been submitted successfully. Our team at IncoTax has received your details and will get in touch with you shortly to discuss your requirements and provide a suitable quotation.\n\nYour Trust, Our Commitment.",
+  note: "Reply within 30 minutes.",
 };
 
 export const popup = {
   label: "[Short label]",
   heading: "Your Requirement. Our Expertise.",
   line: "Tell us what you need and get a personalised quote from our team.",
-  note: "[Short note: privacy / callback time]",
+  note: "Reply within 30 minutes.",
 };
 
 export const whyIncotax = {
-  title: "[Why IncoTax headline]",
-  intro: "[One or two lines introducing the practice.]",
-  aboutParagraphs: ["[About IncoTax: paragraph one.]", "[About IncoTax: paragraph two.]"],
+  title: "The Right Partner for Business Growth.",
+  intro:
+    "At IncoTax, we simplify the complexities of business registrations, taxation, legal documentation and regulatory compliance. We combine professional expertise, personalised guidance and a transparent approach to help entrepreneurs and businesses meet their legal and compliance requirements with confidence. From starting a business to managing ongoing compliance, we stand by you at every step so you can focus on what matters most—growing your business.",
+  aboutParagraphs: [
+    "IncoTax is a professional business, legal and compliance service provider dedicated to supporting entrepreneurs, startups and established businesses. We offer comprehensive assistance in company incorporation, business registrations, taxation, ROC and MCA compliance, legal documentation, trademark registration and regulatory requirements. Our approach combines practical knowledge, professional guidance and a clear understanding of the legal and regulatory framework governing businesses.",
+    "We believe that every business deserves reliable professional support at every stage of its journey. From helping entrepreneurs establish their businesses to assisting companies with ongoing statutory and regulatory compliances, we focus on delivering organised, transparent and client-oriented solutions. At IncoTax, we value accuracy, confidentiality and timely communication, building lasting professional relationships through our commitment to quality service.",
+  ],
   founders: [
     {
       role: "Founder",
@@ -25,10 +33,9 @@ export const whyIncotax = {
       title: "Advocate",
       bio: "Zeeshan Khan is an Advocate and a graduate of a BCI-affiliated university, with 2+ years of professional experience in Company Law, SEBI Law, Income Tax, GST, Intellectual Property Law, Civil Law, and Contract Law. He is committed to delivering practical, reliable, and legally sound solutions to clients.",
       points: [
-        "[Education]",
-        "[Enrolment details]",
-        "[Years of experience]",
-        "[Courts practised in]",
+        "Graduate of a BCI-affiliated university",
+        "2+ years of professional experience",
+        "High Courts of Patna and Calcutta",
       ],
     },
     {
@@ -36,10 +43,15 @@ export const whyIncotax = {
       name: "Palak Khemka",
       title: "CS Finalist",
       bio: "Palak Khemka is a Law Graduate and Company Secretary Finalist with 2+ years of professional experience in corporate and compliance matters. She has successfully contributed to the incorporation of 50+ companies, with expertise in company incorporation, corporate compliance, and regulatory processes.",
-      points: ["[Education]", "[Qualification]", "[Years of experience]", "[Key expertise]"],
+      points: [
+        "Law Graduate",
+        "Company Secretary Finalist",
+        "2+ years of professional experience",
+        "50+ companies incorporated",
+      ],
     },
   ],
-  practiceIntro: "[One line]",
+  practiceIntro: "Expertise Across Legal Practice Areas",
   courts: ["High Court of Patna", "High Court of Calcutta"],
   areas: [
     "Company Law",
@@ -50,16 +62,24 @@ export const whyIncotax = {
     "Civil Law",
     "Contract Law",
   ],
-  courtLine: "[One line about this court]",
-  areaLine: "[One line about this area]",
+  /** One line under each court / area card; empty shows the name only. */
+  courtLine: "",
+  areaLine: "",
+};
+
+/** Why IncoTax settings that aren't page text. */
+export const whyIncotaxOptions = {
+  /** Words of the headline shown in gold italic. */
+  goldPhrase: "Business Growth",
 };
 
 export const contact = {
-  title: "[Contact page headline]",
-  intro: "[One line: the quickest way to reach the practice.]",
-  formHeading: "[Heading for the contact form]",
-  formLine: "[One line: what happens after the form is sent]",
-  whatsappLabel: "[Short label, e.g. fastest reply]",
+  title: "Contact Us",
+  intro: "We’re Just a Message Away.",
+  formHeading: "Let’s Discuss Your Requirements",
+  formLine:
+    "Share your details, and our team will get in touch with the right guidance and support.",
+  whatsappLabel: "Fastest Reply",
   whatsappHeading: "[Talk to us on WhatsApp]",
   whatsappLine: "[One line: tap the button and the chat opens with a ready message]",
   map: "[Map: office location]",

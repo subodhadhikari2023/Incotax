@@ -15,13 +15,14 @@ test("home page sections are in the designed order", async ({ page }) => {
   await page.goto("/");
   const headings = await page.locator("main h2").allTextContents();
 
-  expect(headings.slice(0, 5)).toEqual([
+  // What Clients Say stays hidden until real reviews arrive.
+  expect(headings.slice(0, 4)).toEqual([
     "Clients We Have Worked With",
     "Our Services",
-    expect.any(String), // How it works heading (PENDING placeholder)
+    "How It Works",
     "Fees",
-    "What Clients Say",
   ]);
+  expect(headings).not.toContain("What Clients Say");
 });
 
 test("Our Services has six service cards linking to their pages", async ({ page }) => {
@@ -67,13 +68,23 @@ test("fee cards are 3 across on desktop and tablet, stacked on phone", async ({
   expect(new Set(tops).size).toBe(testInfo.project.name === "phone" ? 1 : 3);
 });
 
-test("How it works has four steps and reviews show three cards", async ({ page }) => {
+test("How it works has four steps", async ({ page }) => {
   await page.goto("/");
 
   await expect(
     page.getByRole("region", { name: "How it works" }).getByRole("listitem"),
   ).toHaveCount(4);
-  await expect(
-    page.getByRole("region", { name: "What Clients Say" }).getByRole("article"),
-  ).toHaveCount(3);
+});
+
+test("clients show their six logos", async ({ page }) => {
+  await page.goto("/");
+  const clients = page.getByRole("region", { name: "Clients We Have Worked With" });
+
+  await expect(clients.getByRole("img")).toHaveCount(6);
+  await expect(clients.getByRole("img", { name: "TrendVish Media" })).toBeVisible();
+  // Every logo really loaded.
+  const broken = await clients
+    .getByRole("img")
+    .evaluateAll((imgs) => imgs.filter((img) => !(img as HTMLImageElement).naturalWidth).length);
+  expect(broken).toBe(0);
 });

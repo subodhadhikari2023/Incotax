@@ -3,16 +3,31 @@
 export const site = {
   name: "IncoTax Legal Services",
   tagline: "Your Trust, Our Commitment!",
-  phone: "[Phone number]",
-  email: "[Email address]",
+  phone: "+91 88937 89730",
+  email: "info@incotax.in",
+  /** PENDING: which of the two offices to show. */
   address: "[Office address]",
-  hours: "[Working days], 10 AM to 8 PM",
-  socialLinks: "[Social links]",
-  /** Digits with country code, e.g. "919876543210". null until the number arrives. */
-  whatsappNumber: null as string | null,
-  /** Pre-filled WhatsApp message. null until Zeeshan writes it. */
-  whatsappMessage: null as string | null,
+  hours: "Monday to Saturday, 10 AM to 8 PM",
+  social: [
+    {
+      platform: "Instagram",
+      href: "https://www.instagram.com/incotax.in",
+    },
+    {
+      platform: "Facebook",
+      href: "https://www.facebook.com/share/1G9p6hTyC1/",
+    },
+  ] as { platform: "Instagram" | "Facebook"; href: string }[],
+  /** Digits with country code, e.g. "919876543210". null leaves wa.me on the contact picker. */
+  whatsappNumber: "918893789730" as string | null,
+  /** Pre-filled WhatsApp message for buttons that aren't about one service. */
+  whatsappMessage: enquiryAbout("your services") as string | null,
 };
+
+/** Zeeshan's pre-filled WhatsApp message, naming what the visitor wants to know about. */
+export function enquiryAbout(subject: string): string {
+  return `Hello Team, I came from your website 🌐. I would like to know more about ${subject}. Kindly share details. Thank You!`;
+}
 
 // Section copy still PENDING from Zeeshan (checklist rows). Replace each placeholder when it arrives.
 export const pageCopy = {

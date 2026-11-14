@@ -52,7 +52,8 @@ const uncachedFetch: typeof fetch = async (input, init) => {
       ...init,
       cache: "no-store",
     });
-    if (response.status >= 400) {
+    // 404 just means nothing is saved under that key yet.
+    if (response.status >= 400 && response.status !== 404) {
       console.error(`Netlify Blobs request to ${describeUrl(input)} returned ${response.status}`);
     }
     return await withOwnBody(response);

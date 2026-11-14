@@ -132,6 +132,18 @@ describe("blobStore fetch", () => {
     expect(response.body).toBeNull();
   });
 
+  // 404 only means nothing is saved under that key yet (no saved content, no uploaded photo).
+  it("does not log a 404", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 404 })));
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    blobStore("site-media");
+    const { fetch } = blobs.getStore.mock.calls[0][0];
+
+    await fetch("https://blobs.example/site/founder-0");
+    expect(log).not.toHaveBeenCalled();
+    log.mockRestore();
+  });
+
   it("logs nothing for a successful request", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}")));
     const log = vi.spyOn(console, "error").mockImplementation(() => {});

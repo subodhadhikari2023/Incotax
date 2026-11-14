@@ -1,10 +1,12 @@
 import { FeeBox, type FeePricing } from "@/components/services/FeeBox";
 import { IncludedList, type IncludedItemNodes } from "@/components/services/IncludedList";
+import { PlanCards, type PlanCardItem } from "@/components/services/PlanCards";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PageHero } from "@/components/ui/PageHero";
 import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import type { Plan } from "@/content/service-details";
 import type { Service } from "@/content/services";
 
 const sectionHeading = "text-[30px]/[1.15] md:text-[34px] lg:text-[40px]";
@@ -12,13 +14,16 @@ const sectionHeading = "text-[30px]/[1.15] md:text-[34px] lg:text-[40px]";
 /** What a service page shows beyond its text. */
 export type ServiceDetailNodes = {
   included: IncludedItemNodes[];
+  /** Basic / Standard / Premium, on the services that have plans. */
+  plans?: Plan[];
   pricing: FeePricing;
   notIncluded?: React.ReactNode;
   timeline?: React.ReactNode;
   note?: React.ReactNode;
 };
 
-// One service's page. The public page and the panel both draw this.
+// One service's page. The public page and the panel both draw this. A service with plans shows
+// them as plan cards; the numbered item list then only appears in the panel, where items are edited.
 export function ServiceView({
   service,
   detail,
@@ -29,6 +34,7 @@ export function ServiceView({
   descriptions,
   others,
   title,
+  planCards,
   slots = {},
 }: {
   service: Service;
@@ -46,6 +52,8 @@ export function ServiceView({
   others: Service[];
   /** The page title, when it isn't plain text. */
   title?: React.ReactNode;
+  /** The panel's plain-text preview of the plan cards; public pages use the detail's plans. */
+  planCards?: { plans: Plan[]; items: PlanCardItem[] };
   /** The panel's controls for what can be added or chosen. */
   slots?: {
     included?: React.ReactNode;
@@ -53,6 +61,21 @@ export function ServiceView({
     priceRows?: React.ReactNode;
   };
 }) {
+  const cards =
+    planCards ??
+    (detail.plans?.length
+      ? {
+          plans: detail.plans,
+          items: detail.included.map((item) => ({ name: String(item.name), plans: item.plans })),
+        }
+      : undefined);
+  const note = detail.note && (
+    <p className="mt-6 text-sm text-text-muted">
+      <span className="font-semibold">Please note: </span>
+      {detail.note}
+    </p>
+  );
+
   return (
     <>
       <PageHero
@@ -89,21 +112,18 @@ export function ServiceView({
               </div>
             </section>
 
-            <section aria-labelledby="covers-heading" className="mt-14">
-              <Eyebrow>Included</Eyebrow>
-              <h2 id="covers-heading" className={`mt-4 ${sectionHeading}`}>
-                What this service covers
-              </h2>
-              <p className="mt-4 mb-7 text-[17px] text-text-muted">{coversIntro}</p>
-              <IncludedList items={detail.included} />
-              {slots.included}
-              {detail.note && (
-                <p className="mt-6 text-sm text-text-muted">
-                  <span className="font-semibold">Please note: </span>
-                  {detail.note}
-                </p>
-              )}
-            </section>
+            {(!cards || slots.included) && (
+              <section aria-labelledby="covers-heading" className="mt-14">
+                <Eyebrow>Included</Eyebrow>
+                <h2 id="covers-heading" className={`mt-4 ${sectionHeading}`}>
+                  What this service covers
+                </h2>
+                <p className="mt-4 mb-7 text-[17px] text-text-muted">{coversIntro}</p>
+                <IncludedList items={detail.included} />
+                {slots.included}
+                {!cards && note}
+              </section>
+            )}
           </div>
 
           <div className="lg:sticky lg:top-8">
@@ -117,6 +137,23 @@ export function ServiceView({
           </div>
         </div>
       </div>
+
+      {cards && (
+        <section aria-labelledby="plans-heading" className="bg-bg">
+          <div className="page-container py-[53px] md:py-[77px] lg:py-24">
+            <Eyebrow centered>Plans</Eyebrow>
+            <h2
+              id="plans-heading"
+              className="mt-4 text-center text-[34px] md:text-[40px] lg:text-[48px]"
+            >
+              Choose your plan
+            </h2>
+            <p className="mt-3 mb-12 text-center text-lg text-text-muted">{coversIntro}</p>
+            <PlanCards serviceName={service.name} plans={cards.plans} items={cards.items} />
+            {note}
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="other-services-heading" className="bg-tint">
         <div className="page-container py-[53px] md:py-[77px] lg:py-24">

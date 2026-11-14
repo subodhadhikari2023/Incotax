@@ -24,10 +24,47 @@ test("plan service: breadcrumb, starting price, plans and other services", async
   await expect(fee.getByText("₹1,499", { exact: true }).first()).toBeVisible();
   await expect(fee.getByText("Premium")).toBeVisible();
 
-  await expect(page.getByText("Included in: Standard, Premium").first()).toBeVisible();
+  const plans = page.getByRole("region", { name: "Choose your plan" });
+  await expect(plans.getByText("Most Popular")).toBeVisible();
+  await expect(page.getByText(/^Included in:/)).toHaveCount(0);
 
   const others = page.getByRole("region", { name: "Other Services" });
   await expect(others.getByRole("link", { name: /Learn more/ })).toHaveCount(3);
+});
+
+test("plan cards: all three side by side from tablet up, tabs on phones", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/services/private-limited-company-incorporation");
+  const plans = page.getByRole("region", { name: "Choose your plan" });
+  const card = (name: string) => plans.getByRole("tabpanel", { name, includeHidden: true });
+
+  if (testInfo.project.name !== "phone") {
+    await expect(plans.getByRole("tablist")).toBeHidden();
+    for (const name of ["Basic", "Standard", "Premium"]) await expect(card(name)).toBeVisible();
+    return;
+  }
+
+  await expect(plans.getByRole("tab", { name: "Standard" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(card("Standard")).toBeVisible();
+  await expect(card("Basic")).toBeHidden();
+
+  await plans.getByRole("tab", { name: "Premium" }).click();
+  await expect(card("Premium")).toBeVisible();
+  await expect(card("Standard")).toBeHidden();
+  await expect(card("Premium").getByText("₹7,499")).toBeVisible();
+
+  await card("Premium")
+    .getByRole("button", { name: /^Show all \d+ items$/ })
+    .click();
+  await expect(card("Premium").getByRole("button", { name: "Show fewer" })).toBeVisible();
+  await expect(card("Premium").getByRole("link", { name: /Get Started/ })).toHaveAttribute(
+    "href",
+    /Premium%20plan/,
+  );
 });
 
 test("quote service shows no price", async ({ page }) => {

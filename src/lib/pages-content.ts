@@ -17,7 +17,7 @@ export const whyIncotaxSchema: SectionSchema = [
     title: "Page top",
     items: [
       { kind: "text", name: "title", label: "Page headline", max: 120 },
-      { kind: "text", name: "intro", label: "Page intro", max: 300, multiline: true },
+      { kind: "text", name: "intro", label: "Page intro", max: 600, multiline: true },
     ],
   },
   {

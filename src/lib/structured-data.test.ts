@@ -22,11 +22,11 @@ describe("businessJsonLd", () => {
     });
   });
 
-  // Phone, email and address are still [placeholders]; Google must never see those.
+  // The address is still a [placeholder]; Google must never see one.
   it("leaves out details that are still pending", () => {
     const data = businessJsonLd();
-    expect(data).not.toHaveProperty("telephone");
-    expect(data).not.toHaveProperty("email");
+    expect(data).toHaveProperty("telephone", "+91 88937 89730");
+    expect(data).toHaveProperty("email", "info@incotax.in");
     expect(data).not.toHaveProperty("address");
     // No string value may start with "[" (a placeholder); arrays like founder are fine.
     expect(JSON.stringify(data)).not.toMatch(/"\[/);

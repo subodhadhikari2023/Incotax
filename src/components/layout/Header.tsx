@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -109,13 +110,16 @@ export function Header() {
     <header className="relative border-b border-border bg-white">
       <div className="page-container flex items-center justify-between gap-4 py-4">
         <Link href="/" className="flex min-w-0 items-center gap-3">
-          {/* Logo slot: placeholder until the gold SVG logo arrives. */}
-          <span
-            aria-hidden="true"
-            className="flex size-12 shrink-0 items-center justify-center rounded-[10px] bg-placeholder text-[13px] text-text-muted"
-          >
-            Logo
-          </span>
+          {/* The emblem is decorative: the brand name beside it is the link's text. */}
+          <Image
+            src="/logo/incotax-icon.svg"
+            alt=""
+            width={48}
+            height={48}
+            unoptimized
+            priority
+            className="size-12 shrink-0"
+          />
           <span className="min-w-0">
             <span className="block font-heading text-[22px] leading-[1.1] font-bold text-navy md:text-[28px]">
               {site.name}

@@ -64,7 +64,7 @@ describe("saveHomeContent", () => {
         ...noLists,
         headline: "Build It Right",
         stats: [{ value: "5+", label: "Years" }],
-        clients: [{ name: "Acme Traders" }],
+        clients: [{ name: "Acme Traders", logo: "" }],
       },
     });
     // The stats also show on Why IncoTax, so every page must rebuild, not only the home page.

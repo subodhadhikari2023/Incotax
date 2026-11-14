@@ -49,11 +49,11 @@ const details = {
 };
 const labels = { phone: "Phone", email: "Email", address: "Office address", hours: "Hours" };
 
-test("saved business details replace the placeholders across the public site", async ({ page }) => {
+test("saved business details replace the defaults across the public site", async ({ page }) => {
   test.setTimeout(120_000);
   await logIn(page);
 
-  await test.step("start clean: blank fields fall back to the placeholders", async () => {
+  await test.step("start clean: blank fields fall back to the defaults", async () => {
     await page.goto("/admin/business");
     for (const name of Object.values(labels)) await edit(page, name, "x");
     await notOnPage(page);
@@ -63,7 +63,7 @@ test("saved business details replace the placeholders across the public site", a
     await page.getByLabel("WhatsApp number").fill("");
     await save(page);
     await page.goto("/");
-    await expect(page.getByText("[Phone number]").first()).toBeVisible();
+    await expect(page.getByText("+91 88937 89730").first()).toBeVisible();
   });
 
   await test.step("an invalid value is refused and nothing changes", async () => {
@@ -99,7 +99,7 @@ test("saved business details replace the placeholders across the public site", a
     await expect(page.getByText(details.phone).first()).toBeVisible();
     await expect(page.getByText(details.email).first()).toBeVisible();
     await expect(page.getByText(details.hours).first()).toBeVisible();
-    await expect(page.getByText("[Phone number]")).toHaveCount(0);
+    await expect(page.getByText("+91 88937 89730")).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Chat on WhatsApp" }).first()).toHaveAttribute(
       "href",
       /^https:\/\/wa\.me\/919000000000/,
@@ -152,17 +152,17 @@ test("saved business details replace the placeholders across the public site", a
       .toMatch(/^https:\/\/wa\.me\/919000000000/);
   });
 
-  await test.step("clearing the fields brings the placeholders back", async () => {
+  await test.step("clearing the fields brings the defaults back", async () => {
     await page.goto("/admin/business");
     for (const name of Object.values(labels)) await edit(page, name, "");
     await notOnPage(page);
     await page.getByLabel("WhatsApp number").fill("");
     await save(page);
     await page.goto("/");
-    await expect(page.getByText("[Phone number]").first()).toBeVisible();
+    await expect(page.getByText("+91 88937 89730").first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Chat on WhatsApp" }).first()).toHaveAttribute(
       "href",
-      /^https:\/\/wa\.me\/(\?|$)/,
+      /^https:\/\/wa\.me\/918893789730\?/,
     );
   });
 });
@@ -188,6 +188,9 @@ test("the home page is edited in place and shows on the public site", async ({ p
     await clearList(page, "stat");
     await addRow(page, "stat", { "Stat 1 value": "5+", "Stat 1 label": "Years" });
     await addRow(page, "stat", { "Stat 2 value": "90", "Stat 2 label": "Cases" });
+    // Clients and steps start from Zeeshan's real lists.
+    await clearList(page, "client");
+    await clearList(page, "step");
     await addRow(page, "client", { "Client 1 name": "Acme Traders" });
     await addRow(page, "client", { "Client 2 name": "Beta Stores" });
     await addRow(page, "step", { "Step 1 title": "Message us", "Step 1 text": "On WhatsApp" });
@@ -281,20 +284,20 @@ test("the home page is edited in place and shows on the public site", async ({ p
     expect(headings).not.toContain("Clients We Have Worked With");
     expect(headings).not.toContain("What Clients Say");
     await expect(page.getByRole("region", { name: "How it works" })).toHaveCount(0);
-    await expect(page.getByText("[Client 1 logo / name]")).toHaveCount(0);
+    await expect(page.getByRole("img", { name: "Eagle NextGen" })).toHaveCount(0);
     await expect(page.getByRole("region", { name: "Fees" }).getByRole("article")).toHaveCount(3);
 
     await page.goto("/why-incotax");
     await expect(page.getByRole("region", { name: "Our numbers" })).toHaveCount(0);
   });
 
-  await test.step("clearing text brings its placeholder back", async () => {
+  await test.step("clearing text brings its default back", async () => {
     await page.goto("/admin/home");
     await edit(page, "Label above the headline", "");
     await save(page);
 
     await page.goto("/");
-    await expect(page.getByText("[Short label above the headline]")).toBeVisible();
+    await expect(page.getByText("You Grow. We Handle The Rest.")).toBeVisible();
   });
 });
 
@@ -343,7 +346,9 @@ test("a founder's photo is previewed on the page, then published, replaced and r
     const image = page.getByRole("img", { name: "Zeeshan Khan" });
     await shown(image);
     firstAddress = (await image.getAttribute("src")) ?? "";
-    await expect(page.getByText("[Professional photo]")).toHaveCount(1);
+    // Palak has no photo, so hers is a text card with no grey placeholder.
+    await expect(page.getByRole("img", { name: "Palak Khemka" })).toHaveCount(0);
+    await expect(page.getByText("[Professional photo]")).toHaveCount(0);
 
     const response = await page.request.get("/media/founder-0");
     expect(response.headers()["content-type"]).toBe("image/png");
@@ -360,15 +365,97 @@ test("a founder's photo is previewed on the page, then published, replaced and r
     expect(await image.getAttribute("src")).not.toBe(firstAddress);
   });
 
-  await test.step("removing it brings the placeholder back", async () => {
+  await test.step("removing it brings the text card back", async () => {
     await page.goto("/admin/why-incotax");
     await frame(page).getByRole("button", { name: "Remove photo of Zeeshan Khan" }).click();
     await save(page);
     await page.goto("/why-incotax");
     await expect(page.getByRole("img", { name: "Zeeshan Khan" })).toHaveCount(0);
-    await expect(page.getByText("[Professional photo]")).toHaveCount(2);
+    await expect(page.getByText("[Professional photo]")).toHaveCount(0);
     expect((await page.request.get("/media/founder-0")).status()).toBe(404);
   });
+});
+
+test("a client is shown by a logo or by name, as the editor chooses", async ({ page }) => {
+  test.setTimeout(120_000);
+  await logIn(page);
+  await page.goto("/admin/home");
+  const clients = () => page.getByRole("region", { name: "Clients We Have Worked With" });
+
+  await test.step("an uploaded logo replaces the name on the site", async () => {
+    await clearList(page, "client");
+    await addRow(page, "client", { "Client 1 name": "Acme Traders" });
+    await addRow(page, "client", { "Client 2 name": "Beta Stores" });
+    await frame(page)
+      .getByLabel("Upload a logo for client 1")
+      .setInputFiles({ name: "acme.png", mimeType: "image/png", buffer: PHOTO });
+    await expect(
+      frame(page).getByRole("button", { name: "Remove logo of client 1" }),
+    ).toBeVisible();
+    await save(page);
+
+    await page.goto("/");
+    const logo = clients().getByRole("img", { name: "Acme Traders" });
+    await expect(logo).toBeVisible();
+    await expect
+      .poll(() => logo.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
+    await expect(clients().getByText("Beta Stores")).toBeVisible();
+  });
+
+  await test.step("removing the logo shows the name again", async () => {
+    await page.goto("/admin/home");
+    await frame(page).getByRole("button", { name: "Remove logo of client 1" }).click();
+    await save(page);
+
+    await page.goto("/");
+    await expect(clients().getByRole("img")).toHaveCount(0);
+    await expect(clients().getByText("Acme Traders")).toBeVisible();
+  });
+});
+
+test("the social links are changed under the footer icons", async ({ page }) => {
+  await logIn(page);
+  await page.goto("/admin/business");
+  await edit(page, "Instagram link", "instagram.com/nope");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(
+    frame(page).getByRole("alert").filter({ hasText: "starting with https://" }).first(),
+  ).toBeVisible();
+
+  await edit(page, "Instagram link", "https://www.instagram.com/incotax.test");
+  await save(page);
+  await page.goto("/");
+  await expect(
+    page.getByRole("contentinfo").getByRole("link", { name: "IncoTax on Instagram" }),
+  ).toHaveAttribute("href", "https://www.instagram.com/incotax.test");
+
+  // Clearing it goes back to Zeeshan's page.
+  await page.goto("/admin/business");
+  await edit(page, "Instagram link", "");
+  await save(page);
+});
+
+test("the office map comes from a pasted Google Maps link", async ({ page }) => {
+  await logIn(page);
+  await page.goto("/admin/contact");
+  await edit(page, "Google Maps link", "https://maps.app.goo.gl/IncoTaxTest");
+  await save(page);
+
+  await page.goto("/contact");
+  await expect(page.getByRole("link", { name: /Open in Google Maps/ })).toHaveAttribute(
+    "href",
+    "https://maps.app.goo.gl/IncoTaxTest",
+  );
+  // A share link can't be embedded, and the address is still a placeholder, so only the button shows.
+  await expect(page.getByTitle("Office location map")).toHaveCount(0);
+
+  // Without an address or link the block is hidden again, so no outside map loads by default.
+  await page.goto("/admin/contact");
+  await edit(page, "Google Maps link", "");
+  await save(page);
+  await page.goto("/contact");
+  await expect(page.getByRole("heading", { name: "Find the office" })).toHaveCount(0);
 });
 
 test("everything on a service page can be edited, including prices", async ({ page }) => {
@@ -422,7 +509,12 @@ test("everything on a service page can be edited, including prices", async ({ pa
     await page.goto("/services/private-limited-company-incorporation");
     await expect(page.getByText("Starting from")).toBeVisible();
     await expect(page.getByText("₹1,999").first()).toBeVisible();
-    await expect(page.getByText("Included in: Standard, Premium").first()).toBeVisible();
+    // Item 1 is no longer in Basic, so only the other two plan cards list it.
+    const plans = page.getByRole("region", { name: "Choose your plan" });
+    const card = (name: string) => plans.getByRole("tabpanel", { name });
+    await expect(card("Basic").getByText("₹1,999")).toBeVisible();
+    await expect(card("Basic").getByText("Expert Assistance")).toHaveCount(0);
+    await expect(card("Standard").getByText("Expert Assistance")).toBeVisible();
 
     await page.goto("/");
     const fees = page.getByRole("region", { name: "Fees" });
@@ -611,6 +703,7 @@ test("the other pages are edited in place", async ({ page }) => {
     await page.goto("/admin/why-incotax");
     await edit(page, "Page headline", "Why people choose us");
     await edit(page, "Zeeshan Khan bio", "An updated biography");
+    await clearList(page, "about paragraph");
     await addRow(page, "about paragraph", { "About paragraph 1": "We started in Patna." });
     await clearList(page, "court");
     await addRow(page, "court", { "Court 1": "Supreme Court of India" });
@@ -676,7 +769,10 @@ test("the other pages are edited in place", async ({ page }) => {
       .getByRole("link", { name: "Chat on WhatsApp" })
       .first()
       .getAttribute("href");
-    expect(decodeURIComponent(other ?? "")).toContain("Hello IncoTax team");
+    // A service without its own message names itself in the general message.
+    expect(decodeURIComponent(other ?? "")).toContain(
+      "I would like to know more about Limited Liability Partnership (LLP) Registration",
+    );
   });
 
   await test.step("one legal page, without changing the others", async () => {

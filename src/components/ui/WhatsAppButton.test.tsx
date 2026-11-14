@@ -7,10 +7,14 @@ import { WhatsAppButton } from "./WhatsAppButton";
 
 describe("WhatsAppButton", () => {
   it("opens the contact picker while no number is saved", () => {
-    render(<WhatsAppButton />);
+    render(
+      <WhatsAppNumberProvider number={null}>
+        <WhatsAppButton message={null} />
+      </WhatsAppNumberProvider>,
+    );
     expect(screen.getByRole("link", { name: "Chat on WhatsApp" })).toHaveAttribute(
       "href",
-      "https://wa.me/",
+      expect.stringMatching(/^https:\/\/wa\.me\/\?text=/),
     );
   });
 

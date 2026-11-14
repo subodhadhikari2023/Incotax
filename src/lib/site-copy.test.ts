@@ -40,7 +40,12 @@ describe("mergeSiteCopy", () => {
       band: { heading: "Talk to us", line: "Tap below" },
       serviceCoversIntro: "Covers line",
       otherServicesIntro: "Others line",
-      forms: { submitLabel: "Send", afterSubmit: "Thanks", note: "We reply fast" },
+      forms: {
+        submitLabel: "Send",
+        whatsappLabel: forms.whatsappLabel,
+        afterSubmit: "Thanks",
+        note: "We reply fast",
+      },
       popup: {
         label: "Quick quote",
         heading: "Tell us",
@@ -55,7 +60,8 @@ describe("siteCopyFormValues", () => {
   it("starts from real defaults and leaves out placeholders", () => {
     const values = siteCopyFormValues({});
     expect(values.popupHeading).toBe(popup.heading);
-    expect(values.submitLabel).toBe("");
-    expect(values.whatsappMessage).toBe("");
+    expect(values.submitLabel).toBe(forms.submitLabel);
+    expect(values.whatsappMessage).toBe(site.whatsappMessage);
+    expect(values.popupLabel).toBe("");
   });
 });

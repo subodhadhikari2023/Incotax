@@ -57,8 +57,12 @@ export const homeSchema: SectionSchema = [
         name: "clients",
         row: "client",
         max: homeListLimits.clients,
-        hint: HIDES,
-        fields: [{ name: "name", label: "name", max: 60 }],
+        hint: `${HIDES} A client with a logo shows the logo; without one, its name.`,
+        fields: [
+          { name: "name", label: "name", max: 60 },
+          // Set by the upload button, never typed: the address of the uploaded logo.
+          { name: "logo", label: "logo", max: 200, optional: true },
+        ],
       },
     ],
   },

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useServiceList } from "@/components/ServiceList";
 import { useSiteCopy } from "@/components/SiteCopy";
 import { useWhatsAppNumber } from "@/components/WhatsAppNumber";
+import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 
 import {
   enquiryMessage,
@@ -17,8 +18,9 @@ import { whatsappLink } from "@/lib/whatsapp";
 
 const empty: EnquiryValues = { name: "", mobile: "", email: "", service: "", message: "" };
 
-// Enquiry form used by the pop-up and the Contact page. On a valid submit it opens WhatsApp with
-// the details pre-filled and shows the after-submit message.
+// Enquiry form used by the pop-up and the Contact page. "Get My Quote" checks the details, opens
+// WhatsApp with them pre-filled and shows the after-submit message; the WhatsApp button next to it
+// opens a chat straight away, with nothing to fill in.
 export function EnquiryForm({
   idPrefix,
   label = "Enquiry form",
@@ -66,6 +68,7 @@ export function EnquiryForm({
   const submitClass = `rounded-lg bg-gold px-7 py-3.5 text-base font-semibold text-navy shadow-button transition-colors hover:bg-gold-arrow ${
     twoColumns ? "md:w-auto" : "w-full"
   }`;
+  const buttonWidth = twoColumns ? "md:w-auto" : "w-full";
   const labelClass = "mb-1.5 block text-sm font-semibold text-navy";
   const errorId = (key: string) => `${idPrefix}-${key}-error`;
   const errorText = (key: keyof EnquiryValues) =>
@@ -184,16 +187,44 @@ export function EnquiryForm({
             {forms.submitLabel}
           </button>
         )}
+        {preview ? (
+          <span
+            className={`inline-flex justify-center rounded-lg border-[1.5px] border-navy px-7 py-3.5 font-semibold text-navy ${buttonWidth}`}
+          >
+            {forms.whatsappLabel}
+          </span>
+        ) : (
+          <WhatsAppButton
+            label={String(forms.whatsappLabel)}
+            variant="outline"
+            className={buttonWidth}
+          />
+        )}
         <p className={`text-[13px] text-text-muted ${twoColumns ? "" : "text-center"}`}>
           {note ?? forms.note}
         </p>
       </div>
 
       {submitted && (
-        <p role="status" className="mt-5 rounded-lg bg-gold-tint px-4 py-3 text-[15px] text-navy">
-          {forms.afterSubmit}
-        </p>
+        <div
+          role="status"
+          className="mt-5 space-y-2 rounded-lg bg-gold-tint px-4 py-3 text-[15px] text-navy"
+        >
+          {afterSubmitParagraphs(forms.afterSubmit)}
+        </div>
       )}
     </form>
   );
+}
+
+/** Paragraphs split on blank lines. With more than one, the first and last (heading and sign-off)
+ * are bold. */
+function afterSubmitParagraphs(text: React.ReactNode) {
+  if (typeof text !== "string") return <p>{text}</p>;
+  const paragraphs = text.split(/\n\s*\n/).map((p) => p.trim());
+  return paragraphs.map((p, i) => (
+    <p key={i}>
+      {paragraphs.length > 1 && (i === 0 || i === paragraphs.length - 1) ? <strong>{p}</strong> : p}
+    </p>
+  ));
 }

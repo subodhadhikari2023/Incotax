@@ -1,6 +1,12 @@
 // What may be uploaded as a photo. Shared by the browser, for an instant answer, and the server,
 // which must check again because anything can be sent to it.
 
+/** An uploaded client logo's stored name: "client-" and a random id. */
+export const CLIENT_LOGO_NAME = /^client-[a-z0-9]{6,24}$/;
+/** Where a client logo may point: one of the site's own logo files, or an uploaded one. */
+export const CLIENT_LOGO_SRC =
+  /^(\/clients\/[a-z0-9-]+\.webp|\/media\/client-[a-z0-9]{6,24}\?v=[a-z0-9]+)$/;
+
 export const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
 export const PHOTO_TYPES = "image/jpeg,image/png,image/webp";
 

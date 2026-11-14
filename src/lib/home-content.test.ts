@@ -128,11 +128,14 @@ describe("homeFormValues", () => {
     expect(values.headline).toBe(home.hero.headline);
     expect(values.heroText).toBe(home.hero.text);
     expect(values.stats).toEqual(home.stats);
-    expect(values.heroLabel).toBe("");
-    expect(values.goldPhrase).toBe("");
-    expect(values.featuredTag).toBe("");
-    expect(values.clients).toEqual([]);
-    expect(values.steps).toEqual([]);
+    expect(values.heroLabel).toBe(home.hero.label);
+    expect(values.goldPhrase).toBe("Reality");
+    expect(values.featuredTag).toBe(home.fees.featuredTag);
+    expect(values.clients).toEqual(
+      home.clients.map((name) => ({ name, logo: home.clientLogos[name] })),
+    );
+    expect(values.steps).toEqual(home.steps);
+    // Fee card highlights are still placeholders.
     expect(values.highlights).toEqual([]);
     expect(values.reviews).toEqual([]);
   });
@@ -143,7 +146,7 @@ describe("homeFormValues", () => {
     });
     expect(values.heroLabel).toBe("Trusted advisers");
     expect(values.stats).toEqual([]);
-    expect(values.clients).toEqual([{ name: "Acme Traders" }]);
+    expect(values.clients).toEqual([{ name: "Acme Traders", logo: "" }]);
   });
 });
 
@@ -168,7 +171,7 @@ describe("parseHomeForm", () => {
       { value: "5+", label: "Years" },
       { value: "9", label: "Cases" },
     ]);
-    expect(values.clients).toEqual([{ name: "Acme Traders" }]);
+    expect(values.clients).toEqual([{ name: "Acme Traders", logo: "" }]);
     expect(values.reviews).toEqual([]);
   });
 
@@ -176,7 +179,10 @@ describe("parseHomeForm", () => {
     const data = new FormData();
     data.set("clients.0.name", "First");
     data.set("clients.2.name", "Third");
-    expect(parseHomeForm(data).clients).toEqual([{ name: "First" }, { name: "Third" }]);
+    expect(parseHomeForm(data).clients).toEqual([
+      { name: "First", logo: "" },
+      { name: "Third", logo: "" },
+    ]);
   });
 });
 
@@ -189,11 +195,11 @@ describe("validateHomeContent", () => {
     const { values, errors } = validateHomeContent({
       ...blank,
       headline: "  Build It Right ",
-      clients: [{ name: " Acme Traders " }],
+      clients: [{ name: " Acme Traders ", logo: "" }],
     });
     expect(errors).toEqual({});
     expect(values.headline).toBe("Build It Right");
-    expect(values.clients).toEqual([{ name: "Acme Traders" }]);
+    expect(values.clients).toEqual([{ name: "Acme Traders", logo: "" }]);
   });
 
   it("drops rows left completely blank", () => {
@@ -260,7 +266,7 @@ describe("validateHomeContent", () => {
       feesIntro: "a".repeat(201),
       featuredTag: "a".repeat(31),
       stats: [{ value: "a".repeat(11), label: "a".repeat(41) }],
-      clients: [{ name: "a".repeat(61) }],
+      clients: [{ name: "a".repeat(61), logo: "" }],
       steps: [{ title: "a".repeat(61), text: "a".repeat(161) }],
       highlights: [{ text: "a".repeat(81) }],
       reviews: [{ text: "a".repeat(601), name: "a".repeat(61), detail: "a".repeat(61) }],
@@ -294,7 +300,7 @@ describe("validateHomeContent", () => {
         heroText: "a".repeat(400),
         feesIntro: "a".repeat(200),
         featuredTag: "a".repeat(30),
-        clients: [{ name: "a".repeat(60) }],
+        clients: [{ name: "a".repeat(60), logo: "" }],
       }).errors,
     ).toEqual({});
   });
@@ -302,12 +308,42 @@ describe("validateHomeContent", () => {
   it("refuses more rows than a list can hold, which a forged form could send", () => {
     const { errors } = validateHomeContent({
       ...blank,
-      clients: Array.from({ length: homeListLimits.clients + 1 }, (_, i) => ({ name: `C${i}` })),
+      clients: Array.from({ length: homeListLimits.clients + 1 }, (_, i) => ({
+        name: `C${i}`,
+        logo: "",
+      })),
     });
     expect(errors.clients).toEqual(expect.any(String));
   });
 
   it("holds lists to what the designed layouts fit", () => {
     expect(homeListLimits).toEqual({ stats: 4, clients: 12, steps: 4, highlights: 6, reviews: 6 });
+  });
+});
+
+describe("client logos", () => {
+  it("are shown by client name, from what is saved", () => {
+    const merged = mergeHomeContent({
+      home: {
+        clients: [
+          { name: "Acme Traders", logo: "/media/client-abc123?v=k1" },
+          { name: "Beta Stores", logo: "" },
+        ],
+      },
+    });
+    expect(merged.clients).toEqual(["Acme Traders", "Beta Stores"]);
+    expect(merged.clientLogos).toEqual({ "Acme Traders": "/media/client-abc123?v=k1" });
+  });
+
+  it("accept the site's own logo files and uploads, and nothing else", () => {
+    const check = (logo: string) =>
+      validateHomeContent({ ...homeFormValues({}), clients: [{ name: "Acme", logo }] }).errors;
+
+    expect(check("")).toEqual({});
+    expect(check("/clients/eagle-nextgen.webp")).toEqual({});
+    expect(check("/media/client-abc123?v=k1")).toEqual({});
+    for (const bad of ["https://example.com/logo.png", "/media/founder-0", "javascript:x"]) {
+      expect(check(bad), bad).toEqual({ "clients.0.logo": "Please upload the logo again." });
+    }
   });
 });

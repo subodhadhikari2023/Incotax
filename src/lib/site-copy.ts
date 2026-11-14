@@ -21,6 +21,7 @@ export function mergeSiteCopy(content: StoredContent): SiteCopy {
       submitLabel: saved.submitLabel ?? d.forms.submitLabel,
       afterSubmit: saved.afterSubmit ?? d.forms.afterSubmit,
       note: saved.formNote ?? d.forms.note,
+      whatsappLabel: d.forms.whatsappLabel,
     },
     popup: {
       label: saved.popupLabel ?? d.popup.label,

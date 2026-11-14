@@ -37,10 +37,26 @@ test("brand name in the header stays on one line", async ({ page }) => {
 test("top bar and footer are on the page", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByText("[Phone number]").first()).toBeVisible();
+  await expect(page.getByText("+91 88937 89730").first()).toBeVisible();
+  await expect(
+    page.getByRole("contentinfo").getByRole("link", { name: "IncoTax on Instagram" }),
+  ).toBeVisible();
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByRole("navigation", { name: "Legal" })).toBeVisible();
   await expect(footer.getByText(/All rights reserved\./)).toBeVisible();
+});
+
+test("the IncoTax emblem loads in the header and footer", async ({ page }) => {
+  await page.goto("/");
+  for (const area of ["banner", "contentinfo"] as const) {
+    const logo = page.getByRole(area).locator('img[src*="/logo/incotax-icon"]');
+    // The footer logo loads lazily, so bring it into view and wait for the file.
+    await logo.scrollIntoViewIfNeeded();
+    await expect(logo).toBeVisible();
+    await expect
+      .poll(() => logo.evaluate((img) => (img as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
+  }
 });
 
 test("no horizontal scroll at this width", async ({ page }) => {

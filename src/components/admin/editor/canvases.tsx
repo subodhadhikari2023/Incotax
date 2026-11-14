@@ -18,15 +18,17 @@ import { WhatsAppBand } from "@/components/ui/WhatsAppBand";
 import { WhatsAppNumberProvider } from "@/components/WhatsAppNumber";
 import { home } from "@/content/home";
 import { contact, legal, whyIncotax } from "@/content/pages";
-import { PLANS } from "@/content/service-details";
+import { PLANS, type PlanId } from "@/content/service-details";
 import type { Service } from "@/content/services";
 import { pageCopy, site } from "@/content/site";
 import type { HomeNodes } from "@/lib/home-content";
+import { officeMap } from "@/lib/business";
 import { formatINR } from "@/lib/format";
 import { serviceCopyFor, serviceCopyKey, serviceDetailFor } from "@/lib/service-copy";
 import { defaultSiteCopy, type SiteCopyNodes } from "@/lib/site-copy-schema";
 
 import { useEditor } from "./EditorContext";
+import { ClientLogoSlot } from "./ClientLogoSlot";
 import { PhotoSlot } from "./PhotoSlot";
 import { fieldsFor, useFields } from "./useFields";
 
@@ -42,6 +44,20 @@ function useBusinessNodes() {
     email: f.text("email", site.email),
     address: f.text("address", site.address),
     hours: f.text("hours", site.hours),
+    instagram: f.value("instagram"),
+    facebook: f.value("facebook"),
+    socialEdit: (
+      <div className="mt-4 space-y-2 text-xs">
+        {(["instagram", "facebook"] as const).map((name) => (
+          <p key={name} className="break-all">
+            <span className="font-semibold text-white">
+              {name === "instagram" ? "Instagram link: " : "Facebook link: "}
+            </span>
+            {f.text(name, site.social.find((s) => s.platform.toLowerCase() === name)?.href ?? "")}
+          </p>
+        ))}
+      </div>
+    ),
   };
 }
 
@@ -60,6 +76,7 @@ function useSiteCopyNodes(): SiteCopyNodes {
       submitLabel: f.text("submitLabel", d.forms.submitLabel),
       afterSubmit: f.value("afterSubmit") || d.forms.afterSubmit,
       note: f.text("formNote", d.forms.note),
+      whatsappLabel: d.forms.whatsappLabel,
     },
     popup: {
       label: f.text("popupLabel", d.popup.label),
@@ -144,7 +161,7 @@ export function HomeCanvas({ serviceSlugs }: { serviceSlugs: string[] }) {
     stats,
     clients: f.rows("clients").map((_, i) => (
       <>
-        {f.cell("clients", i, "name")}
+        <ClientLogoSlot section="home" index={i} name={f.cell("clients", i, "name")} />
         {f.remove("clients", i)}
       </>
     )),
@@ -274,11 +291,19 @@ export function WhyIncotaxCanvas() {
 
 export function ContactCanvas() {
   const f = useFields("contact");
+  const business = useFields("business");
   return (
     <SiteFrame>
       <ContactView
         preview
         business={useBusinessNodes()}
+        map={officeMap(business.value("address") || site.address, business.value("mapLink"))}
+        mapEdit={
+          <p className="mt-4 text-sm text-text-muted">
+            <span className="font-semibold text-navy">Google Maps link: </span>
+            {business.text("mapLink", "Paste the office's Google Maps link or embed code")}
+          </p>
+        }
         contact={{
           ...contact,
           title: f.text("title", contact.title),
@@ -346,6 +371,20 @@ export function ServiceCanvas({ service, others }: { service: Service; others: S
         service={service}
         others={others}
         title={f.text("name", service.name)}
+        planCards={
+          kind === "plans"
+            ? {
+                plans: PLANS.map((plan, i) => ({
+                  ...plan,
+                  price: Number.isNaN(prices[i]) ? 0 : prices[i],
+                })),
+                items: f.rows("included").map((row) => ({
+                  name: row.name || "New item",
+                  plans: row.plans ? (row.plans.split(",") as PlanId[]) : undefined,
+                })),
+              }
+            : undefined
+        }
         message={f.value("whatsappMessage") || serviceCopyFor({}, slug).whatsappMessage}
         detail={{
           pricing,

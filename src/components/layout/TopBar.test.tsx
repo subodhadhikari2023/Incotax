@@ -4,12 +4,12 @@ import { describe, expect, it } from "vitest";
 import { TopBar } from "./TopBar";
 
 describe("TopBar", () => {
-  it("shows phone, email and working hours, with placeholders for pending details", () => {
+  it("shows phone, email and working hours", () => {
     render(<TopBar />);
 
-    expect(screen.getByText("[Phone number]")).toBeInTheDocument();
-    expect(screen.getByText("[Email address]")).toBeInTheDocument();
-    expect(screen.getByText("[Working days], 10 AM to 8 PM")).toBeInTheDocument();
+    expect(screen.getByText("+91 88937 89730")).toBeInTheDocument();
+    expect(screen.getByText("info@incotax.in")).toBeInTheDocument();
+    expect(screen.getByText("Monday to Saturday, 10 AM to 8 PM")).toBeInTheDocument();
   });
 
   it("shows the details it is given", () => {

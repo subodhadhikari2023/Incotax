@@ -51,14 +51,15 @@ describe("mergeWhyIncotaxContent", () => {
 });
 
 describe("whyIncotaxFormValues", () => {
-  it("offers the real bios, courts and areas, but no placeholders", () => {
+  it("offers the real text, but no placeholders", () => {
     const values = whyIncotaxFormValues({});
     expect(values.founderBio0).toBe(whyIncotax.founders[0].bio);
     expect(values.courts).toEqual(whyIncotax.courts.map((name) => ({ name })));
     expect(values.areas).toEqual(whyIncotax.areas.map((name) => ({ name })));
-    expect(values.title).toBe("");
-    expect(values.aboutParagraphs).toEqual([]);
-    expect(values.founderPoints0).toEqual([]);
+    expect(values.title).toBe(whyIncotax.title);
+    expect(values.aboutParagraphs).toHaveLength(2);
+    expect(values.founderPoints0).toHaveLength(3);
+    expect(JSON.stringify(values)).not.toMatch(/"\[/);
   });
 });
 
@@ -81,10 +82,10 @@ describe("contact content", () => {
   });
 
   it("offers no placeholders in the form", () => {
-    expect(contactFormValues({ contact: { title: "Reach us" } })).toMatchObject({
-      title: "Reach us",
-      intro: "",
-    });
+    const values = contactFormValues({ contact: { title: "Reach us" } });
+    expect(values).toMatchObject({ title: "Reach us", intro: contact.intro });
+    // The WhatsApp card's heading and line are still pending.
+    expect(values.whatsappHeading).toBe("");
   });
 });
 

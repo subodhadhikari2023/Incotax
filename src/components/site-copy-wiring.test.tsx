@@ -15,7 +15,12 @@ const copy: SiteCopy = {
   ...defaultSiteCopy,
   whatsappMessage: "Hello IncoTax",
   band: { heading: "Talk to us", line: "Tap below" },
-  forms: { submitLabel: "Send", afterSubmit: "Thanks for writing", note: "We reply fast" },
+  forms: {
+    submitLabel: "Send",
+    whatsappLabel: "WhatsApp",
+    afterSubmit: "Thanks for writing",
+    note: "We reply fast",
+  },
 };
 
 const decodedHref = () =>

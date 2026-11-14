@@ -1,6 +1,6 @@
 // Font Awesome (free) icons used across the site. Icons are 1em tall, so size them with a
 // font-size class (e.g. text-lg). They are decorative and hidden from screen readers.
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { faFacebookF, faInstagram, faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import {
   faArrowRight,
   faBars,
@@ -66,6 +66,8 @@ export const contactIcons = {
   court: faBuildingColumns,
   law: faScaleBalanced,
 };
+
+export const socialIcons = { Instagram: faInstagram, Facebook: faFacebookF };
 
 export function Icon({ icon, className = "text-lg" }: IconProps & { icon: IconDefinition }) {
   return <FontAwesomeIcon icon={icon} className={className} />;

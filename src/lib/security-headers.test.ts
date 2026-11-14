@@ -16,6 +16,10 @@ describe("security headers", () => {
     expect(csp).not.toContain("unsafe-eval");
   });
 
+  it("lets the Contact page show a Google map, and nothing else in a frame", () => {
+    expect(contentSecurityPolicy(false)).toContain("frame-src https://www.google.com");
+  });
+
   it("allows eval and the hot-reload socket only for the dev server", () => {
     const csp = contentSecurityPolicy(true);
     expect(csp).toContain("'unsafe-eval'");

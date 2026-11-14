@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 
+import { SocialLinks } from "@/components/ui/SocialLinks";
 import { legalLinks, quickLinks, site, type NavLink } from "@/content/site";
 import type { BusinessNodes } from "@/lib/business";
 
@@ -31,11 +33,20 @@ export function Footer({ business = site }: { business?: BusinessNodes }) {
       <div className="mx-auto w-full max-w-[1264px] px-8 pt-14 md:pt-16">
         <div className="grid gap-10 md:grid-cols-2 md:gap-y-12 lg:grid-cols-4">
           <div>
+            <Image
+              src="/logo/incotax-icon-on-dark.svg"
+              alt=""
+              width={56}
+              height={56}
+              unoptimized
+              className="mb-4 size-14"
+            />
             <p className="font-heading text-[28px] leading-tight font-bold text-white">
               {site.name}
             </p>
             <p className="mt-3 text-sm">{site.tagline}</p>
-            <p className="mt-2.5 text-sm">{site.socialLinks}</p>
+            <SocialLinks links={business} className="mt-5" />
+            {business.socialEdit}
           </div>
 
           <LinkGroup title="Quick links" links={quickLinks} />

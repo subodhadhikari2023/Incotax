@@ -1,4 +1,5 @@
 import { home } from "@/content/home";
+import { CLIENT_LOGO_SRC } from "@/lib/admin/photo";
 
 import {
   parseSectionForm,
@@ -16,8 +17,10 @@ export { homeListLimits, homeSchema, type HomeFormValues };
 export type HomeContent = typeof home;
 
 /** What the home sections draw: text in public, editable elements in the admin panel. */
-export type HomeNodes = Omit<Nodes<HomeContent>, "serviceSlugs" | "fees"> & {
+export type HomeNodes = Omit<Nodes<HomeContent>, "serviceSlugs" | "fees" | "clientLogos"> & {
   serviceSlugs: string[];
+  /** Image addresses by client name; the panel draws each client's logo inside its own row. */
+  clientLogos: Record<string, string>;
   fees: Omit<Nodes<HomeContent["fees"]>, "serviceSlug" | "serviceLabel"> & {
     serviceSlug: string;
     serviceLabel: string;
@@ -36,7 +39,7 @@ const defaults: HomeFormValues = {
   featuredTag: home.fees.featuredTag,
   reviewsIntro: home.reviewsIntro,
   stats: home.stats,
-  clients: home.clients.map((name) => ({ name })),
+  clients: home.clients.map((name) => ({ name, logo: home.clientLogos[name] ?? "" })),
   steps: home.steps,
   highlights: home.fees.highlights.map((text) => ({ text })),
   reviews: home.reviews,
@@ -55,6 +58,11 @@ export function mergeHomeContent(content: StoredContent): HomeContent {
     },
     stats: (saved.stats as HomeContent["stats"]) ?? home.stats,
     clients: saved.clients?.map((client) => client.name) ?? home.clients,
+    clientLogos: saved.clients
+      ? Object.fromEntries(
+          saved.clients.filter((client) => client.logo).map((client) => [client.name, client.logo]),
+        )
+      : home.clientLogos,
     servicesIntro: saved.servicesIntro ?? home.servicesIntro,
     howItWorks: {
       heading: saved.howHeading ?? home.howItWorks.heading,
@@ -86,10 +94,24 @@ export function checkGoldPhrase({ goldPhrase, headline }: HomeFormValues): Secti
   return { goldPhrase: "Those words are not in the headline. Copy them from it exactly." };
 }
 
+/** A logo is drawn as an image address, so it may only be one of the site's own files. */
+export function checkClientLogos({ clients }: HomeFormValues): SectionErrors {
+  const errors: SectionErrors = {};
+  (clients ?? []).forEach((client, i) => {
+    if (client.logo && !CLIENT_LOGO_SRC.test(client.logo))
+      errors[`clients.${i}.logo`] = "Please upload the logo again.";
+  });
+  return errors;
+}
+
 export function validateHomeContent(submitted: HomeFormValues) {
   const { values, errors } = validateSection(homeSchema, submitted);
   return {
     values: values as HomeFormValues,
-    errors: { ...errors, ...checkGoldPhrase(values as HomeFormValues) },
+    errors: {
+      ...errors,
+      ...checkGoldPhrase(values as HomeFormValues),
+      ...checkClientLogos(values as HomeFormValues),
+    },
   };
 }

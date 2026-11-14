@@ -5,6 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
 
+import { BLOBS_TIMEOUT_MS } from "./blob-store";
 import { readStoredContent, readStoredContentOrThrow, writeStoredContent } from "./content-store";
 
 const blobs = vi.hoisted(() => ({
@@ -100,7 +101,9 @@ describe("without CONTENT_STORE_FILE (Netlify Blobs)", () => {
   it("reads with strong consistency so a save is seen straight away", async () => {
     blobs.get.mockResolvedValue(SAVED);
     await expect(readStoredContent()).resolves.toEqual(SAVED);
-    expect(blobs.getStore).toHaveBeenCalledWith({ name: "site-content", consistency: "strong" });
+    expect(blobs.getStore).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "site-content", consistency: "strong" }),
+    );
     expect(blobs.get).toHaveBeenCalledWith("content", { type: "json" });
   });
 
@@ -120,6 +123,26 @@ describe("without CONTENT_STORE_FILE (Netlify Blobs)", () => {
     blobs.get.mockRejectedValue(new Error("Blobs is down"));
     await expect(readStoredContent()).resolves.toEqual({});
     expect(logged).toHaveBeenCalled();
+  });
+
+  // On Netlify a Blobs read once hung until the 30-second function limit; it must give up first.
+  it("logs and reads nothing when Blobs never answers, so public pages still render", async () => {
+    vi.useFakeTimers();
+    blobs.get.mockReturnValue(new Promise(() => {}));
+    const read = readStoredContent();
+    await vi.advanceTimersByTimeAsync(BLOBS_TIMEOUT_MS);
+    await expect(read).resolves.toEqual({});
+    expect(logged).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it("the strict read fails when Blobs never answers, so a save is refused", async () => {
+    vi.useFakeTimers();
+    blobs.get.mockReturnValue(new Promise(() => {}));
+    const read = expect(readStoredContentOrThrow()).rejects.toThrow(/timed out/);
+    await vi.advanceTimersByTimeAsync(BLOBS_TIMEOUT_MS);
+    await read;
+    vi.useRealTimers();
   });
 
   it("logs and reads nothing when Blobs is not configured", async () => {
@@ -146,7 +169,9 @@ describe("without CONTENT_STORE_FILE (Netlify Blobs)", () => {
   it("saves the whole content as JSON", async () => {
     blobs.setJSON.mockResolvedValue({ modified: true });
     await writeStoredContent(SAVED);
-    expect(blobs.getStore).toHaveBeenCalledWith({ name: "site-content", consistency: "strong" });
+    expect(blobs.getStore).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "site-content", consistency: "strong" }),
+    );
     expect(blobs.setJSON).toHaveBeenCalledWith("content", SAVED);
   });
 

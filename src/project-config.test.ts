@@ -38,4 +38,12 @@ describe("netlify.toml", () => {
     expect(toml).toContain('command = "npm run build"');
     expect(toml).toContain(`NODE_VERSION = "${read(".nvmrc").trim()}"`);
   });
+
+  // Without the Next.js runtime Netlify publishes the raw .next folder: every page is a 404 and
+  // build files such as routes-manifest.json are public.
+  it("declares the Next.js runtime instead of relying on auto-detection", () => {
+    expect(read("netlify.toml")).toMatch(
+      /\[\[plugins\]\]\s*\n\s*package = "@netlify\/plugin-nextjs"/,
+    );
+  });
 });

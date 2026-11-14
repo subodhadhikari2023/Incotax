@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { BLOBS_TIMEOUT_MS, blobStore, withTimeout } from "./blob-store";
+import { BLOBS_TIMEOUT_MS, blobsDiagnostics, blobStore, withTimeout } from "./blob-store";
 
 const blobs = vi.hoisted(() => ({ getStore: vi.fn() }));
 vi.mock("@netlify/blobs", () => ({ getStore: blobs.getStore }));
@@ -33,6 +33,46 @@ describe("blobStore", () => {
       method: "GET",
       cache: "no-store",
     });
+  });
+});
+
+describe("blobStore fetch", () => {
+  // Next keeps the real fetch on its wrapper; Blobs calls skip the wrapper entirely when it's there.
+  it("uses Next's original fetch when Next has wrapped the global one", async () => {
+    const original = vi.fn().mockResolvedValue(new Response("{}"));
+    const wrapped = Object.assign(vi.fn(), { _nextOriginalFetch: original });
+    vi.stubGlobal("fetch", wrapped);
+    blobStore("site-media");
+    const { fetch } = blobs.getStore.mock.calls[0][0];
+
+    await fetch("https://blobs.example/x");
+    expect(original).toHaveBeenCalledWith("https://blobs.example/x", { cache: "no-store" });
+    expect(wrapped).not.toHaveBeenCalled();
+  });
+});
+
+describe("blobsDiagnostics", () => {
+  it("names the Blobs hosts without revealing the token", () => {
+    const context = {
+      siteID: "site-123",
+      token: "secret-token",
+      edgeURL: "https://edge.blobs.example",
+      uncachedEdgeURL: "https://uncached.blobs.example",
+    };
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", Buffer.from(JSON.stringify(context)).toString("base64"));
+
+    const text = blobsDiagnostics();
+    expect(text).toContain("edge.blobs.example");
+    expect(text).toContain("uncached.blobs.example");
+    expect(text).toContain("token: yes");
+    expect(text).not.toContain("secret-token");
+    vi.unstubAllEnvs();
+  });
+
+  it("says when there is no Blobs context at all", () => {
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", "");
+    expect(blobsDiagnostics()).toBe("no Blobs context in the environment");
+    vi.unstubAllEnvs();
   });
 });
 

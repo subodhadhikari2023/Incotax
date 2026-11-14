@@ -1,11 +1,11 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { getStore } from "@netlify/blobs";
+import { blobStore, withTimeout } from "./blob-store";
 
 // Uploaded images, kept apart from the content JSON. Netlify Blobs on the live site, or a local
 // folder when MEDIA_STORE_DIR is set (dev and tests). Saved content records which images exist.
-const blobStore = () => getStore({ name: "site-media", consistency: "strong" });
+const STORE = "site-media";
 
 /** Names become file paths locally, so nothing here may reach outside the folder. */
 function safeName(name: string) {
@@ -17,7 +17,10 @@ export async function writeMedia(name: string, bytes: Uint8Array): Promise<void>
   safeName(name);
   const dir = process.env.MEDIA_STORE_DIR;
   if (!dir) {
-    await blobStore().set(name, new Blob([bytes.slice()]));
+    await withTimeout(
+      blobStore(STORE).set(name, new Blob([bytes.slice()])),
+      "Netlify Blobs image save",
+    );
     return;
   }
   await mkdir(dir, { recursive: true });
@@ -29,7 +32,10 @@ export async function readMedia(name: string): Promise<Uint8Array | null> {
   safeName(name);
   const dir = process.env.MEDIA_STORE_DIR;
   if (!dir) {
-    const data = await blobStore().get(name, { type: "arrayBuffer" });
+    const data = await withTimeout(
+      blobStore(STORE).get(name, { type: "arrayBuffer" }),
+      "Netlify Blobs image read",
+    );
     return data ? new Uint8Array(data) : null;
   }
   try {
@@ -44,5 +50,5 @@ export async function deleteMedia(name: string): Promise<void> {
   safeName(name);
   const dir = process.env.MEDIA_STORE_DIR;
   if (dir) await rm(join(dir, name), { force: true });
-  else await blobStore().delete(name);
+  else await withTimeout(blobStore(STORE).delete(name), "Netlify Blobs image delete");
 }

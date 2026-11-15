@@ -71,11 +71,28 @@ const hostOf = (url: unknown) => {
   }
 };
 
+/** The credentials Netlify gives its functions. Its build has none. */
+const blobsContext = () =>
+  (globalThis as { netlifyBlobsContext?: string }).netlifyBlobsContext ||
+  process.env.NETLIFY_BLOBS_CONTEXT;
+
+/** A site ID and access token, for reading Blobs where Netlify gives no context. */
+const tokenCredentials = () => {
+  const siteID = process.env.SITE_ID;
+  const token = process.env.BLOBS_TOKEN;
+  return siteID && token ? { siteID, token } : undefined;
+};
+
+/**
+ * True on Netlify (its build or its functions) or wherever a token is set. Saved content must be
+ * read there: a failed read is an error, not "nothing saved".
+ */
+export const blobsRequired = () =>
+  Boolean(blobsContext() || process.env.NETLIFY === "true" || tokenCredentials());
+
 /** Where Blobs calls go, for the logs: hosts and which values are set, never the token itself. */
 export function blobsDiagnostics(): string {
-  const raw =
-    (globalThis as { netlifyBlobsContext?: string }).netlifyBlobsContext ??
-    process.env.NETLIFY_BLOBS_CONTEXT;
+  const raw = blobsContext();
   if (!raw) return "no Blobs context in the environment";
   try {
     const context = JSON.parse(Buffer.from(raw, "base64").toString("utf8"));
@@ -93,8 +110,18 @@ export function blobsDiagnostics(): string {
 
 // Strong consistency: edge reads can lag by up to 60 seconds, so a page rebuilt right after a save
 // could otherwise show the old value.
-export const blobStore = (name: string) =>
-  getStore({ name, consistency: "strong", fetch: uncachedFetch });
+// Netlify's build has no Blobs context, so it reads with SITE_ID (set by Netlify) and BLOBS_TOKEN;
+// without them every deploy prerendered the defaults over saved edits. Inside functions the token
+// is left out: passing one replaces Netlify's own context, which reads through the faster edge.
+export const blobStore = (name: string) => {
+  const credentials = blobsContext() ? undefined : tokenCredentials();
+  if (!blobsContext() && !credentials && process.env.NETLIFY === "true") {
+    throw new Error(
+      "Netlify Blobs can't be read in this build: set BLOBS_TOKEN (a Netlify personal access token) in the site's environment variables",
+    );
+  }
+  return getStore({ name, consistency: "strong", fetch: uncachedFetch, ...credentials });
+};
 
 /** Rejects if `promise` hasn't settled in time, naming what timed out. */
 export function withTimeout<T>(promise: Promise<T>, label: string): Promise<T> {

@@ -132,6 +132,12 @@ Content edited in the admin panel is saved in Netlify Blobs. Locally, `CONTENT_S
 a JSON file instead. `compose.yaml` sets it; add `CONTENT_STORE_FILE=.content-store.json` to
 `.env.local` when running `npm run dev` on the host. Do not set it on Netlify.
 
+Netlify's build has no access to Blobs by itself, so it reads the saved content with a token:
+set `BLOBS_TOKEN` on Netlify to a personal access token (User settings → Applications → Personal
+access tokens). Netlify sets `SITE_ID` itself. Without the token a Netlify build fails rather than
+publishing the default content over the saved edits. On Netlify a failed read never falls back to
+the defaults: the build fails, or a page keeps its last good version.
+
 Uploaded images work the same way: Netlify Blobs on the live site, or the folder in `MEDIA_STORE_DIR`
 locally (`compose.yaml` sets it). Local and live images are separate.
 

@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 
-import { blobStore, withTimeout } from "./blob-store";
+import { blobsRequired, blobStore, withTimeout } from "./blob-store";
 
 /** What the admin panel has saved. Anything not saved here falls back to src/content/. */
 export type StoredContent = Record<string, unknown>;
@@ -38,11 +38,16 @@ export async function readStoredContentOrThrow(): Promise<StoredContent> {
   return value;
 }
 
-/** Never throws: public pages must still render, from src/content/, if the store is unavailable. */
+/**
+ * For public pages. On Netlify a failed read throws: a build then fails and the live deploy stays,
+ * and a page refresh fails and the last good page stays, instead of either showing the defaults
+ * over saved edits. Elsewhere (local builds, CI) pages fall back to src/content/.
+ */
 export async function readStoredContent(): Promise<StoredContent> {
   try {
     return await readStoredContentOrThrow();
   } catch (error) {
+    if (blobsRequired()) throw error;
     console.error("Could not read saved content", error);
     return {};
   }

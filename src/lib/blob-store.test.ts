@@ -9,7 +9,50 @@ vi.mock("@netlify/blobs", () => ({ getStore: blobs.getStore }));
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   vi.clearAllMocks();
+});
+
+// Netlify's build has no Blobs context, so pages prerendered there used the defaults and every
+// deploy hid what the admin panel had saved. The build reads with the site ID and an access token.
+describe("blobStore credentials", () => {
+  const credentials = () => {
+    const { siteID, token } = blobs.getStore.mock.calls[0][0];
+    return { siteID, token };
+  };
+
+  it("uses SITE_ID and BLOBS_TOKEN where there is no Blobs context, as in Netlify's build", () => {
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", "");
+    vi.stubEnv("SITE_ID", "site-1");
+    vi.stubEnv("BLOBS_TOKEN", "token-1");
+    blobStore("site-content");
+    expect(credentials()).toEqual({ siteID: "site-1", token: "token-1" });
+  });
+
+  // Passing both replaces the function's own context, which reads through the faster edge.
+  it("leaves them out inside functions, where Netlify provides its own context", () => {
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", "e30=");
+    vi.stubEnv("SITE_ID", "site-1");
+    vi.stubEnv("BLOBS_TOKEN", "token-1");
+    blobStore("site-content");
+    expect(credentials()).toEqual({ siteID: undefined, token: undefined });
+  });
+
+  it("refuses, naming BLOBS_TOKEN, in a Netlify build that doesn't have it", () => {
+    vi.stubEnv("NETLIFY", "true");
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", "");
+    vi.stubEnv("BLOBS_TOKEN", "");
+    expect(() => blobStore("site-content")).toThrow(/BLOBS_TOKEN/);
+    expect(blobs.getStore).not.toHaveBeenCalled();
+  });
+
+  it("off Netlify without a token, leaves the missing setup for @netlify/blobs to report", () => {
+    vi.stubEnv("NETLIFY", "");
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", "");
+    vi.stubEnv("BLOBS_TOKEN", "");
+    blobStore("site-content");
+    expect(credentials()).toEqual({ siteID: undefined, token: undefined });
+  });
 });
 
 describe("blobStore", () => {

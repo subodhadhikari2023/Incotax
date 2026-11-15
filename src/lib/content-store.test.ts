@@ -92,9 +92,60 @@ describe("with CONTENT_STORE_FILE set (local development and tests)", () => {
   });
 });
 
-describe("without CONTENT_STORE_FILE (Netlify Blobs)", () => {
+// A build on Netlify that read nothing would publish the defaults over saved edits, and a page
+// refreshed after a failed read would keep the defaults until the next save. There, failing keeps
+// the live deploy, or the last good page, instead.
+describe("on Netlify, where saved content must be read", () => {
   beforeEach(() => {
     vi.stubEnv("CONTENT_STORE_FILE", "");
+    vi.stubEnv("NETLIFY", "true");
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", "e30=");
+  });
+
+  it("the public read fails when Blobs fails", async () => {
+    blobs.get.mockRejectedValue(new Error("Blobs is down"));
+    await expect(readStoredContent()).rejects.toThrow("Blobs is down");
+  });
+
+  it("the public read fails when Blobs never answers", async () => {
+    vi.useFakeTimers();
+    blobs.get.mockReturnValue(new Promise(() => {}));
+    const read = expect(readStoredContent()).rejects.toThrow(/timed out/);
+    await vi.advanceTimersByTimeAsync(BLOBS_TIMEOUT_MS);
+    await read;
+    vi.useRealTimers();
+  });
+
+  it("the public read fails when the stored value is not an object", async () => {
+    blobs.get.mockResolvedValue(["unexpected"]);
+    await expect(readStoredContent()).rejects.toThrow();
+  });
+
+  it("the public read fails in a build without BLOBS_TOKEN", async () => {
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", "");
+    vi.stubEnv("BLOBS_TOKEN", "");
+    await expect(readStoredContent()).rejects.toThrow(/BLOBS_TOKEN/);
+  });
+
+  it("inside a function, the public read fails even without the NETLIFY variable", async () => {
+    vi.stubEnv("NETLIFY", "");
+    blobs.get.mockRejectedValue(new Error("Blobs is down"));
+    await expect(readStoredContent()).rejects.toThrow("Blobs is down");
+  });
+
+  it("still reads nothing, without an error, before anything is saved", async () => {
+    blobs.get.mockResolvedValue(null);
+    await expect(readStoredContent()).resolves.toEqual({});
+    expect(logged).not.toHaveBeenCalled();
+  });
+});
+
+describe("without CONTENT_STORE_FILE (Netlify Blobs), off Netlify", () => {
+  beforeEach(() => {
+    vi.stubEnv("CONTENT_STORE_FILE", "");
+    vi.stubEnv("NETLIFY", "");
+    vi.stubEnv("NETLIFY_BLOBS_CONTEXT", "");
+    vi.stubEnv("BLOBS_TOKEN", "");
   });
 
   // Edge reads can lag by up to 60 seconds, so a page rebuilt after a save could show the old value.

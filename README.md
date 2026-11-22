@@ -1,6 +1,6 @@
-# IncoTax Legal Services – Website
+# IncoTax Professional Services – Website
 
-Marketing website for **IncoTax Legal Services**, a tax and legal practice.
+Marketing website for **IncoTax Professional Services**, a tax and legal practice.
 Visitors contact the firm through WhatsApp. There is no client login.
 A small admin panel lets the firm edit site content.
 
@@ -155,5 +155,5 @@ monthly credits. Group small changes into one pull request instead of merging ma
 
 ## License
 
-Copyright © 2026 IncoTax Legal Services. All rights reserved.
+Copyright © 2026 IncoTax Professional Services. All rights reserved.
 This repository is public for reference only. See [LICENSE](LICENSE).

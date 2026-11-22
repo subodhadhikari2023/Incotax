@@ -14,7 +14,9 @@ describe("Footer", () => {
   it("shows the brand and tagline", () => {
     render(<Footer />);
 
-    expect(screen.getByText("IncoTax Legal Services", { selector: "p" })).toBeInTheDocument();
+    expect(
+      screen.getByText("IncoTax Professional Services", { selector: "p" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Your Trust, Our Commitment!")).toBeInTheDocument();
   });
 
@@ -76,7 +78,7 @@ describe("Footer", () => {
     const year = new Date().getFullYear();
 
     expect(
-      screen.getByText(`© ${year} IncoTax Legal Services. All rights reserved.`),
+      screen.getByText(`© ${year} IncoTax Professional Services. All rights reserved.`),
     ).toBeInTheDocument();
   });
 });

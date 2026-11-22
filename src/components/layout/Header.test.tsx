@@ -16,7 +16,7 @@ describe("Header", () => {
 
   it("shows the brand name and tagline, linking home", () => {
     render(<Header />);
-    const home = screen.getByRole("link", { name: /IncoTax Legal Services/ });
+    const home = screen.getByRole("link", { name: /IncoTax Professional Services/ });
 
     expect(home).toHaveAttribute("href", "/");
     expect(within(home).getByText("Your Trust, Our Commitment!")).toBeInTheDocument();

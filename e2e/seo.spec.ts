@@ -22,11 +22,11 @@ test("pages carry link-preview tags and the business's structured data", async (
   await page.goto("/contact");
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
     "content",
-    "Contact Us | IncoTax Legal Services",
+    "Contact Us | IncoTax Professional Services",
   );
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
     "content",
-    "IncoTax Legal Services",
+    "IncoTax Professional Services",
   );
   await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
     "content",
@@ -41,6 +41,6 @@ test("pages carry link-preview tags and the business's structured data", async (
   const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
   expect(JSON.parse(jsonLd ?? "{}")).toMatchObject({
     "@type": "LegalService",
-    name: "IncoTax Legal Services",
+    name: "IncoTax Professional Services",
   });
 });

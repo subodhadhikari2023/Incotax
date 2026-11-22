@@ -113,7 +113,7 @@ test("no accessibility violations on the login page, its error state or the pane
 }) => {
   const check = async () => {
     // After the login redirect the heading can appear just before the browser updates the title.
-    await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
+    await expect(page).toHaveTitle("Admin | IncoTax Professional Services");
     const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
     expect(violations).toEqual([]);
   };
@@ -137,7 +137,7 @@ const openFromOverview = async (page: Page, name: string) => {
 };
 
 const axeCheck = async (page: Page) => {
-  await expect(page).toHaveTitle("Admin | IncoTax Legal Services");
+  await expect(page).toHaveTitle("Admin | IncoTax Professional Services");
   const { violations } = await new AxeBuilder({ page }).withTags(wcag).analyze();
   expect(violations).toEqual([]);
 };

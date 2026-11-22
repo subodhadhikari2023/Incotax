@@ -12,7 +12,7 @@ describe("businessJsonLd", () => {
     expect(businessJsonLd()).toMatchObject({
       "@context": "https://schema.org",
       "@type": "LegalService",
-      name: "IncoTax Legal Services",
+      name: "IncoTax Professional Services",
       slogan: "Your Trust, Our Commitment!",
       url: "https://example.test",
       founder: [

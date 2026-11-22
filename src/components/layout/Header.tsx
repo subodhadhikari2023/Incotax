@@ -112,7 +112,7 @@ export function Header() {
         <Link href="/" className="flex min-w-0 items-center gap-3">
           {/* The emblem is decorative: the brand name beside it is the link's text. */}
           <Image
-            src="/logo/incotax-icon.svg"
+            src="/logo/incotax-icon.png"
             alt=""
             width={48}
             height={48}
@@ -121,7 +121,7 @@ export function Header() {
             className="size-12 shrink-0"
           />
           <span className="min-w-0">
-            <span className="block font-heading text-[22px] leading-[1.1] font-bold text-navy md:text-[28px]">
+            <span className="block font-heading text-[18px] leading-[1.1] font-bold text-navy md:text-[28px]">
               {site.name}
             </span>
             <span className="block text-[13px] text-text-muted">{site.tagline}</span>

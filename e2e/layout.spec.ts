@@ -25,7 +25,7 @@ test("header shows the right parts at this width", async ({ page }, testInfo) =>
 
 test("brand name in the header stays on one line", async ({ page }) => {
   await page.goto("/");
-  const brand = page.getByRole("banner").getByText("IncoTax Legal Services");
+  const brand = page.getByRole("banner").getByText("IncoTax Professional Services");
   const { height, lineHeight } = await brand.evaluate((el) => ({
     height: el.getBoundingClientRect().height,
     lineHeight: parseFloat(getComputedStyle(el).lineHeight),

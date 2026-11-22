@@ -34,7 +34,7 @@ export function Footer({ business = site }: { business?: BusinessNodes }) {
         <div className="grid gap-10 md:grid-cols-2 md:gap-y-12 lg:grid-cols-4">
           <div>
             <Image
-              src="/logo/incotax-icon-on-dark.svg"
+              src="/logo/incotax-icon-on-dark.png"
               alt=""
               width={56}
               height={56}

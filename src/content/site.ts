@@ -1,7 +1,7 @@
 // Business details shown across the site. Bracketed values are PENDING:
 // replace them here when Zeeshan sends the real details.
 export const site = {
-  name: "IncoTax Legal Services",
+  name: "IncoTax Professional Services",
   tagline: "Your Trust, Our Commitment!",
   phone: "+91 88937 89730",
   email: "info@incotax.in",
